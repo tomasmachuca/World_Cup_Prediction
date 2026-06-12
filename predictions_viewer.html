@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Cup 2026 — PRODE Predictions (Scientific)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0e1a 0%, #1a1040 50%, #0a0e1a 100%);
+      color: #f0f2f8;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: rgba(26, 31, 53, 0.7);
+      border-radius: 12px;
+      border: 1px solid rgba(240, 180, 41, 0.3);
+    }
+    
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #f0b429, #f59e0b);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      color: #8b92a8;
+      font-size: 1.1em;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .stat-box {
+      background: rgba(34, 211, 238, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 3px solid #22d3ee;
+    }
+    
+    .stat-label {
+      color: #8b92a8;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+    
+    .stat-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #22d3ee;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      padding: 10px 20px;
+      background: rgba(240, 180, 41, 0.2);
+      border: 1px solid rgba(240, 180, 41, 0.5);
+      color: #f0b429;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+      background: #f0b429;
+      color: #0a0e1a;
+    }
+    
+    .predictions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    
+    .prediction-card {
+      background: rgba(26, 31, 53, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 25px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .prediction-card:hover {
+      border-color: rgba(240, 180, 41, 0.3);
+      background: rgba(26, 31, 53, 0.95);
+      transform: translateY(-5px);
+    }
+    
+    .confidence-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, rgba(240, 180, 41, 0.2), rgba(240, 180, 41, 0.05));
+      border-radius: 0 12px;
+    }
+    
+    .match-title {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .team {
+      flex: 1;
+      text-align: center;
+    }
+    
+    .team-name {
+      font-weight: 600;
+      color: #f0f2f8;
+      margin-bottom: 5px;
+    }
+    
+    .team-elo {
+      font-size: 0.85em;
+      color: #8b92a8;
+    }
+    
+    .vs {
+      color: #555d75;
+      margin: 0 15px;
+      font-size: 0.9em;
+    }
+    
+    .prediction-box {
+      background: rgba(34, 211, 238, 0.1);
+      border: 2px solid #22d3ee;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .prediction-result {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .pred-option {
+      text-align: center;
+      flex: 1;
+    }
+    
+    .pred-option.selected {
+      color: #f0b429;
+    }
+    
+    .pred-label {
+      font-size: 0.85em;
+      color: #8b92a8;
+      margin-bottom: 3px;
+    }
+    
+    .pred-value {
+      font-size: 1.4em;
+      font-weight: bold;
+    }
+    
+    .confidence-bar {
+      background: rgba(255, 255, 255, 0.1);
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    
+    .confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #34d399, #f0b429);
+      transition: width 0.5s;
+    }
+    
+    .expected-goals {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 0.9em;
+      color: #8b92a8;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .expected-goals-value {
+      color: #22d3ee;
+      font-weight: 600;
+    }
+    
+    .prode-recommendation {
+      background: linear-gradient(135deg, rgba(240, 180, 41, 0.1), rgba(192, 132, 252, 0.1));
+      border: 1px solid rgba(240, 180, 41, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .prode-label {
+      font-size: 0.8em;
+      color: #8b92a8;
+      margin-bottom: 5px;
+    }
+    
+    .prode-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #f0b429;
+    }
+    
+    .confidence-level {
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+    
+    .confidence-very-high {
+      color: #34d399;
+    }
+    
+    .confidence-high {
+      color: #f59e0b;
+    }
+    
+    .confidence-medium {
+      color: #f97316;
+    }
+    
+    .confidence-low {
+      color: #ef4444;
+    }
+    
+    .elo-advantage {
+      font-size: 0.85em;
+      color: #8b92a8;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .elo-advantage strong {
+      color: #22d3ee;
+    }
+    
+    footer {
+      text-align: center;
+      color: #555d75;
+      font-size: 0.9em;
+      margin-top: 40px;
+      padding: 20px;
+    }
+    
+    .legend {
+      background: rgba(26, 31, 53, 0.7);
+      border: 1px solid rgba(240, 180, 41, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .legend-color {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .legend-text {
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🏆 World Cup 2026 PRODE Predictions</h1>
+      <p class="subtitle">Advanced Prediction Engine — Scientific Edition</p>
+      <div class="stats" id="statsContainer">
+        <div class="stat-box">
+          <div class="stat-label">Model Accuracy</div>
+          <div class="stat-value">66.28%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Test Predictions</div>
+          <div class="stat-value">57/86</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Teams Analyzed</div>
+          <div class="stat-value">154</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Training Matches</div>
+          <div class="stat-value">573</div>
+        </div>
+      </div>
+    </header>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(52, 211, 153, 0.3); border: 2px solid #34d399;">🟢</div>
+        <div class="legend-text"><strong>VERY HIGH (≥50%)</strong> — Strong confidence</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(245, 158, 11, 0.3); border: 2px solid #f59e0b;">🟡</div>
+        <div class="legend-text"><strong>HIGH (40-50%)</strong> — Reasonable confidence</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(249, 115, 22, 0.3); border: 2px solid #f97316;">🟠</div>
+        <div class="legend-text"><strong>MEDIUM (35-40%)</strong> — Apply caution</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(239, 68, 68, 0.3); border: 2px solid #ef4444;">🔴</div>
+        <div class="legend-text"><strong>LOW (<35%)</strong> — Uncertain</div>
+      </div>
+    </div>
+    
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterPredictions('all')">All Predictions</button>
+      <button class="filter-btn" onclick="filterPredictions('very-high')">🟢 Very High</button>
+      <button class="filter-btn" onclick="filterPredictions('high')">🟡 High</button>
+      <button class="filter-btn" onclick="filterPredictions('medium')">🟠 Medium</button>
+    </div>
+    
+    <div class="predictions-grid" id="predictionsGrid">
+      <!-- Predictions will be loaded here -->
+    </div>
+    
+    <footer>
+      <p>Generated: 2026-06-12 | Model: Dixon-Coles Poisson Regression + ELO Integration</p>
+      <p>Prediction accuracy validated against historical data. No generic results (1-1 or all draws).</p>
+    </footer>
+  </div>
+  
+  <script>
+    let allPredictions = [];
+    
+    async function loadPredictions() {
+      try {
+        const response = await fetch('predictions.json');
+        allPredictions = await response.json();
+        displayPredictions(allPredictions);
+      } catch (error) {
+        console.error('Error loading predictions:', error);
+        document.getElementById('predictionsGrid').innerHTML = 
+          '<p style="grid-column: 1/-1; text-align: center; color: #f87171;">Error loading predictions. Make sure predictions.json is in the same directory.</p>';
+      }
+    }
+    
+    function getConfidenceLevel(confidence) {
+      if (confidence >= 50) return 'very-high';
+      if (confidence >= 40) return 'high';
+      if (confidence >= 35) return 'medium';
+      return 'low';
+    }
+    
+    function getConfidenceBadge(confidence) {
+      const level = getConfidenceLevel(confidence);
+      const badges = {
+        'very-high': '🟢 VERY HIGH',
+        'high': '🟡 HIGH',
+        'medium': '🟠 MEDIUM',
+        'low': '🔴 LOW'
+      };
+      return badges[level];
+    }
+    
+    function displayPredictions(predictions) {
+      const grid = document.getElementById('predictionsGrid');
+      grid.innerHTML = '';
+      
+      predictions.forEach(pred => {
+        const confidenceLevel = getConfidenceLevel(pred.confidence);
+        const isPRODE = pred.prode !== '?';
+        
+        const card = document.createElement('div');
+        card.className = `prediction-card level-${confidenceLevel}`;
+        
+        const prodeStr = isPRODE ? pred.prode : '?';
+        const prodeColor = isPRODE ? '#f0b429' : '#555d75';
+        
+        card.innerHTML = `
+          <div class="confidence-badge"></div>
+          
+          <div class="match-title">${pred.home} vs ${pred.away}</div>
+          
+          <div class="teams">
+            <div class="team">
+              <div class="team-name">${pred.home}</div>
+              <div class="team-elo">ELO: ${pred.homeELO.toFixed(0)}</div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="team">
+              <div class="team-name">${pred.away}</div>
+              <div class="team-elo">ELO: ${pred.awayELO.toFixed(0)}</div>
+            </div>
+          </div>
+          
+          <div class="expected-goals">
+            <span>Expected Goals:</span>
+            <span class="expected-goals-value">${pred.expectedGoals}</span>
+          </div>
+          
+          <div class="prediction-box">
+            <div class="prediction-result">
+              <div class="pred-option ${pred.prediction === '1' ? 'selected' : ''}">
+                <div class="pred-label">${pred.home}</div>
+                <div class="pred-value">${pred.probability_1}%</div>
+              </div>
+              <div class="pred-option ${pred.prediction === 'X' ? 'selected' : ''}">
+                <div class="pred-label">Draw</div>
+                <div class="pred-value">${pred.probability_X}%</div>
+              </div>
+              <div class="pred-option ${pred.prediction === '2' ? 'selected' : ''}">
+                <div class="pred-label">${pred.away}</div>
+                <div class="pred-value">${pred.probability_2}%</div>
+              </div>
+            </div>
+            <div class="confidence-bar">
+              <div class="confidence-fill" style="width: ${pred.confidence}%"></div>
+            </div>
+          </div>
+          
+          <div class="prode-recommendation">
+            <div class="prode-label">PRODE Recommendation</div>
+            <div class="prode-value" style="color: ${prodeColor};">${prodeStr}</div>
+            <div class="confidence-level confidence-${confidenceLevel}">
+              ${getConfidenceBadge(pred.confidence)} (${pred.confidence}%)
+            </div>
+          </div>
+          
+          <div class="elo-advantage">
+            Advantage: <strong>${pred.eloAdvantage > 0 ? pred.home : pred.away}</strong> 
+            (${Math.abs(pred.eloAdvantage * 100).toFixed(0)} pts)
+          </div>
+        `;
+        
+        grid.appendChild(card);
+      });
+    }
+    
+    function filterPredictions(level) {
+      // Update active button
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Filter predictions
+      if (level === 'all') {
+        displayPredictions(allPredictions);
+      } else {
+        const filtered = allPredictions.filter(p => getConfidenceLevel(p.confidence) === level);
+        displayPredictions(filtered);
+      }
+    }
+    
+    // Load predictions on page load
+    loadPredictions();
+  </script>
+</body>
+</html>
