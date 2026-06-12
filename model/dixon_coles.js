@@ -250,6 +250,23 @@ class DixonColesModel {
     this.allMatches = [];
   }
 
+  loadFromJSON(json) {
+    if (json.parameters) {
+      this.homeAdvantage = Number.isFinite(json.parameters.home_advantage) ? json.parameters.home_advantage : this.homeAdvantage;
+      this.rho = Number.isFinite(json.parameters.rho) ? json.parameters.rho : this.rho;
+    }
+
+    const teamData = json.all_teams || json.wc2026_teams || {};
+    this.teams = {};
+    for (const [team, ratings] of Object.entries(teamData)) {
+      this.teams[team] = {
+        attack: Number.isFinite(ratings.attack) ? ratings.attack : 0,
+        defense: Number.isFinite(ratings.defense) ? ratings.defense : 0,
+      };
+    }
+    this.teamList = Object.keys(this.teams).sort();
+  }
+
   prepareData(matches) {
     this.allMatches = matches;
 
@@ -844,6 +861,27 @@ class EloMLModel {
       sum += features[i] * weights[i];
     }
     return sum;
+  }
+
+  exportState() {
+    return {
+      elo: this.elo,
+      form: this.form,
+      weightsWin: this.weightsWin ? Array.from(this.weightsWin) : null,
+      weightsLoss: this.weightsLoss ? Array.from(this.weightsLoss) : null,
+      featureMeans: this.featureMeans ? Array.from(this.featureMeans) : null,
+      featureStds: this.featureStds ? Array.from(this.featureStds) : null,
+    };
+  }
+
+  loadFromState(state) {
+    if (!state) return;
+    this.elo = { ...state.elo };
+    this.form = { ...state.form };
+    if (state.weightsWin) this.weightsWin = new Float64Array(state.weightsWin);
+    if (state.weightsLoss) this.weightsLoss = new Float64Array(state.weightsLoss);
+    if (state.featureMeans) this.featureMeans = new Float64Array(state.featureMeans);
+    if (state.featureStds) this.featureStds = new Float64Array(state.featureStds);
   }
 
   _sigmoid(z) {

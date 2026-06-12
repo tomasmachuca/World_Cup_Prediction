@@ -8,7 +8,7 @@
  * =============================================================================
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import https from 'https';
@@ -124,16 +124,16 @@ function logPoisson(k, lambda) {
 }
 
 function dixonColesAdj(hg, ag, lh, la, rho) {
-  if (hg === 0 && ag === 0) return 1 - lh * la * rho;
-  if (hg === 0 && ag === 1) return 1 + lh * rho;
-  if (hg === 1 && ag === 0) return 1 + la * rho;
-  if (hg === 1 && ag === 1) return 1 - rho;
-  return 1.0;
+  let tau = 1.0;
+  if (hg === 0 && ag === 0) tau = 1 - lh * la * rho;
+  else if (hg === 0 && ag === 1) tau = 1 + lh * rho;
+  else if (hg === 1 && ag === 0) tau = 1 + la * rho;
+  else if (hg === 1 && ag === 1) tau = 1 - rho;
+  return Math.max(1e-6, tau);
 }
 
 function matchLL(hg, ag, lh, la, rho) {
   const tau = dixonColesAdj(hg, ag, lh, la, rho);
-  if (tau <= 0) return -1000;
   return logPoisson(hg, lh) + logPoisson(ag, la) + Math.log(tau);
 }
 
@@ -173,7 +173,8 @@ class DixonColesModel {
     const atk = this.teams[atkTeam]?.attack || 0;
     const def = this.teams[defTeam]?.defense || 0;
     const ha = isHome ? this.homeAdvantage : 0;
-    return Math.exp(atk - def + ha);
+    const exponent = Math.max(-20, Math.min(20, atk - def + ha));
+    return Math.exp(exponent);
   }
 
   totalLogLikelihood() {
@@ -182,11 +183,14 @@ class DixonColesModel {
       if (!this.teams[m.homeTeam] || !this.teams[m.awayTeam]) continue;
       const lh = this.getLambda(m.homeTeam, m.awayTeam, !m.neutral);
       const la = this.getLambda(m.awayTeam, m.homeTeam, false);
-      total += m.weight * matchLL(m.homeScore, m.awayScore, lh, la, this.rho);
+      const ll = matchLL(m.homeScore, m.awayScore, lh, la, this.rho);
+      if (!isFinite(ll)) continue;
+      total += m.weight * ll;
     }
     let reg = 0;
     for (const t of this.teamList) { reg += this.teams[t].attack ** 2 + this.teams[t].defense ** 2; }
-    return total - MODEL_CONFIG.LAMBDA_REG * reg;
+    const regularized = total - MODEL_CONFIG.LAMBDA_REG * reg;
+    return Number.isFinite(regularized) ? regularized : -1e18;
   }
 
   optimizationStep() {
@@ -208,15 +212,18 @@ class DixonColesModel {
     }
 
     this.homeAdvantage += eps;
-    const gha = (this.totalLogLikelihood() - baseLL) / eps;
+    let gha = (this.totalLogLikelihood() - baseLL) / eps;
+    if (!isFinite(gha)) gha = 0;
     this.homeAdvantage -= eps;
     this.homeAdvantage += lr * gha;
+    this.homeAdvantage = Math.max(0.01, Math.min(0.8, this.homeAdvantage));
 
     this.rho += eps;
-    const grho = (this.totalLogLikelihood() - baseLL) / eps;
+    let grho = (this.totalLogLikelihood() - baseLL) / eps;
+    if (!isFinite(grho)) grho = 0;
     this.rho -= eps;
     this.rho += lr * 0.1 * grho;
-    this.rho = Math.max(-0.5, Math.min(0.5, this.rho));
+    this.rho = Math.max(-0.4, Math.min(0.4, this.rho));
 
     const avgDef = this.teamList.reduce((s, t) => s + this.teams[t].defense, 0) / this.teamList.length;
     for (const t of this.teamList) this.teams[t].defense -= avgDef;
@@ -226,12 +233,25 @@ class DixonColesModel {
 
   train(onProgress) {
     const maxIter = MODEL_CONFIG.MAX_ITERATIONS;
-    let bestLL = -Infinity, noImprove = 0;
+    let bestLL = this.totalLogLikelihood();
+    if (!isFinite(bestLL)) bestLL = -1e18;
+    let noImprove = 0;
+
     for (let i = 0; i < maxIter; i++) {
       const ll = this.optimizationStep();
+      if (!isFinite(ll)) {
+        if (onProgress) onProgress(i, maxIter, NaN);
+        console.warn('[TRAIN] deteniendo porque LL no es finito en la iteración', i);
+        break;
+      }
       if (onProgress && i % 20 === 0) onProgress(i, maxIter, ll);
-      if (ll > bestLL + 0.01) { bestLL = ll; noImprove = 0; }
-      else { noImprove++; if (noImprove > 100) break; }
+      if (ll > bestLL + 0.01) {
+        bestLL = ll;
+        noImprove = 0;
+      } else {
+        noImprove++;
+        if (noImprove > 100) break;
+      }
     }
     return bestLL;
   }
@@ -285,6 +305,9 @@ class DixonColesModel {
         rho: Math.round(this.rho * 10000) / 10000,
       },
       wc2026_teams: wcTeams,
+      recent_matches: Object.fromEntries(
+        WC2026_TEAMS_NORMALIZED.map(team => [team, this.getRecentMatches(team, 15)])
+      ),
       all_teams: Object.fromEntries(
         Object.entries(this.teams).map(([k, v]) => [k, {
           attack: Math.round(v.attack * 10000) / 10000,
@@ -348,6 +371,7 @@ async function main() {
   const model = new DixonColesModel();
   const stats = model.prepareData(matches);
   console.log(`\n[MODEL] Datos de entrenamiento: ${stats.totalMatches.toLocaleString()} partidos, ${stats.totalTeams} equipos`);
+  console.log('[MODEL] Log-likelihood inicial:', model.totalLogLikelihood());
 
   // Step 4: Train
   console.log('[MODEL] Entrenando Dixon-Coles...\n');
@@ -383,7 +407,9 @@ async function main() {
     }
   }
 
-  const recentCsvPath = join(__dirname, '..', 'data', 'wc2026_recent15.csv');
+  const dataDir = join(__dirname, '..', 'data');
+  if (!existsSync(dataDir)) mkdirSync(dataDir, { recursive: true });
+  const recentCsvPath = join(dataDir, 'wc2026_recent15.csv');
   writeFileSync(recentCsvPath, csvOutput, 'utf-8');
   console.log(`[CSV] wc2026_recent15.csv guardado → ${recentCsvPath}`);
   console.log(`[CSV] ${teamCount} selecciones · ${csvOutput.split('\n').length - 2} registros`);

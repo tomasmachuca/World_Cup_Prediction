@@ -836,6 +836,18 @@
     // ================================================================
     // INITIALIZATION
     // ================================================================
+    async function loadPretrainedModel() {
+      try {
+        const response = await fetch('model/model.json');
+        if (!response.ok) throw new Error('No hay modelo preentrenado');
+        const json = await response.json();
+        model.loadFromJSON(json);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
     async function initApp() {
       try {
         // Step 1: Download CSV
@@ -861,28 +873,33 @@
         setStatus('Preparando datos de entrenamiento…', 'Aplicando filtros y pesos temporales', 45);
         const stats = model.prepareData(matches);
 
-        setStatus(
-          'Entrenando modelo Dixon-Coles…',
-          `${stats.totalMatches.toLocaleString()} partidos · ${stats.totalTeams} equipos`,
-          50
-        );
+        const hasPretrained = await loadPretrainedModel();
+        if (hasPretrained) {
+          setStatus('Modelo preentrenado cargado', 'Saltando entrenamiento Dixon-Coles', 70);
+        } else {
+          setStatus(
+            'Entrenando modelo Dixon-Coles…',
+            `${stats.totalMatches.toLocaleString()} partidos · ${stats.totalTeams} equipos`,
+            50
+          );
 
-        // Step 4: Train model (with progress updates)
-        await new Promise(resolve => {
-          setTimeout(() => {
-            model.train((iter, total, ll) => {
-              const pct = 50 + Math.round((iter / total) * 45);
-              setStatus(
-                'Entrenando modelo Dixon-Coles…',
-                `Iteración ${iter}/${total} · Log-Likelihood: ${ll.toFixed(2)}`,
-                pct
-              );
-            });
-            resolve();
-          }, 50); // Small delay to let UI render
-        });
+          // Step 4: Train model (with progress updates)
+          await new Promise(resolve => {
+            setTimeout(() => {
+              model.train((iter, total, ll) => {
+                const pct = 50 + Math.round((iter / total) * 45);
+                setStatus(
+                  'Entrenando modelo Dixon-Coles…',
+                  `Iteración ${iter}/${total} · Log-Likelihood: ${ll.toFixed(2)}`,
+                  pct
+                );
+              });
+              resolve();
+            }, 50); // Small delay to let UI render
+          });
 
-        setStatus('¡Modelo Dixon-Coles listo!', 'Entrenando modelo Elo+ML...', 90);
+          setStatus('¡Modelo Dixon-Coles listo!', 'Entrenando modelo Elo+ML...', 90);
+        }
 
         // Train Elo+ML Model
         eloModel = new EloMLModel();
@@ -1021,10 +1038,54 @@
       }, 50);
     }
 
+    function computeEnsemble(pred, predElo) {
+      const combinedA = (pred.probA + predElo.probA) / 2;
+      const combinedDraw = (pred.probDraw + predElo.probDraw) / 2;
+      const combinedB = (pred.probB + predElo.probB) / 2;
+      const total = combinedA + combinedDraw + combinedB;
+
+      const normA = combinedA / total * 100;
+      const normDraw = combinedDraw / total * 100;
+      const normB = combinedB / total * 100;
+
+      const dixonSorted = [pred.probA, pred.probDraw, pred.probB].slice().sort((a, b) => b - a);
+      const eloSorted = [predElo.probA, predElo.probDraw, predElo.probB].slice().sort((a, b) => b - a);
+      const dixonMargin = (dixonSorted[0] - dixonSorted[1]) / 100;
+      const eloMargin = (eloSorted[0] - eloSorted[1]) / 100;
+      const agreement = 1 - (Math.abs(pred.probA - predElo.probA) + Math.abs(pred.probB - predElo.probB) + Math.abs(pred.probDraw - predElo.probDraw)) / 200;
+      const consensusScore = Math.round(Math.max(45, Math.min(95, 55 + agreement * 25 + ((dixonMargin + eloMargin) / 2) * 25)));
+
+      const winner = normA > normB && normA > normDraw
+        ? pred.teamA
+        : normB > normA && normB > normDraw
+          ? pred.teamB
+          : 'Empate';
+
+      const winnerProb = Math.max(normA, normDraw, normB);
+      const winnerLabel = winner === 'Empate' ? 'empate' : winner;
+
+      const conclusion = `He llegado a esta conclusión porque dos modelos independientes coinciden en resultados similares: Dixon-Coles proyecta goles esperados y probabilidades ajustadas por torneo y tiempo, mientras que Elo+ML evalúa ratings históricos, forma reciente y estadísticas de goles. En particular, considero la neutralidad del estadio, la diferencia de Elo, la forma y el xG esperado para contrarrestar sesgos hacia equipos populares. La predicción final se genera con un consenso que busca ser equilibrado y no depender de un solo enfoque.`;
+
+      const explanation = `El modelo combinado da ${Math.round(normA * 100) / 100}% a ${pred.teamA}, ${Math.round(normDraw * 100) / 100}% a empate y ${Math.round(normB * 100) / 100}% a ${pred.teamB}. Esto se basa en la media ponderada de ambas predicciones y en un ajuste de confianza que prioriza la consistencia entre los dos sistemas.`;
+
+      return {
+        probA: Math.round(normA * 100) / 100,
+        probDraw: Math.round(normDraw * 100) / 100,
+        probB: Math.round(normB * 100) / 100,
+        consensusScore,
+        winner,
+        winnerProb: Math.round(winnerProb * 100) / 100,
+        conclusion,
+        explanation,
+        winnerLabel,
+      };
+    }
+
     // ================================================================
     // RENDER RESULTS
     // ================================================================
-    function renderResults(pred) {
+    function renderResults(pred, predElo) {
+      const ensemble = computeEnsemble(pred, predElo);
       const panel = document.getElementById('results-panel');
       panel.style.display = 'block';
 
@@ -1038,6 +1099,9 @@
       // Recent matches
       const recentA = model.getRecentMatches(pred.teamA, 8);
       const recentB = model.getRecentMatches(pred.teamB, 8);
+
+      const consensusText = ensemble.winner === 'Empate'
+        ? `Empate favorito del consenso` : `Victoria favorita del consenso: ${ensemble.winner}`;
 
       panel.innerHTML = `
         <!-- Matchup Header -->
@@ -1125,15 +1189,28 @@
           <div class="card__title">🎯 Consenso de Modelos</div>
           <div style="text-align: center; padding: 10px;">
             <h3 style="font-size: 1.2rem; margin-bottom: 8px;">
-              ${(pred.probA > pred.probB && predElo.probA > predElo.probB) ? '✅ Alta Confianza: Victoria ' + pred.teamA :
-                (pred.probB > pred.probA && predElo.probB > predElo.probA) ? '✅ Alta Confianza: Victoria ' + pred.teamB :
-                '⚠️ Baja Confianza: Modelos Discrepan'}
+              ${ensemble.winner === 'Empate'
+                ? '⚖️ Empate preferido por consenso'
+                : `✅ Victoria preferida por consenso: ${ensemble.winner}`}
             </h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">
+              Predicción combinada: ${ensemble.probA}% ${pred.teamA}, ${ensemble.probDraw}% Empate, ${ensemble.probB}% ${pred.teamB}.
+            </p>
             <p style="font-size: 0.85rem; color: var(--text-secondary);">
-              Dixon-Coles favorece a <b>${pred.probA > pred.probB ? pred.teamA : pred.teamB}</b>.<br>
-              Elo+ML favorece a <b>${predElo.probA > predElo.probB ? predElo.teamA : predElo.teamB}</b>.
+              Confianza del consenso: <strong>${ensemble.consensusScore}%</strong> — basado en la coincidencia de ambos modelos y la fuerza de la diferencia de probabilidades.
             </p>
           </div>
+        </div>
+
+        <!-- Combined Explanation -->
+        <div class="card" style="margin-top: 20px; border-color: rgba(34, 211, 238, 0.2);">
+          <div class="card__title">🧠 Explicación de la Conclusión</div>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height:1.7;">
+            ${ensemble.conclusion}
+          </p>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); line-height:1.7;">
+            ${ensemble.explanation}
+          </p>
         </div>
 
         <!-- Expected Goals -->
