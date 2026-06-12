@@ -1,0 +1,42 @@
+name: Update predictions & standings
+
+# Refreshes the dataset, retrains the model and commits the regenerated
+# model.json / fixture.json / standings.json. GitHub Pages redeploys on push,
+# so the live site updates automatically as new results come in.
+
+on:
+  schedule:
+    - cron: "0 12 * * *"   # daily at 12:00 UTC
+  workflow_dispatch: {}     # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install numpy scipy pandas
+
+      - name: Refresh international results dataset
+        run: |
+          curl -sSL https://raw.githubusercontent.com/martj42/international_results/master/results.csv \
+            -o data/international_results.csv
+
+      - name: Retrain and regenerate outputs
+        run: python train_advanced.py
+
+      - name: Commit updated artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add model/model.json fixture.json standings.json predictions.json analysis.txt data/international_results.csv
+          git diff --staged --quiet || git commit -m "chore: auto-update predictions & standings [skip ci]"
+          git push
