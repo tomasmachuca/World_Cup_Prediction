@@ -338,20 +338,20 @@
       <p class="subtitle">Advanced Prediction Engine — Scientific Edition</p>
       <div class="stats" id="statsContainer">
         <div class="stat-box">
-          <div class="stat-label">Model Accuracy</div>
-          <div class="stat-value">66.28%</div>
+          <div class="stat-label">Holdout Accuracy (1X2)</div>
+          <div class="stat-value" id="statAccuracy">—</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Test Predictions</div>
-          <div class="stat-value">57/86</div>
+          <div class="stat-label">Brier / LogLoss</div>
+          <div class="stat-value" id="statScores">—</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Teams Analyzed</div>
-          <div class="stat-value">154</div>
+          <div class="stat-value" id="statTeams">—</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Training Matches</div>
-          <div class="stat-value">573</div>
+          <div class="stat-value" id="statMatches">—</div>
         </div>
       </div>
     </header>
@@ -395,8 +395,20 @@
   <script>
     let allPredictions = [];
     
+    async function loadStats() {
+      try {
+        const m = await (await fetch('model/model.json')).json();
+        const v = m.validation || {};
+        if (v.accuracy != null) document.getElementById('statAccuracy').textContent = v.accuracy + '%';
+        if (v.brierScore != null) document.getElementById('statScores').textContent = v.brierScore + ' / ' + v.logLoss;
+        if (m.teamsCount != null) document.getElementById('statTeams').textContent = m.teamsCount;
+        if (m.totalTrainingSamples != null) document.getElementById('statMatches').textContent = m.totalTrainingSamples;
+      } catch (e) { /* stats are best-effort */ }
+    }
+
     async function loadPredictions() {
       try {
+        loadStats();
         const response = await fetch('predictions.json');
         allPredictions = await response.json();
         displayPredictions(allPredictions);

@@ -5,13 +5,14 @@
 
 📊 EXECUTIVE SUMMARY
 ────────────────────────────────────────────────────────────────────────────────
-This analysis provides exact PRODE recommendations for the 2026 FIFA World Cup
-based on the Dixon-Coles Poisson regression model trained on 573 international
-matches from 2021-2026, covering 154 national teams.
+This analysis provides PRODE recommendations for the 2026 FIFA World Cup based on
+a Dixon-Coles + ML ensemble trained on ~11,000 international matches (2015-2026),
+covering 295 national teams.
 
-Model Accuracy: 66.28% (57/86 correct predictions in test set)
-Calibration Level: 99% confidence intervals
-Prediction Type: Not generic (1-1 or all draws), but individualized per match
+Model Accuracy: ~60% on a temporal holdout of ~1,980 matches (1X2), out-of-sample
+Calibration: Temperature-scaled, well-calibrated (Brier ~0.50, log-loss ~0.86)
+Prediction Type: Individualized per match (not generic 1-1 / all-draws)
+Note: ~70-73% is the realistic ceiling for international 1X2 with public data.
 
 ════════════════════════════════════════════════════════════════════════════════
 
@@ -364,17 +365,17 @@ EV Formula: (Probability × 3.0) - 1.0
 
 ════════════════════════════════════════════════════════════════════════════════
 
-Model Version:        3.0 — Advanced Scientific Edition
-Training Samples:     573 international matches (2021-2026)
-Teams Analyzed:       154 national teams
-Test Accuracy:        66.28% (57/86 correct)
-Algorithm:            Dixon-Coles Poisson Regression + ELO Integration
-Calibration:          99% confidence intervals
-Computation Method:   Gradient descent optimization (500 iterations)
+Model Version:        4.0 — Scientific Edition
+Training Samples:     ~11,000 international matches (2015-2026)
+Teams Analyzed:       295 national teams
+Holdout Accuracy:     ~60% (1X2, temporal out-of-sample, ~1,980 matches)
+Algorithm:            Dixon-Coles bivariate Poisson + ML ensemble, Elo-based
+Calibration:          Temperature scaling (Brier ~0.50, log-loss ~0.86)
+Computation Method:   Penalised MLE via scipy L-BFGS-B + exponential time decay
 Normalization:        Zero-mean parameter centering
 Rho Factor:           Correction for (0-0), (1-0), (0-1), (1-1)
-Home Advantage:       -0.2595 (slight away advantage in model period)
-ELO K-factor:         32 (friendlies), 50 (tournaments), 60 (World Cup)
+Home Advantage:       +0.16 log-goals (x1.18 scoring rate at home venues)
+ELO K-factor:         20 (friendlies), 40-50 (tournaments), 60 (World Cup)
 
 Generated: 2026-06-12 17:50:43 UTC
 Scientist: Advanced Analytics Team

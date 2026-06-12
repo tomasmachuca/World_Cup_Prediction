@@ -2,749 +2,1144 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-  WORLD CUP 2026 PREDICTION ENGINE — Advanced Scientific Training
+  WORLD CUP 2026 PREDICTION ENGINE  -  Scientific Training Pipeline
 ================================================================================
-  Author: Data Science Team
-  Purpose: Train Dixon-Coles + ML Ensemble with 99% confidence calibration
-  Output: model.json + predictions.json + analysis.txt
+  Canonical, single-source-of-truth trainer for the WC2026 1X2 predictor.
+
+  Pipeline
+  --------
+    1. Load the team-centric CSV and reconstruct match-centric records.
+    2. Estimate Elo ratings (margin-of-victory + home-field aware).
+    3. Fit a Dixon-Coles bivariate Poisson model by penalised maximum
+       likelihood (scipy L-BFGS-B) with exponential temporal decay.
+    4. Optionally fit a feature-based ML model (multinomial logistic in pure
+       NumPy; scikit-learn gradient boosting if it happens to be installed).
+    5. Temperature-calibrate every model and blend them with a weight chosen
+       on a held-out slice.
+    6. Report HONEST, leakage-free temporal-holdout metrics:
+       accuracy, multiclass Brier score, log-loss and a calibration table.
+    7. Emit model/model.json (camelCase, frontend-ready), predictions.json
+       and analysis.txt.
+
+  Design notes
+  ------------
+    * The dataset stores every match twice (once from each team's point of
+      view) using columns: team, date, opponent, goals_scored,
+      goals_conceded, result, tournament, venue. We normalise to a single
+      directed (home, away) record and de-duplicate.
+    * Only NumPy + SciPy are required. Everything degrades gracefully if
+      scikit-learn is missing, which keeps the model fully reproducible
+      offline with no fragile dependencies.
+    * The model.json contract matches the corrected frontend:
+          lambda_home = exp(teamStrengthHome[home] + teamStrengthAway[away] + homeAdvantage)
+          lambda_away = exp(teamStrengthHome[away] + teamStrengthAway[home])
+      where teamStrengthHome = attack and teamStrengthAway = -defence.
+
+  Author : World Cup 2026 Predictor
 ================================================================================
 """
 
-import json
+from __future__ import annotations
+
 import csv
-import numpy as np
-from datetime import datetime, timedelta
+import json
+import math
+import os
 from collections import defaultdict
-from scipy.optimize import minimize
+from datetime import datetime
+
+import numpy as np
+from scipy.optimize import minimize, minimize_scalar
 from scipy.stats import poisson
-import warnings
-warnings.filterwarnings('ignore')
 
+# scikit-learn is optional. When present it is used purely as an additional
+# ensemble member; when absent the pure-NumPy logistic model is used instead.
 try:
-    from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.model_selection import cross_val_score
+    from sklearn.ensemble import HistGradientBoostingClassifier
     HAS_SKLEARN = True
-except ImportError:
+except Exception:  # pragma: no cover - depends on the environment
     HAS_SKLEARN = False
-    print("⚠️  scikit-learn not available. Using Dixon-Coles only.")
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+# Prefer the large public dataset (martj42 international results) when present;
+# fall back to the legacy curated CSV otherwise.
+_DATA_FULL = os.path.join(HERE, "data", "international_results.csv")
+_DATA_LEGACY = os.path.join(HERE, "data", "wc2026_recent15.csv")
+DATA_PATH = _DATA_FULL if os.path.exists(_DATA_FULL) else _DATA_LEGACY
+MODEL_PATH = os.path.join(HERE, "model", "model.json")
+PREDICTIONS_PATH = os.path.join(HERE, "predictions.json")
+FIXTURE_PATH = os.path.join(HERE, "fixture.json")
+STANDINGS_PATH = os.path.join(HERE, "standings.json")
+ANALYSIS_PATH = os.path.join(HERE, "analysis.txt")
+
+# Official FIFA World Cup 2026 group stage (final draw, 5 Dec 2025).
+# (date, group, home, away, city) using the model's team names.
+WC2026_FIXTURE = [
+    ("2026-06-11", "A", "Mexico", "South Africa", "Mexico City"),
+    ("2026-06-11", "A", "South Korea", "Czech Republic", "Guadalajara"),
+    ("2026-06-12", "B", "Canada", "Bosnia and Herzegovina", "Toronto"),
+    ("2026-06-12", "D", "United States", "Paraguay", "Los Angeles"),
+    ("2026-06-13", "B", "Qatar", "Switzerland", "San Francisco"),
+    ("2026-06-13", "C", "Brazil", "Morocco", "New Jersey"),
+    ("2026-06-13", "C", "Haiti", "Scotland", "Boston"),
+    ("2026-06-13", "D", "Australia", "Turkey", "Vancouver"),
+    ("2026-06-14", "E", "Germany", "Curaçao", "Houston"),
+    ("2026-06-14", "F", "Netherlands", "Japan", "Dallas"),
+    ("2026-06-14", "E", "Ivory Coast", "Ecuador", "Philadelphia"),
+    ("2026-06-14", "F", "Sweden", "Tunisia", "Guadalupe"),
+    ("2026-06-15", "H", "Spain", "Cabo Verde", "Atlanta"),
+    ("2026-06-15", "G", "Belgium", "Egypt", "Vancouver"),
+    ("2026-06-15", "H", "Saudi Arabia", "Uruguay", "Miami"),
+    ("2026-06-15", "G", "Iran", "New Zealand", "Los Angeles"),
+    ("2026-06-16", "I", "France", "Senegal", "New Jersey"),
+    ("2026-06-16", "I", "Iraq", "Norway", "Boston"),
+    ("2026-06-16", "J", "Argentina", "Algeria", "Kansas City"),
+    ("2026-06-16", "J", "Austria", "Jordan", "San Francisco"),
+    ("2026-06-17", "K", "Portugal", "DR Congo", "Houston"),
+    ("2026-06-17", "L", "England", "Croatia", "Dallas"),
+    ("2026-06-17", "L", "Ghana", "Panama", "Toronto"),
+    ("2026-06-17", "K", "Uzbekistan", "Colombia", "Mexico City"),
+    ("2026-06-18", "A", "Czech Republic", "South Africa", "Atlanta"),
+    ("2026-06-18", "B", "Switzerland", "Bosnia and Herzegovina", "Los Angeles"),
+    ("2026-06-18", "B", "Canada", "Qatar", "Vancouver"),
+    ("2026-06-18", "A", "Mexico", "South Korea", "Guadalajara"),
+    ("2026-06-19", "C", "Scotland", "Morocco", "Boston"),
+    ("2026-06-19", "D", "United States", "Australia", "Seattle"),
+    ("2026-06-19", "C", "Brazil", "Haiti", "Philadelphia"),
+    ("2026-06-19", "D", "Turkey", "Paraguay", "San Francisco"),
+    ("2026-06-20", "F", "Netherlands", "Sweden", "Houston"),
+    ("2026-06-20", "E", "Germany", "Ivory Coast", "Toronto"),
+    ("2026-06-20", "E", "Ecuador", "Curaçao", "Kansas City"),
+    ("2026-06-20", "F", "Tunisia", "Japan", "Guadalupe"),
+    ("2026-06-21", "H", "Spain", "Saudi Arabia", "Atlanta"),
+    ("2026-06-21", "G", "Belgium", "Iran", "Los Angeles"),
+    ("2026-06-21", "H", "Uruguay", "Cabo Verde", "Miami"),
+    ("2026-06-21", "G", "New Zealand", "Egypt", "Vancouver"),
+    ("2026-06-22", "J", "Argentina", "Austria", "Dallas"),
+    ("2026-06-22", "I", "France", "Iraq", "Philadelphia"),
+    ("2026-06-22", "I", "Norway", "Senegal", "New Jersey"),
+    ("2026-06-22", "J", "Jordan", "Algeria", "San Francisco"),
+    ("2026-06-23", "K", "Portugal", "Uzbekistan", "Houston"),
+    ("2026-06-23", "L", "England", "Ghana", "Boston"),
+    ("2026-06-23", "L", "Panama", "Croatia", "Toronto"),
+    ("2026-06-23", "K", "Colombia", "DR Congo", "Guadalajara"),
+    ("2026-06-24", "B", "Switzerland", "Canada", "Vancouver"),
+    ("2026-06-24", "B", "Bosnia and Herzegovina", "Qatar", "Seattle"),
+    ("2026-06-24", "C", "Scotland", "Brazil", "Miami"),
+    ("2026-06-24", "C", "Morocco", "Haiti", "Atlanta"),
+    ("2026-06-24", "A", "Czech Republic", "Mexico", "Mexico City"),
+    ("2026-06-24", "A", "South Africa", "South Korea", "Guadalupe"),
+    ("2026-06-25", "E", "Ecuador", "Germany", "New Jersey"),
+    ("2026-06-25", "E", "Curaçao", "Ivory Coast", "Philadelphia"),
+    ("2026-06-25", "F", "Japan", "Sweden", "Dallas"),
+    ("2026-06-25", "F", "Tunisia", "Netherlands", "Kansas City"),
+    ("2026-06-25", "D", "Turkey", "United States", "Los Angeles"),
+    ("2026-06-25", "D", "Paraguay", "Australia", "San Francisco"),
+    ("2026-06-26", "I", "Norway", "France", "Boston"),
+    ("2026-06-26", "I", "Senegal", "Iraq", "Toronto"),
+    ("2026-06-26", "H", "Cabo Verde", "Saudi Arabia", "Houston"),
+    ("2026-06-26", "H", "Uruguay", "Spain", "Guadalajara"),
+    ("2026-06-26", "G", "Egypt", "Iran", "Seattle"),
+    ("2026-06-26", "G", "New Zealand", "Belgium", "Vancouver"),
+    ("2026-06-27", "L", "Panama", "England", "New Jersey"),
+    ("2026-06-27", "L", "Croatia", "Ghana", "Philadelphia"),
+    ("2026-06-27", "K", "Colombia", "Portugal", "Miami"),
+    ("2026-06-27", "K", "DR Congo", "Uzbekistan", "Atlanta"),
+    ("2026-06-27", "J", "Algeria", "Austria", "Kansas City"),
+    ("2026-06-27", "J", "Jordan", "Argentina", "Dallas"),
+]
+
+# Only this matchday (round) is published in fixture.json. Bump to 2/3 and add
+# its kickoff times after retraining with the previous round's results.
+ACTIVE_MATCHDAY = 1
+
+# Kickoff time in Argentina time (UTC-3) for matchday 1. Converted from each
+# host city's local time; "(+1)" means it falls past midnight, next day in ARG.
+KICKOFF_ARG = {
+    ("Mexico", "South Africa"): "16:00",
+    ("South Korea", "Czech Republic"): "23:00",
+    ("Canada", "Bosnia and Herzegovina"): "16:00",
+    ("United States", "Paraguay"): "22:00",
+    ("Qatar", "Switzerland"): "16:00",
+    ("Brazil", "Morocco"): "19:00",
+    ("Haiti", "Scotland"): "22:00",
+    ("Australia", "Turkey"): "01:00 (+1)",
+    ("Germany", "Curaçao"): "14:00",
+    ("Netherlands", "Japan"): "17:00",
+    ("Ivory Coast", "Ecuador"): "20:00",
+    ("Sweden", "Tunisia"): "23:00",
+    ("Spain", "Cabo Verde"): "13:00",
+    ("Belgium", "Egypt"): "16:00",
+    ("Saudi Arabia", "Uruguay"): "19:00",
+    ("Iran", "New Zealand"): "22:00",
+    ("France", "Senegal"): "16:00",
+    ("Iraq", "Norway"): "19:00",
+    ("Argentina", "Algeria"): "22:00",
+    ("Austria", "Jordan"): "01:00 (+1)",
+    ("Portugal", "DR Congo"): "14:00",
+    ("England", "Croatia"): "17:00",
+    ("Ghana", "Panama"): "20:00",
+    ("Uzbekistan", "Colombia"): "23:00",
+}
+
+# K-factor per competition tier (Elo) and the relative weight a match carries
+# in the Dixon-Coles likelihood. Bigger tournaments matter more.
+TOURNAMENT_TIERS = [
+    ("FIFA World Cup qualification", 40, 1.3),  # check before plain "World Cup"
+    ("FIFA World Cup", 60, 1.6),
+    ("UEFA European Championship", 50, 1.4),
+    ("Copa America", 50, 1.4),
+    ("AFC Asian Cup", 50, 1.3),
+    ("African Cup of Nations", 50, 1.3),
+    ("Gold Cup", 45, 1.2),
+    ("UEFA Nations League", 45, 1.2),
+    ("CONCACAF Nations League", 45, 1.2),
+    ("Arab Cup", 30, 1.0),
+    ("Kirin Cup", 25, 0.9),
+    ("Friendly", 20, 0.8),
+]
+DEFAULT_K = 30
+DEFAULT_MATCH_WEIGHT = 1.0
+
+
+def tier_for(tournament: str):
+    """Return (K-factor, likelihood-weight) for a tournament name."""
+    for key, k, w in TOURNAMENT_TIERS:
+        if key.lower() in tournament.lower():
+            return k, w
+    return DEFAULT_K, DEFAULT_MATCH_WEIGHT
+
+
+# The 48 qualified squads come straight from the official fixture, so the
+# fixture is the single source of truth for who we predict.
+CORE_SQUADS = sorted({t for (_d, _g, h, a, _c) in WC2026_FIXTURE for t in (h, a)})
+
+# Normalise dataset spellings to our canonical names (used in the fixture).
+NAME_MAP = {
+    "Cape Verde": "Cabo Verde",
+    "Czechia": "Czech Republic",
+    "Türkiye": "Turkey",
+    "Turkiye": "Turkey",
+    "United States": "United States",
+    "South Korea": "South Korea",
+    "IR Iran": "Iran",
+    "Korea Republic": "South Korea",
+}
+
+
+def _norm(name: str) -> str:
+    name = (name or "").strip()
+    return NAME_MAP.get(name, name)
+
 
 # ============================================================================
-# PARTE 1: LECTURA DE DATOS
+# PART 1 - DATA LOADING (supports both CSV schemas)
 # ============================================================================
 
-def read_csv_data(filepath):
-    """Lee el CSV con datos de partidos recientes (2020-2026)"""
-    matches = []
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                try:
-                    match = {
-                        'date': row.get('date', ''),
-                        'home': row.get('home_team', row.get('homeTeam', '')).strip(),
-                        'away': row.get('away_team', row.get('awayTeam', '')).strip(),
-                        'goals_home': int(row.get('home_score', row.get('homeScore', 0))),
-                        'goals_away': int(row.get('away_score', row.get('awayScore', 0))),
-                        'tournament': row.get('tournament', 'Friendly'),
-                        'neutral': row.get('neutral', '').lower() == 'true',
-                    }
-                    matches.append(match)
-                except (ValueError, KeyError):
+def load_matches(filepath: str, cutoff: str = "2015-01-01"):
+    """
+    Load matches and return unique directed (home, away) records.
+
+    Two CSV schemas are supported automatically:
+      * match-centric : date, home_team, away_team, home_score, away_score,
+                        tournament, city, country, neutral   (martj42 dataset)
+      * team-centric  : team, date, opponent, goals_scored, goals_conceded,
+                        result, tournament, venue            (legacy curated)
+
+    Unplayed fixtures (NA scores) and matches before `cutoff` are dropped.
+    """
+    by_key = {}
+    skipped = 0
+    with open(filepath, "r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        match_centric = "home_team" in (reader.fieldnames or [])
+        for row in reader:
+            try:
+                date = (row.get("date") or "").strip()
+                if not date or date < cutoff:
+                    skipped += 1
                     continue
-    except FileNotFoundError:
-        print(f"❌ No se encontró {filepath}")
+                datetime.strptime(date, "%Y-%m-%d")
+                tournament = (row.get("tournament") or "Friendly").strip()
+
+                if match_centric:
+                    home = _norm(row.get("home_team"))
+                    away = _norm(row.get("away_team"))
+                    hs = (row.get("home_score") or "").strip()
+                    as_ = (row.get("away_score") or "").strip()
+                    if hs in ("", "NA", "NaN") or as_ in ("", "NA", "NaN"):
+                        skipped += 1          # unplayed fixture placeholder
+                        continue
+                    gh, ga = int(float(hs)), int(float(as_))
+                    neutral = (row.get("neutral") or "").strip().upper() in ("TRUE", "1")
+                else:
+                    team = _norm(row.get("team"))
+                    opp = _norm(row.get("opponent"))
+                    gs = int(float(row.get("goals_scored", "")))
+                    gc = int(float(row.get("goals_conceded", "")))
+                    venue = (row.get("venue") or "").strip().lower()
+                    neutral = venue == "neutral"
+                    if venue == "away":
+                        home, away, gh, ga = opp, team, gc, gs
+                    else:
+                        home, away, gh, ga = team, opp, gs, gc
+            except (ValueError, TypeError):
+                skipped += 1
+                continue
+
+            if not home or not away:
+                skipped += 1
+                continue
+
+            key = (date, home, away)
+            if key in by_key:
+                continue
+            k_factor, weight = tier_for(tournament)
+            by_key[key] = {
+                "date": date, "home": home, "away": away,
+                "goals_home": gh, "goals_away": ga,
+                "tournament": tournament, "neutral": neutral,
+                "k_factor": k_factor, "weight": weight,
+            }
+
+    matches = sorted(by_key.values(), key=lambda m: m["date"])
+    print(f"Loaded {len(matches)} unique matches "
+          f"({skipped} rows skipped) spanning {matches[0]['date']} -> {matches[-1]['date']}")
     return matches
 
+
 # ============================================================================
-# PARTE 2: PREPROCESAMIENTO Y FEATURE ENGINEERING
+# PART 2 - ELO RATINGS (margin-of-victory + home advantage)
 # ============================================================================
 
-def preprocess_matches(matches, cutoff_date='2021-01-01'):
-    """Filtra partidos recientes y crea features"""
-    filtered = []
-    
-    for match in matches:
-        try:
-            date = datetime.strptime(match['date'], '%Y-%m-%d')
-            if date >= datetime.strptime(cutoff_date, '%Y-%m-%d'):
-                filtered.append(match)
-        except ValueError:
-            continue
-    
-    # Ordenar cronológicamente
-    filtered.sort(key=lambda m: m['date'])
-    
-    print(f"✓ Datos cargados: {len(filtered)} partidos desde {cutoff_date}")
-    return filtered
-
-def calculate_team_stats(matches, team, as_home=None, days_lookback=1825):
+def estimate_elo(matches, hfa=65.0, base=1500.0):
     """
-    Calcula estadísticas de un equipo sin sesgo temporal.
-    days_lookback=1825 → últimos 5 años
+    World-Football-style Elo with a margin-of-victory multiplier and an
+    explicit home-field advantage. Ratings are updated chronologically.
     """
-    cutoff = datetime.now() - timedelta(days=days_lookback)
-    
-    relevant = []
+    elo = defaultdict(lambda: base)
     for m in matches:
-        try:
-            mdate = datetime.strptime(m['date'], '%Y-%m-%d')
-            if mdate < cutoff:
-                continue
-                
-            if as_home is None:
-                if team in [m['home'], m['away']]:
-                    relevant.append(m)
-            elif as_home and m['home'] == team:
-                relevant.append(m)
-            elif not as_home and m['away'] == team:
-                relevant.append(m)
-        except ValueError:
-            continue
-    
-    if not relevant:
-        return {
-            'games': 0,
-            'goals_for': 0.0,
-            'goals_against': 0.0,
-            'gf_per_game': 1.0,
-            'ga_per_game': 1.0,
-        }
-    
-    total_gf = 0
-    total_ga = 0
-    
-    for m in relevant:
-        if as_home is None or (as_home and m['home'] == team):
-            total_gf += m['goals_home'] if m['home'] == team else m['goals_away']
-            total_ga += m['goals_away'] if m['home'] == team else m['goals_home']
-        elif not as_home and m['away'] == team:
-            total_gf += m['goals_away']
-            total_ga += m['goals_home']
-    
-    games = len(relevant)
-    return {
-        'games': games,
-        'goals_for': total_gf,
-        'goals_against': total_ga,
-        'gf_per_game': total_gf / games if games > 0 else 1.0,
-        'ga_per_game': total_ga / games if games > 0 else 1.0,
-    }
+        home, away = m["home"], m["away"]
+        gh, ga = m["goals_home"], m["goals_away"]
 
-def estimate_elo(matches, teams):
-    """Calcula ratings ELO simplificados para todos los equipos"""
-    elo = {team: 1500 for team in teams}
-    
-    for match in matches:
-        home, away = match['home'], match['away']
-        if home not in elo or away not in elo:
-            continue
-        
-        # Diferencia actual
-        diff = elo[home] - elo[away]
-        expected_home = 1 / (1 + 10 ** (-diff / 400))
-        
-        # Resultado real (1=home win, 0.5=draw, 0=away win)
-        if match['goals_home'] > match['goals_away']:
-            result = 1
-        elif match['goals_home'] < match['goals_away']:
-            result = 0
+        adv = 0.0 if m["neutral"] else hfa
+        diff = (elo[home] + adv) - elo[away]
+        exp_home = 1.0 / (1.0 + 10 ** (-diff / 400.0))
+
+        if gh > ga:
+            result = 1.0
+        elif gh < ga:
+            result = 0.0
         else:
             result = 0.5
-        
-        # K-factor ajustado por tournament
-        k = 32
-        if 'World Cup' in match['tournament']:
-            k = 60
-        elif 'Euro' in match['tournament'] or 'Copa' in match['tournament']:
-            k = 50
-        
-        # Actualizar ELO
-        elo[home] += k * (result - expected_home)
-        elo[away] += k * ((1 - result) - (1 - expected_home))
-    
-    return elo
+
+        # Margin-of-victory multiplier (Hierarchy / FIFA-style).
+        gd = abs(gh - ga)
+        if gd <= 1:
+            mov = 1.0
+        elif gd == 2:
+            mov = 1.5
+        else:
+            mov = (11.0 + gd) / 8.0
+
+        k = m["k_factor"] * mov
+        delta = k * (result - exp_home)
+        elo[home] += delta
+        elo[away] -= delta
+    return dict(elo)
+
 
 # ============================================================================
-# PARTE 3: DIXON-COLES MODEL (Poisson Regression)
+# PART 3 - DIXON-COLES MODEL (penalised MLE via scipy)
 # ============================================================================
 
-class DixonColesModel:
+class DixonColes:
     """
-    Modelo Dixon-Coles: Regresión de Poisson independiente con ajuste por underdog.
-    Desarrollado por Dixon & Coles (1997) para predicción de fútbol.
+    Dixon-Coles bivariate-Poisson model.
+
+        log lambda_home = attack[home] - defence[away] + home_adv   (0 if neutral)
+        log lambda_away = attack[away] - defence[home]
+
+    Fitted by minimising the weighted negative log-likelihood with the
+    low-score dependence correction tau(.) and an exponential time-decay so
+    that recent matches dominate. Ridge + sum-to-zero penalties pin down the
+    otherwise unidentifiable additive level.
     """
-    
-    def __init__(self, xi=0.0025, learning_rate=0.001, max_iter=500):
-        self.xi = xi  # Parámetro de dependencia
-        self.learning_rate = learning_rate
-        self.max_iter = max_iter
-        self.team_strength_home = {}
-        self.team_strength_away = {}
-        self.home_advantage = 0.0
-        self.teams = set()
-    
+
+    def __init__(self, xi=0.0025, ridge=0.02):
+        self.xi = xi          # temporal decay per day
+        self.ridge = ridge    # L2 strength on team parameters
+        self.teams = []
+        self.idx = {}
+        self.attack = {}
+        self.defence = {}
+        self.home_adv = 0.0
+        self.rho = 0.0
+
+    # -- low-score correction -------------------------------------------------
+    @staticmethod
+    def _tau(gh, ga, lh, la, rho):
+        tau = np.ones_like(lh)
+        m00 = (gh == 0) & (ga == 0)
+        m10 = (gh == 1) & (ga == 0)
+        m01 = (gh == 0) & (ga == 1)
+        m11 = (gh == 1) & (ga == 1)
+        tau[m00] = 1.0 - lh[m00] * la[m00] * rho
+        tau[m01] = 1.0 + lh[m01] * rho
+        tau[m10] = 1.0 + la[m10] * rho
+        tau[m11] = 1.0 - rho
+        return tau
+
     def fit(self, matches):
-        """Entrena el modelo con máxima verosimilitud"""
-        print("\n🔬 Entrenando Dixon-Coles Model...")
-        
-        # Recopilar equipos
-        for match in matches:
-            self.teams.add(match['home'])
-            self.teams.add(match['away'])
-        
-        teams_list = sorted(list(self.teams))
-        
-        # Inicializar parámetros
-        self.team_strength_home = {t: 0.0 for t in teams_list}
-        self.team_strength_away = {t: 0.0 for t in teams_list}
-        self.home_advantage = 0.3
-        
-        # Gradient descent
-        for iteration in range(self.max_iter):
-            grad_home = defaultdict(float)
-            grad_away = defaultdict(float)
-            grad_ha = 0.0
-            ll = 0.0
-            
-            for match in matches:
-                home = match['home']
-                away = match['away']
-                gh = match['goals_home']
-                ga = match['goals_away']
-                
-                # Parámetros de intensidad de Poisson
-                lambda_h = np.exp(self.team_strength_home[home] + 
-                                self.team_strength_away[away] + 
-                                self.home_advantage)
-                lambda_a = np.exp(self.team_strength_away[home] + 
-                                self.team_strength_home[away])
-                
-                # Log-likelihood (Poisson)
-                ll -= (lambda_h - gh * np.log(lambda_h) + lambda_a - ga * np.log(lambda_a))
-                
-                # Ajuste Dixon-Coles para (0,0), (1,0), (0,1), (1,1)
-                rho = self._rho(lambda_h, lambda_a, gh, ga)
-                
-                # Gradientes
-                grad_home[home] += (gh - lambda_h) + self.xi * (
-                    self._drho_dlambdah(lambda_h, lambda_a, gh, ga) / rho if rho > 0 else 0
-                )
-                grad_away[away] += (gh - lambda_h) + self.xi * (
-                    self._drho_dlambdah(lambda_h, lambda_a, gh, ga) / rho if rho > 0 else 0
-                )
-                
-                grad_away[home] += (ga - lambda_a) + self.xi * (
-                    self._drho_dlambdaa(lambda_h, lambda_a, gh, ga) / rho if rho > 0 else 0
-                )
-                grad_home[away] += (ga - lambda_a) + self.xi * (
-                    self._drho_dlambdaa(lambda_h, lambda_a, gh, ga) / rho if rho > 0 else 0
-                )
-                
-                grad_ha += (gh - lambda_h)
-            
-            # Actualizar parámetros
-            for team in teams_list:
-                self.team_strength_home[team] += self.learning_rate * grad_home[team]
-                self.team_strength_away[team] += self.learning_rate * grad_away[team]
-            
-            self.home_advantage += self.learning_rate * grad_ha
-            
-            if (iteration + 1) % 50 == 0:
-                print(f"  Iteración {iteration + 1}/{self.max_iter} | LL: {ll:.2f}")
-        
-        # Normalizar para estabilidad
-        mean_home = np.mean(list(self.team_strength_home.values()))
-        mean_away = np.mean(list(self.team_strength_away.values()))
-        
-        for team in teams_list:
-            self.team_strength_home[team] -= mean_home
-            self.team_strength_away[team] -= mean_away
-        
-        print("✓ Dixon-Coles entrenado correctamente")
-    
-    def _rho(self, lh, la, gh, ga):
-        """Factor de ajuste Dixon-Coles"""
-        if gh == 0 and ga == 0:
-            return 1 - self.xi * lh * la
-        elif gh == 1 and ga == 0:
-            return 1 + self.xi * la
-        elif gh == 0 and ga == 1:
-            return 1 + self.xi * lh
-        elif gh == 1 and ga == 1:
-            return 1 - self.xi
-        return 1.0
-    
-    def _drho_dlambdah(self, lh, la, gh, ga):
-        if gh == 0 and ga == 0:
-            return -self.xi * la
-        elif gh == 1 and ga == 0:
-            return 0
-        elif gh == 0 and ga == 1:
-            return self.xi
-        elif gh == 1 and ga == 1:
-            return 0
-        return 0.0
-    
-    def _drho_dlambdaa(self, lh, la, gh, ga):
-        if gh == 0 and ga == 0:
-            return -self.xi * lh
-        elif gh == 1 and ga == 0:
-            return self.xi
-        elif gh == 0 and ga == 1:
-            return 0
-        elif gh == 1 and ga == 1:
-            return 0
-        return 0.0
-    
-    def predict_proba(self, home, away, max_goals=10):
-        """
-        Predice distribución de probabilidades para todos los posibles resultados.
-        Retorna matriz de probabilidades [resultado, prob_no_sesgada]
-        """
-        lambda_h = np.exp(self.team_strength_home.get(home, 0) + 
-                        self.team_strength_away.get(away, 0) + 
-                        self.home_advantage)
-        lambda_a = np.exp(self.team_strength_away.get(home, 0) + 
-                        self.team_strength_home.get(away, 0))
-        
-        # Calcular matriz de probabilidades
-        probs = {}
-        total_prob = 0.0
-        
-        for gh in range(max_goals):
-            for ga in range(max_goals):
-                p_home = poisson.pmf(gh, lambda_h)
-                p_away = poisson.pmf(ga, lambda_a)
-                
-                rho = self._rho(lambda_h, lambda_a, gh, ga)
-                
-                prob = p_home * p_away * rho
-                probs[f"{gh}-{ga}"] = prob
-                total_prob += prob
-        
-        # Normalizar
-        for key in probs:
-            probs[key] /= total_prob
-        
-        # Probabilidades de resultado
-        home_win = sum(p for k, p in probs.items() if int(k.split('-')[0]) > int(k.split('-')[1]))
-        draw = sum(p for k, p in probs.items() if int(k.split('-')[0]) == int(k.split('-')[1]))
-        away_win = sum(p for k, p in probs.items() if int(k.split('-')[0]) < int(k.split('-')[1]))
-        
-        return {
-            'probs': probs,
-            'home_win': home_win,
-            'draw': draw,
-            'away_win': away_win,
-            'lambda_home': lambda_h,
-            'lambda_away': lambda_a,
-        }
+        self.teams = sorted({m["home"] for m in matches} | {m["away"] for m in matches})
+        self.idx = {t: i for i, t in enumerate(self.teams)}
+        n = len(self.teams)
+
+        hi = np.array([self.idx[m["home"]] for m in matches])
+        ai = np.array([self.idx[m["away"]] for m in matches])
+        gh = np.array([m["goals_home"] for m in matches], dtype=float)
+        ga = np.array([m["goals_away"] for m in matches], dtype=float)
+        neutral = np.array([m["neutral"] for m in matches], dtype=float)
+
+        # Exponential temporal decay relative to the most recent match.
+        ref = max(datetime.strptime(m["date"], "%Y-%m-%d") for m in matches)
+        days = np.array([(ref - datetime.strptime(m["date"], "%Y-%m-%d")).days for m in matches])
+        decay = np.exp(-self.xi * days)
+        tw = np.array([m["weight"] for m in matches]) * decay  # total per-match weight
+
+        non_neut = 1.0 - neutral
+        m00 = (gh == 0) & (ga == 0)
+        m10 = (gh == 1) & (ga == 0)
+        m01 = (gh == 0) & (ga == 1)
+        m11 = (gh == 1) & (ga == 1)
+
+        def unpack(p):
+            return p[:n], p[n:2 * n], p[2 * n], p[2 * n + 1]
+
+        def nll_and_grad(p):
+            """Weighted negative log-likelihood with an ANALYTIC gradient.
+
+            The att/def/home_adv gradient uses the dominant Poisson term; rho
+            uses the exact tau gradient. The tiny tau-on-lambda coupling is left
+            to the optimiser's iterations - this keeps each evaluation O(matches)
+            instead of O(matches * params), which makes ~11k x ~300-team fits
+            run in seconds.
+            """
+            attack, defence, home_adv, rho = unpack(p)
+            log_lh = attack[hi] - defence[ai] + home_adv * non_neut
+            log_la = attack[ai] - defence[hi]
+            lh = np.exp(np.clip(log_lh, -4, 4))
+            la = np.exp(np.clip(log_la, -4, 4))
+
+            tau = self._tau(gh, ga, lh, la, rho)
+            tau = np.clip(tau, 1e-6, None)
+            log_p = gh * log_lh - lh + ga * log_la - la + np.log(tau)
+
+            obj = -np.sum(tw * log_p)
+            obj += self.ridge * (np.sum(attack ** 2) + np.sum(defence ** 2))
+            obj += 100.0 * (attack.mean() ** 2 + defence.mean() ** 2)
+
+            # ---- gradient ----
+            rh = tw * (gh - lh)          # d Poisson / d log_lh, weighted
+            ra = tw * (ga - la)
+            g_att = np.zeros(n)
+            g_def = np.zeros(n)
+            np.add.at(g_att, hi, rh)
+            np.add.at(g_att, ai, ra)
+            np.add.at(g_def, ai, -rh)
+            np.add.at(g_def, hi, -ra)
+            g_att = -g_att + 2 * self.ridge * attack + 200.0 * attack.mean() / n
+            g_def = -g_def + 2 * self.ridge * defence + 200.0 * defence.mean() / n
+            g_ha = -np.sum(rh * non_neut)
+
+            # rho gradient via exact d log(tau)/d rho on the four cells.
+            dlt = np.zeros_like(lh)
+            dlt[m00] = -lh[m00] * la[m00] / tau[m00]
+            dlt[m01] = lh[m01] / tau[m01]
+            dlt[m10] = la[m10] / tau[m10]
+            dlt[m11] = -1.0 / tau[m11]
+            g_rho = -np.sum(tw * dlt)
+
+            grad = np.concatenate([g_att, g_def, [g_ha], [g_rho]])
+            return obj, grad
+
+        x0 = np.zeros(2 * n + 2)
+        x0[2 * n] = 0.25  # sensible positive home advantage to start
+        bounds = [(-3, 3)] * (2 * n) + [(-1.0, 1.0), (-0.3, 0.3)]
+        res = minimize(nll_and_grad, x0, method="L-BFGS-B", jac=True,
+                       bounds=bounds, options={"maxiter": 500, "ftol": 1e-9})
+
+        attack, defence, home_adv, rho = unpack(res.x)
+        attack = attack - attack.mean()
+        defence = defence - defence.mean()
+        self.attack = {t: float(attack[i]) for t, i in self.idx.items()}
+        self.defence = {t: float(defence[i]) for t, i in self.idx.items()}
+        self.home_adv = float(home_adv)
+        self.rho = float(rho)
+        return self
+
+    def lambdas(self, home, away, neutral=False):
+        a = self.attack
+        d = self.defence
+        log_lh = a.get(home, 0.0) - d.get(away, 0.0) + (0.0 if neutral else self.home_adv)
+        log_la = a.get(away, 0.0) - d.get(home, 0.0)
+        return math.exp(log_lh), math.exp(log_la)
+
+    def predict_proba(self, home, away, neutral=False, max_goals=10):
+        """Closed-form 1/X/2 probabilities from the score matrix."""
+        lh, la = self.lambdas(home, away, neutral)
+        gh = np.arange(max_goals)
+        ph = poisson.pmf(gh, lh)
+        pa = poisson.pmf(gh, la)
+        mat = np.outer(ph, pa)
+        # Apply the Dixon-Coles correction to the four low-score cells.
+        mat[0, 0] *= 1.0 - lh * la * self.rho
+        mat[0, 1] *= 1.0 + lh * self.rho
+        mat[1, 0] *= 1.0 + la * self.rho
+        mat[1, 1] *= 1.0 - self.rho
+        mat = np.clip(mat, 0, None)
+        mat /= mat.sum()
+        idx = np.arange(max_goals)
+        home_win = np.tril(mat, -1).sum()      # gh > ga
+        draw = np.trace(mat)
+        away_win = np.triu(mat, 1).sum()        # gh < ga
+        return np.array([home_win, draw, away_win]), (lh, la)
+
 
 # ============================================================================
-# PARTE 4: MACHINE LEARNING ENSEMBLE
+# PART 4 - FEATURE-BASED ML MODEL (causal features, no leakage)
 # ============================================================================
 
-class MLEnsembleModel:
-    """Ensemble de ML: Random Forest + Gradient Boosting para predicción de goles"""
-    
-    def __init__(self):
-        self.rf_home = None
-        self.rf_away = None
-        self.gb_home = None
-        self.gb_away = None
-        self.scaler = StandardScaler()
-        self.teams = set()
-    
-    def fit(self, matches, elo_ratings):
-        """Entrena modelos de ML para predicción de goles"""
-        if not HAS_SKLEARN:
-            print("⚠️  scikit-learn requerido para ML. Saltando ensemble.")
-            return
-        
-        print("\n🤖 Entrenando ML Ensemble (Random Forest + Gradient Boosting)...")
-        
-        X = []
-        y_home = []
-        y_away = []
-        
-        for match in matches:
-            home = match['home']
-            away = match['away']
-            
-            self.teams.add(home)
-            self.teams.add(away)
-            
-            home_stats = calculate_team_stats(matches, home, as_home=True)
-            away_stats = calculate_team_stats(matches, away, as_home=False)
-            
-            # Features: ELO, goles por partido, diferencia
-            features = [
-                elo_ratings.get(home, 1500),
-                elo_ratings.get(away, 1500),
-                home_stats['gf_per_game'],
-                home_stats['ga_per_game'],
-                away_stats['gf_per_game'],
-                away_stats['ga_per_game'],
-            ]
-            
-            X.append(features)
-            y_home.append(match['goals_home'])
-            y_away.append(match['goals_away'])
-        
-        X = np.array(X)
-        X_scaled = self.scaler.fit_transform(X)
-        y_home = np.array(y_home)
-        y_away = np.array(y_away)
-        
-        # Random Forest
-        self.rf_home = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)
-        self.rf_away = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)
-        
-        self.rf_home.fit(X_scaled, y_home)
-        self.rf_away.fit(X_scaled, y_away)
-        
-        # Gradient Boosting
-        self.gb_home = GradientBoostingRegressor(n_estimators=100, max_depth=5, learning_rate=0.1, random_state=42)
-        self.gb_away = GradientBoostingRegressor(n_estimators=100, max_depth=5, learning_rate=0.1, random_state=42)
-        
-        self.gb_home.fit(X_scaled, y_home)
-        self.gb_away.fit(X_scaled, y_away)
-        
-        # Validación cruzada
-        cv_rf_home = cross_val_score(self.rf_home, X_scaled, y_home, cv=5, scoring='r2').mean()
-        cv_gb_home = cross_val_score(self.gb_home, X_scaled, y_home, cv=5, scoring='r2').mean()
-        
-        print(f"✓ Random Forest (Goles Local): R² = {cv_rf_home:.4f}")
-        print(f"✓ Gradient Boosting (Goles Local): R² = {cv_gb_home:.4f}")
-    
-    def predict(self, home, away, elo_ratings, matches):
-        """Predice goles esperados usando ensemble"""
-        if not HAS_SKLEARN:
-            return {'home_goals': 1.5, 'away_goals': 1.0}
-        
-        home_stats = calculate_team_stats(matches, home, as_home=True)
-        away_stats = calculate_team_stats(matches, away, as_home=False)
-        
-        features = np.array([[
-            elo_ratings.get(home, 1500),
-            elo_ratings.get(away, 1500),
-            home_stats['gf_per_game'],
-            home_stats['ga_per_game'],
-            away_stats['gf_per_game'],
-            away_stats['ga_per_game'],
-        ]])
-        
-        X_scaled = self.scaler.transform(features)
-        
-        # Predicciones
-        pred_rf_home = self.rf_home.predict(X_scaled)[0]
-        pred_rf_away = self.rf_away.predict(X_scaled)[0]
-        pred_gb_home = self.gb_home.predict(X_scaled)[0]
-        pred_gb_away = self.gb_away.predict(X_scaled)[0]
-        
-        # Promedio ponderado
-        ensemble_home = 0.5 * pred_rf_home + 0.5 * pred_gb_home
-        ensemble_away = 0.5 * pred_rf_away + 0.5 * pred_gb_away
-        
-        return {
-            'home_goals': max(0, ensemble_home),
-            'away_goals': max(0, ensemble_away),
-        }
-
-# ============================================================================
-# PARTE 5: GENERACIÓN DE PREDICCIONES CON CONFIANZA 99%
-# ============================================================================
-
-def generate_wc2026_predictions(dc_model, ml_model, matches, elo_ratings):
+def build_features(matches):
     """
-    Genera predicciones para los partidos del Mundial 2026
-    con análisis de confianza y recomendaciones PRODE
+    Build a leakage-free feature matrix: every row uses only information
+    available strictly *before* that match (rolling Elo + form + h2h).
+    Returns X, y (0=home win,1=draw,2=away win) and the live Elo dict.
     """
-    
-    wc2026_matches = [
-        # Grupo A
-        ('Argentina', 'France'),
-        ('Argentina', 'Iceland'),
-        ('Argentina', 'Peru'),
-        ('France', 'Iceland'),
-        ('France', 'Peru'),
-        ('Iceland', 'Peru'),
-        
-        # Grupo B
-        ('Brazil', 'Germany'),
-        ('Brazil', 'Canada'),
-        ('Brazil', 'Morocco'),
-        ('Germany', 'Canada'),
-        ('Germany', 'Morocco'),
-        ('Canada', 'Morocco'),
-        
-        # ... Más partidos (simplificado para demo)
-        ('England', 'Netherlands'),
-        ('Spain', 'Germany'),
-        ('Mexico', 'United States'),
-    ]
-    
-    predictions = []
-    
-    for home, away in wc2026_matches:
-        # Predicción Dixon-Coles
-        dc_pred = dc_model.predict_proba(home, away)
-        
-        # Predicción ML (si disponible)
-        ml_pred = ml_model.predict(home, away, elo_ratings, matches) if HAS_SKLEARN else None
-        
-        # Calcular probabilidad de confianza
-        home_win_prob = dc_pred['home_win']
-        draw_prob = dc_pred['draw']
-        away_win_prob = dc_pred['away_win']
-        
-        max_prob = max(home_win_prob, draw_prob, away_win_prob)
-        
-        # Determinar resultado más probable
-        if max_prob == home_win_prob:
-            prediction = '1'
-            confidence = home_win_prob
-        elif max_prob == draw_prob:
-            prediction = 'X'
-            confidence = draw_prob
+    elo = defaultdict(lambda: 1500.0)
+    last5 = defaultdict(list)          # team -> list of (gf, ga, points)
+    h2h = defaultdict(list)            # frozenset({a,b}) -> list of (winner)
+    rows, ys = [], []
+
+    def form(team):
+        games = last5[team][-5:]
+        if not games:
+            return 0.5, 1.2, 1.2
+        pts = np.mean([g[2] for g in games]) / 3.0
+        gf = np.mean([g[0] for g in games])
+        ga = np.mean([g[1] for g in games])
+        return pts, gf, ga
+
+    for m in matches:
+        h, a = m["home"], m["away"]
+        gh, ga = m["goals_home"], m["goals_away"]
+        adv = 0.0 if m["neutral"] else 65.0
+
+        hf = form(h)
+        af = form(a)
+        pair = frozenset({h, a})
+        past = h2h[pair]
+        h2h_home = (np.mean([1.0 if w == h else 0.0 for w in past])
+                    if past else 0.5)
+
+        rows.append([
+            (elo[h] + adv - elo[a]) / 100.0,
+            (elo[h] - 1500.0) / 100.0,
+            (elo[a] - 1500.0) / 100.0,
+            hf[0], hf[1], hf[2],
+            af[0], af[1], af[2],
+            hf[1] - af[2],          # home attack vs away defence
+            af[1] - hf[2],          # away attack vs home defence
+            h2h_home,
+            m["weight"],
+            0.0 if m["neutral"] else 1.0,
+        ])
+        if gh > ga:
+            ys.append(0)
+        elif gh == ga:
+            ys.append(1)
         else:
-            prediction = '2'
-            confidence = away_win_prob
-        
-        # Recomendación PRODE
-        if confidence >= 0.50:  # 99% de confianza ≈ 0.50 de probabilidad
-            prode_recommendation = prediction
-            confidence_level = "🟢 MUY ALTA"
-        elif confidence >= 0.35:
-            prode_recommendation = prediction
-            confidence_level = "🟡 MODERADA"
-        else:
-            prode_recommendation = "?"
-            confidence_level = "🔴 BAJA"
-        
-        # Goles esperados
-        expected_goals = f"{dc_pred['lambda_home']:.2f} - {dc_pred['lambda_away']:.2f}"
-        
-        predictions.append({
-            'match': f"{home} vs {away}",
-            'home': home,
-            'away': away,
-            'prediction': prediction,
-            'confidence': confidence,
-            'confidence_level': confidence_level,
-            'prode': prode_recommendation,
-            'prob_1': round(home_win_prob * 100, 1),
-            'prob_X': round(draw_prob * 100, 1),
-            'prob_2': round(away_win_prob * 100, 1),
-            'expected_goals': expected_goals,
-        })
-    
-    return predictions
+            ys.append(2)
+
+        # --- update rolling state AFTER recording the features ---
+        diff = (elo[h] + adv) - elo[a]
+        exp_h = 1.0 / (1.0 + 10 ** (-diff / 400.0))
+        res = 1.0 if gh > ga else (0.5 if gh == ga else 0.0)
+        gd = abs(gh - ga)
+        mov = 1.0 if gd <= 1 else (1.5 if gd == 2 else (11.0 + gd) / 8.0)
+        delta = m["k_factor"] * mov * (res - exp_h)
+        elo[h] += delta
+        elo[a] -= delta
+        hp = 3 if gh > ga else (1 if gh == ga else 0)
+        ap = 3 if ga > gh else (1 if gh == ga else 0)
+        last5[h].append((gh, ga, hp))
+        last5[a].append((ga, gh, ap))
+        h2h[pair].append(h if gh > ga else (a if ga > gh else "draw"))
+
+    return np.array(rows), np.array(ys), dict(elo)
+
+
+class SoftmaxRegression:
+    """Plain multinomial logistic regression (3 classes) in NumPy + ridge."""
+
+    def __init__(self, l2=1.0, lr=0.3, epochs=4000):
+        self.l2, self.lr, self.epochs = l2, lr, epochs
+        self.mu = self.sd = self.W = self.b = None
+
+    def _softmax(self, Z):
+        Z = Z - Z.max(axis=1, keepdims=True)
+        e = np.exp(Z)
+        return e / e.sum(axis=1, keepdims=True)
+
+    def fit(self, X, y):
+        self.mu = X.mean(axis=0)
+        self.sd = X.std(axis=0) + 1e-9
+        Xs = (X - self.mu) / self.sd
+        n, d = Xs.shape
+        k = 3
+        Y = np.eye(k)[y]
+        self.W = np.zeros((d, k))
+        self.b = np.zeros(k)
+        for _ in range(self.epochs):
+            P = self._softmax(Xs @ self.W + self.b)
+            gW = Xs.T @ (P - Y) / n + self.l2 * self.W / n
+            gb = (P - Y).mean(axis=0)
+            self.W -= self.lr * gW
+            self.b -= self.lr * gb
+        return self
+
+    def predict_proba(self, X):
+        Xs = (X - self.mu) / self.sd
+        return self._softmax(Xs @ self.W + self.b)
+
 
 # ============================================================================
-# PARTE 6: VALIDACIÓN Y ANÁLISIS
+# PART 5 - CALIBRATION & METRICS
 # ============================================================================
 
-def validate_model(dc_model, matches, test_size=0.2):
-    """Validación cruzada del modelo"""
-    split = int(len(matches) * (1 - test_size))
-    
-    correct = 0
-    total = 0
-    
-    for match in matches[split:]:
-        pred = dc_model.predict_proba(match['home'], match['away'])
-        
-        # Resultado actual
-        if match['goals_home'] > match['goals_away']:
-            actual = '1'
-        elif match['goals_home'] < match['goals_away']:
-            actual = '2'
-        else:
-            actual = 'X'
-        
-        # Predicción
-        if pred['home_win'] > max(pred['draw'], pred['away_win']):
-            predicted = '1'
-        elif pred['draw'] > max(pred['home_win'], pred['away_win']):
-            predicted = 'X'
-        else:
-            predicted = '2'
-        
-        if predicted == actual:
-            correct += 1
-        
-        total += 1
-    
-    accuracy = (correct / total * 100) if total > 0 else 0
-    
-    return {
-        'accuracy': accuracy,
-        'correct': correct,
-        'total': total,
-    }
+def fit_temperature(probs, y):
+    """Temperature scaling: find T>0 minimising log-loss of probs**(1/T)."""
+    eps = 1e-12
+    logp = np.log(np.clip(probs, eps, 1))
+
+    def loss(T):
+        scaled = np.exp(logp / T)
+        scaled /= scaled.sum(axis=1, keepdims=True)
+        return -np.mean(np.log(np.clip(scaled[np.arange(len(y)), y], eps, 1)))
+
+    res = minimize_scalar(loss, bounds=(0.4, 4.0), method="bounded")
+    return float(res.x)
+
+
+def apply_temperature(probs, T):
+    eps = 1e-12
+    scaled = np.exp(np.log(np.clip(probs, eps, 1)) / T)
+    return scaled / scaled.sum(axis=1, keepdims=True)
+
+
+def metrics(probs, y):
+    eps = 1e-12
+    pred = probs.argmax(axis=1)
+    acc = float(np.mean(pred == y))
+    Y = np.eye(3)[y]
+    brier = float(np.mean(np.sum((probs - Y) ** 2, axis=1)))
+    logloss = float(-np.mean(np.log(np.clip(probs[np.arange(len(y)), y], eps, 1))))
+    return acc, brier, logloss
+
+
+def calibration_table(probs, y, bins=5):
+    """Reliability of the top predicted class, bucketed by confidence."""
+    conf = probs.max(axis=1)
+    correct = probs.argmax(axis=1) == y
+    edges = np.linspace(0.33, 1.0, bins + 1)
+    table = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        mask = (conf >= lo) & (conf < hi if hi < 1.0 else conf <= hi)
+        if mask.sum() == 0:
+            continue
+        table.append((lo, hi, int(mask.sum()),
+                      float(conf[mask].mean()), float(correct[mask].mean())))
+    return table
+
 
 # ============================================================================
-# MAIN: ORQUESTACIÓN
+# PART 6 - ORCHESTRATION
 # ============================================================================
+
+def temporal_split(matches, test_frac=0.18):
+    n = len(matches)
+    cut = int(n * (1 - test_frac))
+    return matches[:cut], matches[cut:]
+
+
+def tune_dc(train, calib, xis=(0.0008, 0.0015, 0.0025, 0.0040),
+            ridges=(0.01, 0.03, 0.08)):
+    """Grid-search (xi, ridge) for Dixon-Coles by calibration-set log-loss."""
+    yc = y_of(calib)
+    best, best_ll = (0.0025, 0.03), float("inf")
+    for xi in xis:
+        for ridge in ridges:
+            dc = DixonColes(xi=xi, ridge=ridge).fit(train)
+            probs = np.array([dc.predict_proba(m["home"], m["away"], m["neutral"])[0]
+                              for m in calib])
+            _, _, ll = metrics(probs, yc)
+            if ll < best_ll:
+                best_ll, best = ll, (xi, ridge)
+    return best
+
+
+def y_of(matches):
+    return np.array([0 if m["goals_home"] > m["goals_away"]
+                     else (1 if m["goals_home"] == m["goals_away"] else 2)
+                     for m in matches])
+
 
 def main():
-    print("\n" + "="*80)
-    print(" WORLD CUP 2026 PREDICTION ENGINE — Scientific Training Pipeline")
-    print("="*80)
-    
-    # 1. CARGAR DATOS
-    print("\n📂 Cargando datos...")
-    matches = read_csv_data('data/wc2026_recent15.csv')
-    
-    if not matches:
-        print("❌ No hay datos. Abortando.")
-        return
-    
-    # 2. PREPROCESAR
-    matches = preprocess_matches(matches, cutoff_date='2021-01-01')
-    
-    # 3. ESTIMAR RATINGS ELO
-    teams = set([m['home'] for m in matches] + [m['away'] for m in matches])
-    elo_ratings = estimate_elo(matches, teams)
-    
-    print(f"✓ {len(teams)} equipos procesados")
-    print(f"  Top 5 por ELO: {sorted(elo_ratings.items(), key=lambda x: x[1], reverse=True)[:5]}")
-    
-    # 4. ENTRENAR DIXON-COLES
-    dc_model = DixonColesModel(xi=0.0025, learning_rate=0.001, max_iter=500)
-    dc_model.fit(matches)
-    
-    # 5. ENTRENAR ML ENSEMBLE
-    ml_model = MLEnsembleModel()
+    print("\n" + "=" * 78)
+    print(" WORLD CUP 2026 PREDICTION ENGINE  -  Scientific Training Pipeline")
+    print("=" * 78)
+
+    print(f"Dataset: {os.path.basename(DATA_PATH)}")
+    matches = load_matches(DATA_PATH)
+    squads = CORE_SQUADS
+    teams_all = sorted({m["home"] for m in matches} | {m["away"] for m in matches})
+    print(f"Teams: {len(teams_all)} total ({len(squads)} core WC2026 squads)")
+
+    # ---- Honest temporal evaluation -------------------------------------
+    # train -> calib -> test, all chronological (no future leaks into past).
+    train_full, test = temporal_split(matches, test_frac=0.18)
+    train, calib = temporal_split(train_full, test_frac=0.15)
+    print(f"Split: train={len(train)}  calib={len(calib)}  test={len(test)}")
+
+    xi, ridge = tune_dc(train, calib)
+    print(f"Selected Dixon-Coles xi={xi}  ridge={ridge}")
+
+    # Dixon-Coles on train, calibrate on calib, evaluate on test.
+    dc = DixonColes(xi=xi, ridge=ridge).fit(train)
+    dc_calib = np.array([dc.predict_proba(m["home"], m["away"], m["neutral"])[0] for m in calib])
+    T_dc = fit_temperature(dc_calib, y_of(calib))
+    dc_test_raw = np.array([dc.predict_proba(m["home"], m["away"], m["neutral"])[0] for m in test])
+    dc_test = apply_temperature(dc_test_raw, T_dc)
+
+    # ML model on the same train slice with causal features.
+    Xall, yall, _ = build_features(matches)
+    n_tr, n_ca = len(train), len(train) + len(calib)
+    Xtr, ytr = Xall[:n_tr], yall[:n_tr]
+    Xca = Xall[n_tr:n_ca]
+    Xte = Xall[n_ca:]
+
     if HAS_SKLEARN:
-        ml_model.fit(matches, elo_ratings)
-    
-    # 6. VALIDAR
-    print("\n📊 Validación del Modelo...")
-    validation = validate_model(dc_model, matches, test_size=0.15)
-    print(f"✓ Precisión en test set: {validation['accuracy']:.1f}%")
-    print(f"  ({validation['correct']}/{validation['total']} predicciones correctas)")
-    
-    # 7. GENERAR PREDICCIONES PARA WC2026
-    print("\n🌍 Generando predicciones para Mundial 2026...")
-    predictions = generate_wc2026_predictions(dc_model, ml_model, matches, elo_ratings)
-    
-    # 8. GUARDAR MODELO
-    print("\n💾 Guardando modelo...")
-    
-    model_data = {
-        'version': '2.0_scientific',
-        'trained_date': datetime.now().isoformat(),
-        'team_strength_home': dc_model.team_strength_home,
-        'team_strength_away': dc_model.team_strength_away,
-        'home_advantage': dc_model.home_advantage,
-        'xi': dc_model.xi,
-        'elo_ratings': elo_ratings,
-        'validation_accuracy': validation['accuracy'],
-        'validation_samples': validation['total'],
+        ml = HistGradientBoostingClassifier(max_depth=3, learning_rate=0.05,
+                                             max_iter=300, l2_regularization=1.0)
+        ml.fit(Xtr, ytr)
+        ml_predict = lambda X: ml.predict_proba(X)
+        ml_name = "HistGradientBoosting (sklearn)"
+    else:
+        ml = SoftmaxRegression(l2=2.0).fit(Xtr, ytr)
+        ml_predict = ml.predict_proba
+        ml_name = "Multinomial logistic (NumPy)"
+
+    ml_calib = ml_predict(Xca)
+    T_ml = fit_temperature(ml_calib, y_of(calib))
+    ml_test = apply_temperature(ml_predict(Xte), T_ml)
+
+    # Blend weight chosen on the calibration slice.
+    yca = y_of(calib)
+    dc_ca_cal = apply_temperature(dc_calib, T_dc)
+    ml_ca_cal = apply_temperature(ml_calib, T_ml)
+    best_w, best_ll = 1.0, float("inf")
+    for w in np.linspace(0, 1, 21):
+        blend = w * dc_ca_cal + (1 - w) * ml_ca_cal
+        _, _, ll = metrics(blend, yca)
+        if ll < best_ll:
+            best_ll, best_w = ll, float(w)
+    ens_test = best_w * dc_test + (1 - best_w) * ml_test
+    yte = y_of(test)
+
+    print("\n--- Honest temporal-holdout metrics (test set) ---")
+    print(f"{'Model':<26}{'Acc':>8}{'Brier':>9}{'LogLoss':>10}")
+    for name, probs in [("Dixon-Coles", dc_test),
+                        (ml_name, ml_test),
+                        (f"Ensemble (w_dc={best_w:.2f})", ens_test)]:
+        a, b, l = metrics(probs, yte)
+        print(f"{name:<26}{a*100:>7.1f}%{b:>9.3f}{l:>10.3f}")
+
+    # Choose the deployed strategy on the CALIBRATION slice (never the test
+    # set) to keep the reported test metrics honest. The blend weight was also
+    # chosen on calib, so the ensemble can only tie or beat Dixon-Coles there;
+    # if it collapses to w=1.0 we ship plain Dixon-Coles.
+    chosen = "dixon_coles" if best_w >= 0.999 else "ensemble"
+    deployed = {"dixon_coles": dc_test, "ensemble": ens_test}[chosen]
+    acc, brier, logloss = metrics(deployed, yte)
+    cal_table = calibration_table(deployed, yte)
+    print(f"Deployed strategy: {chosen}")
+
+    # ---- Refit on ALL data for the shipped parameters -------------------
+    xi_full, ridge_full = (xi, ridge)  # reuse the hyperparameters tuned above
+    dc_final = DixonColes(xi=xi_full, ridge=ridge_full).fit(matches)
+    # Recalibrate temperature on the most recent slice (the test tail).
+    # Calibrate on the most recent calib+test tail and floor the temperature
+    # so the tiny holdout cannot push the shipped probabilities into
+    # over-confident extremes.
+    recent = calib + test
+    yrec = y_of(recent)
+    dc_final_calib = np.array([dc_final.predict_proba(m["home"], m["away"], m["neutral"])[0]
+                               for m in recent])
+    T_final = max(0.75, fit_temperature(dc_final_calib, yrec)) if len(recent) else T_dc
+
+    Xfull, yfull, elo_live = build_features(matches)
+    if HAS_SKLEARN:
+        ml_final = HistGradientBoostingClassifier(max_depth=3, learning_rate=0.05,
+                                                   max_iter=300, l2_regularization=1.0)
+        ml_final.fit(Xfull, yfull)
+        ml_final_predict = lambda X: ml_final.predict_proba(X)
+    else:
+        ml_final = SoftmaxRegression(l2=2.0).fit(Xfull, yfull)
+        ml_final_predict = ml_final.predict_proba
+
+    elo_final = estimate_elo(matches)
+
+    # ---- Pre-compute calibrated probabilities for every squad pairing ---
+    # The frontend reads these directly for instant, exact predictions and
+    # falls back to the parametric Dixon-Coles formula for anything else.
+    live_state = build_live_state(matches)
+
+    def pairing_probs(home, away, neutral):
+        p_dc, (lh, la) = dc_final.predict_proba(home, away, neutral=neutral)
+        p_dc = apply_temperature(p_dc[None, :], T_final)[0]
+        if chosen == "ensemble":
+            feat = _live_features(home, away, elo_live, live_state, neutral=neutral)
+            p_ml = apply_temperature(ml_final_predict(feat[None, :]), T_ml)[0]
+            p = best_w * p_dc + (1 - best_w) * p_ml
+        else:
+            p = p_dc
+        return p, lh, la
+
+    mp = {}   # rich internal table; model.json stores a compact array form
+    for home in squads:
+        for away in squads:
+            if home == away:
+                continue
+            p, lh, la = pairing_probs(home, away, neutral=False)        # nominal home
+            pn, lhn, lan = pairing_probs(home, away, neutral=True)      # neutral site
+            mp[f"{home}|{away}"] = {
+                "p1": round(float(p[0]) * 100, 1),
+                "pX": round(float(p[1]) * 100, 1),
+                "p2": round(float(p[2]) * 100, 1),
+                "lambdaHome": round(float(lh), 2),
+                "lambdaAway": round(float(la), 2),
+                "pick": ["1", "X", "2"][int(np.argmax(p))],
+                "confidence": round(float(np.max(p)) * 100, 1),
+                "p1n": round(float(pn[0]) * 100, 1),
+                "pXn": round(float(pn[1]) * 100, 1),
+                "p2n": round(float(pn[2]) * 100, 1),
+                "lambdaHomeN": round(float(lhn), 2),
+                "lambdaAwayN": round(float(lan), 2),
+            }
+
+    # Compact form shipped to the frontend: [p1, pX, p2, p1n, pXn, p2n].
+    # Lambdas are recomputed parametrically in JS, so they are not stored.
+    match_probs_compact = {
+        k: [v["p1"], v["pX"], v["p2"], v["p1n"], v["pXn"], v["p2n"]]
+        for k, v in mp.items()
     }
-    
-    with open('model/model.json', 'w', encoding='utf-8') as f:
-        json.dump(model_data, f, indent=2, ensure_ascii=False)
-    
-    # 9. GUARDAR PREDICCIONES
-    with open('predictions.json', 'w', encoding='utf-8') as f:
+
+    # ---- Serialise model.json (camelCase, frontend contract) ------------
+    # teamStrengthHome = attack ; teamStrengthAway = -defence so that
+    # lambda_home = exp(SH[home] + SA[away] + homeAdvantage).
+    team_strength_home = {t: round(v, 4) for t, v in dc_final.attack.items()}
+    team_strength_away = {t: round(-v, 4) for t, v in dc_final.defence.items()}
+
+    model_data = {
+        "version": "4.0_scientific",
+        "trainedDate": datetime.now().isoformat(timespec="seconds"),
+        "algorithm": "Dixon-Coles bivariate Poisson (penalised MLE, temporal decay) "
+                     + ("+ ML ensemble" if chosen == "ensemble" else ""),
+        "teamStrengthHome": team_strength_home,
+        "teamStrengthAway": team_strength_away,
+        "homeAdvantage": round(dc_final.home_adv, 4),
+        "xi": xi_full,
+        "rho": round(dc_final.rho, 4),
+        "calibrationTemperature": round(T_final, 4),
+        "eloRatings": {t: round(v, 1) for t, v in elo_final.items()},
+        "validation": {
+            "strategy": chosen,
+            "accuracy": round(acc * 100, 2),
+            "brierScore": round(brier, 4),
+            "logLoss": round(logloss, 4),
+            "samples": int(len(yte)),
+            "calibration": [
+                {"binLow": round(lo, 2), "binHigh": round(hi, 2), "n": n,
+                 "avgConfidence": round(c * 100, 1), "accuracy": round(acc_b * 100, 1)}
+                for (lo, hi, n, c, acc_b) in cal_table
+            ],
+        },
+        "ensembleWeightDixonColes": round(best_w, 3),
+        "totalTrainingSamples": len(matches),
+        "teamsCount": len(teams_all),
+        "coreSquads": squads,
+        # ["homeWin%","draw%","awayWin%", neutral variants ...]
+        "matchProbabilitiesFormat": ["p1", "pX", "p2", "p1n", "pXn", "p2n"],
+        "matchProbabilities": match_probs_compact,
+    }
+    with open(MODEL_PATH, "w", encoding="utf-8") as f:
+        json.dump(model_data, f, ensure_ascii=False, separators=(",", ":"))
+
+    # ---- fixture.json + standings.json ----------------------------------
+    write_fixture(mp, elo_final)
+    write_standings(matches)
+
+    # ---- predictions.json (neutral-site, predictions_viewer schema) -----
+    # WC2026 group games are at neutral venues, so we surface the neutral
+    # probabilities. Each unordered pair is shown once with the higher-Elo
+    # team nominally on the left. We keep the most confident calls.
+    squad_by_elo = sorted(squads, key=lambda t: -elo_final.get(t, 1500.0))
+    predictions = []
+    for i, home in enumerate(squad_by_elo):
+        for away in squad_by_elo[i + 1:]:
+            e = mp[f"{home}|{away}"]
+            probs = {"1": e["p1n"], "X": e["pXn"], "2": e["p2n"]}
+            pick = max(probs, key=probs.get)
+            confidence = probs[pick]
+            eh = elo_final.get(home, 1500.0)
+            ea = elo_final.get(away, 1500.0)
+            predictions.append({
+                "home": home, "away": away,
+                "homeELO": round(eh, 1), "awayELO": round(ea, 1),
+                "expectedGoals": f"{e['lambdaHomeN']:.2f} - {e['lambdaAwayN']:.2f}",
+                "probability_1": e["p1n"], "probability_X": e["pXn"],
+                "probability_2": e["p2n"],
+                "confidence": confidence,
+                "prediction": pick,
+                "prode": pick if confidence >= 40 else "?",
+                "eloAdvantage": round((eh - ea) / 100.0, 3),
+            })
+    predictions.sort(key=lambda p: p["confidence"], reverse=True)
+    predictions = predictions[:200]
+    with open(PREDICTIONS_PATH, "w", encoding="utf-8") as f:
         json.dump(predictions, f, indent=2, ensure_ascii=False)
-    
-    # 10. GENERAR ANÁLISIS ESTADÍSTICO
-    analysis_text = f"""
-{'='*80}
-WORLD CUP 2026 PREDICTION ENGINE — Statistical Analysis Report
-{'='*80}
 
-1. MODEL SPECIFICATIONS
-{'─'*80}
-- Algorithm: Dixon-Coles Poisson Regression with ML Ensemble
-- Training Data: {len(matches)} international matches (2021-2026)
-- Teams: {len(teams)} national teams
-- Calibration: 99% confidence level
+    # ---- analysis.txt (honest report) -----------------------------------
+    write_analysis(matches, teams_all, squads, dc_final, elo_final,
+                   chosen, acc, brier, logloss, len(yte), cal_table,
+                   best_w, ml_name, xi_full, T_final)
 
-2. TRAINING RESULTS
-{'─'*80}
-- Test Set Accuracy: {validation['accuracy']:.2f}%
-- Correct Predictions: {validation['correct']}/{validation['total']}
-- Model Status: ✓ Trained without bias
-- Home Advantage Factor: {dc_model.home_advantage:.4f}
+    print(f"\nWrote {MODEL_PATH}")
+    print(f"Wrote {PREDICTIONS_PATH}  (top {len(predictions)} neutral pairings)")
+    print(f"Wrote {ANALYSIS_PATH}")
+    print("\nTop 10 by Elo:")
+    for i, (t, r) in enumerate(sorted(elo_final.items(), key=lambda x: -x[1])[:10], 1):
+        print(f"  {i:2d}. {t:<22} {r:7.1f}")
 
-3. TOP 10 TEAMS BY ELO RATING
-{'─'*80}
-"""
-    
-    top_teams = sorted(elo_ratings.items(), key=lambda x: x[1], reverse=True)[:10]
-    for i, (team, elo) in enumerate(top_teams, 1):
-        analysis_text += f"{i:2d}. {team:20s} | ELO: {elo:7.1f}\n"
-    
-    analysis_text += f"""
 
-4. MODEL INTERPRETATION
-{'─'*80}
-The Dixon-Coles model estimates goal intensities (λ) for each team considering:
-- Home/Away strength parameters
-- Historical performance (last 5 years)
-- Tournament context (World Cup weighted +50%)
-- ELO-based strength ranking
+def build_live_state(matches):
+    """Precompute the latest form/h2h state once (reused for every pairing)."""
+    last5 = defaultdict(list)
+    h2h = defaultdict(list)
+    for m in matches:
+        h, a = m["home"], m["away"]
+        gh, ga = m["goals_home"], m["goals_away"]
+        hp = 3 if gh > ga else (1 if gh == ga else 0)
+        ap = 3 if ga > gh else (1 if gh == ga else 0)
+        last5[h].append((gh, ga, hp))
+        last5[a].append((ga, gh, ap))
+        h2h[frozenset({h, a})].append(h if gh > ga else (a if ga > gh else "draw"))
+    return last5, h2h
 
-5. PREDICTION CONFIDENCE LEVELS
-{'─'*80}
-🟢 HIGH (>50% probability): Confident prediction
-🟡 MEDIUM (35-50% probability): Reasonable confidence
-🔴 LOW (<35% probability): Uncertain, consider draw
 
-6. PRODE RECOMMENDATIONS
-{'─'*80}
-For betting/prediction pools:
-- Use HIGH confidence predictions (🟢) as primary selections
-- For MEDIUM confidence (🟡): Apply risk management
-- For LOW confidence (🔴): Consider draw or alternate outcomes
+def _live_features(home, away, elo, state, neutral=False):
+    """Feature vector for a hypothetical match using precomputed `state`."""
+    last5, h2h = state
 
-7. TECHNICAL NOTES
-{'─'*80}
-- Feature engineering: ELO ratings, goal differential, venue advantage
-- Ensemble method: 50% Random Forest + 50% Gradient Boosting
-- Cross-validation: 5-fold CV with stratification
-- No temporal bias: Training data uniformly distributed
-- Statistical significance: All parameters p < 0.05
+    def form(team):
+        games = last5[team][-5:]
+        if not games:
+            return 0.5, 1.2, 1.2
+        return (np.mean([g[2] for g in games]) / 3.0,
+                np.mean([g[0] for g in games]),
+                np.mean([g[1] for g in games]))
 
-8. RECOMMENDATIONS FOR WC2026
-{'─'*80}
-1. Use HIGH confidence (🟢) predictions for core predictions
-2. For mixed confidence matches, consider expected goals (λ values)
-3. Monitor team updates: rankings may change before tournament
-4. Adjust for tournament-specific factors (altitude, weather, etc.)
-5. Cross-validate with betting market odds
+    hf, af = form(home), form(away)
+    past = h2h[frozenset({home, away})]
+    h2h_home = np.mean([1.0 if w == home else 0.0 for w in past]) if past else 0.5
+    eh, ea = elo.get(home, 1500.0), elo.get(away, 1500.0)
+    adv = 0.0 if neutral else 65.0
+    return np.array([
+        (eh + adv - ea) / 100.0, (eh - 1500.0) / 100.0, (ea - 1500.0) / 100.0,
+        hf[0], hf[1], hf[2], af[0], af[1], af[2],
+        hf[1] - af[2], af[1] - hf[2], h2h_home, 1.0, 0.0 if neutral else 1.0,
+    ])
 
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Scientist: Data Science Team
-{'='*80}
-"""
-    
-    with open('analysis.txt', 'w', encoding='utf-8') as f:
-        f.write(analysis_text)
-    
-    print(f"✓ Modelo guardado en model/model.json")
-    print(f"✓ Predicciones guardadas en predictions.json")
-    print(f"✓ Análisis guardado en analysis.txt")
-    
-    # 11. MOSTRAR RESUMEN
-    print("\n" + "="*80)
-    print("PREDICCIONES PARA MUNDIAL 2026 (Confianza 99%)")
-    print("="*80)
-    
-    for pred in predictions[:5]:
-        print(f"\n{pred['match']}")
-        print(f"  Predicción: {pred['prode']} | {pred['confidence_level']}")
-        print(f"  Probabilidades: 1={pred['prob_1']}% | X={pred['prob_X']}% | 2={pred['prob_2']}%")
-        print(f"  Goles Esperados: {pred['expected_goals']}")
-    
-    print(f"\n... y {len(predictions) - 5} partidos más\n")
 
-if __name__ == '__main__':
+def write_fixture(mp, elo):
+    """Emit fixture.json: the official WC2026 group stage with predictions.
+
+    Group games are neutral-site, so the neutral ensemble probabilities are
+    used. Matches keep their official chronological order.
+    """
+    team_games = defaultdict(int)   # round-robin: a team's k-th game is matchday k
+    fixtures = []
+    for date, group, home, away, city in WC2026_FIXTURE:
+        e = mp.get(f"{home}|{away}") or mp.get(f"{away}|{home}")
+        if e and mp.get(f"{home}|{away}"):
+            p1, pX, p2 = e["p1n"], e["pXn"], e["p2n"]
+            lh, la = e["lambdaHomeN"], e["lambdaAwayN"]
+        elif e:  # stored under the reverse key; swap perspective
+            p1, pX, p2 = e["p2n"], e["pXn"], e["p1n"]
+            lh, la = e["lambdaAwayN"], e["lambdaHomeN"]
+        else:
+            p1 = pX = p2 = lh = la = None
+
+        md = team_games[home] + 1       # both teams are on the same round
+        team_games[home] += 1
+        team_games[away] += 1
+
+        if md != ACTIVE_MATCHDAY:      # publish one round at a time
+            continue
+
+        pick = conf = None
+        if p1 is not None:
+            probs = {"1": p1, "X": pX, "2": p2}
+            pick = max(probs, key=probs.get)
+            conf = probs[pick]
+
+        fixtures.append({
+            "date": date, "group": group, "matchday": md,
+            "home": home, "away": away, "city": city,
+            "kickoffArg": KICKOFF_ARG.get((home, away)),
+            "prob_1": p1, "prob_X": pX, "prob_2": p2,
+            "expectedGoals": (f"{lh:.2f} - {la:.2f}" if lh is not None else None),
+            "prediction": pick, "confidence": conf,
+        })
+
+    data = {
+        "tournament": "FIFA World Cup 2026",
+        "stage": "Group stage",
+        "matchday": ACTIVE_MATCHDAY,
+        "venuesNeutral": True,
+        "timezone": "America/Argentina (UTC-3)",
+        "matches": fixtures,
+    }
+    with open(FIXTURE_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    print(f"Wrote {FIXTURE_PATH}  (matchday {ACTIVE_MATCHDAY}: {len(fixtures)} matches)")
+
+
+def write_standings(matches):
+    """
+    Emit standings.json: live group tables computed from the WC2026 group
+    matches that already have a real result in the dataset. Re-running the
+    trainer after new results refreshes this automatically.
+    """
+    team_group = {}
+    for _d, g, h, a, _c in WC2026_FIXTURE:
+        team_group[h] = g
+        team_group[a] = g
+
+    table = {g: {} for g in sorted(set(team_group.values()))}
+    for t, g in team_group.items():
+        table[g][t] = {"team": t, "played": 0, "won": 0, "drawn": 0,
+                       "lost": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0}
+
+    played = 0
+    for m in matches:
+        tour = m["tournament"]
+        if "FIFA World Cup" not in tour or "qualification" in tour.lower():
+            continue
+        if m["date"] < "2026-06-11":
+            continue
+        h, a = m["home"], m["away"]
+        if team_group.get(h) != team_group.get(a) or h not in team_group:
+            continue
+        g = team_group[h]
+        gh, ga = m["goals_home"], m["goals_away"]
+        for team, gf, gc in ((h, gh, ga), (a, ga, gh)):
+            row = table[g][team]
+            row["played"] += 1
+            row["gf"] += gf
+            row["ga"] += gc
+            row["gd"] = row["gf"] - row["ga"]
+            if gf > gc:
+                row["won"] += 1
+                row["points"] += 3
+            elif gf == gc:
+                row["drawn"] += 1
+                row["points"] += 1
+            else:
+                row["lost"] += 1
+        played += 1
+
+    standings = {}
+    for g, teams in table.items():
+        standings[g] = sorted(teams.values(),
+                              key=lambda r: (-r["points"], -r["gd"], -r["gf"], r["team"]))
+
+    with open(STANDINGS_PATH, "w", encoding="utf-8") as f:
+        json.dump({"updated": datetime.now().isoformat(timespec="seconds"),
+                   "matchesPlayed": played, "groups": standings},
+                  f, indent=2, ensure_ascii=False)
+    print(f"Wrote {STANDINGS_PATH}  ({played} group matches played so far)")
+
+
+def write_analysis(matches, teams_all, squads, dc, elo, chosen, acc, brier,
+                   logloss, n_test, cal_table, w_dc, ml_name, xi, T):
+    lines = []
+    lines.append("=" * 78)
+    lines.append("WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report")
+    lines.append("=" * 78)
+    lines.append("")
+    lines.append("1. DATA")
+    lines.append("-" * 78)
+    lines.append(f"   Unique matches      : {len(matches)}")
+    lines.append(f"   Span                : {matches[0]['date']} -> {matches[-1]['date']}")
+    lines.append(f"   Teams (all)         : {len(teams_all)}")
+    lines.append(f"   Core WC2026 squads  : {len(squads)}")
+    lines.append("")
+    lines.append("2. MODEL")
+    lines.append("-" * 78)
+    lines.append("   Primary  : Dixon-Coles bivariate Poisson, penalised MLE (L-BFGS-B)")
+    lines.append(f"   Secondary: {ml_name}")
+    lines.append(f"   Deployed : {chosen}  (Dixon-Coles blend weight = {w_dc:.2f})")
+    lines.append(f"   Temporal decay xi   : {xi}  (half-life ~{math.log(2)/xi:.0f} days)" if xi > 0
+                 else "   Temporal decay xi   : 0 (no decay)")
+    lines.append(f"   Home advantage      : {dc.home_adv:+.4f} log-goals "
+                 f"(x{math.exp(dc.home_adv):.2f} scoring rate)")
+    lines.append(f"   Dixon-Coles rho     : {dc.rho:+.4f}")
+    lines.append(f"   Calibration temp. T : {T:.3f}")
+    lines.append("")
+    lines.append("3. HONEST TEMPORAL-HOLDOUT METRICS")
+    lines.append("-" * 78)
+    lines.append(f"   Evaluated on the most recent {n_test} matches (never seen in training).")
+    lines.append(f"   1X2 accuracy        : {acc*100:.2f}%")
+    lines.append(f"   Multiclass Brier    : {brier:.4f}   (lower is better; 0.66 = random)")
+    lines.append(f"   Log-loss            : {logloss:.4f}   (lower is better; 1.099 = random)")
+    lines.append("")
+    lines.append("4. CALIBRATION (reliability of the top pick)")
+    lines.append("-" * 78)
+    lines.append(f"   {'confidence bin':<20}{'n':>6}{'avg conf':>12}{'actual acc':>14}")
+    for lo, hi, n, c, a in cal_table:
+        lines.append(f"   {f'{lo*100:.0f}%-{hi*100:.0f}%':<20}{n:>6}{c*100:>11.1f}%{a*100:>13.1f}%")
+    lines.append("")
+    lines.append("5. TOP 15 TEAMS BY ELO")
+    lines.append("-" * 78)
+    for i, (t, r) in enumerate(sorted(elo.items(), key=lambda x: -x[1])[:15], 1):
+        atk = dc.attack.get(t, 0.0)
+        dfc = dc.defence.get(t, 0.0)
+        lines.append(f"   {i:2d}. {t:<22} Elo {r:7.1f}  | attack {atk:+.2f}  defence {dfc:+.2f}")
+    lines.append("")
+    lines.append("6. NOTES")
+    lines.append("-" * 78)
+    lines.append("   * Metrics are from a strict chronological holdout, so they reflect")
+    lines.append("     genuine out-of-sample predictive power - not in-sample fit.")
+    lines.append("   * The professional ceiling for international 1X2 is ~70-73%.")
+    lines.append("   * Home advantage applies to host venues; WC2026 group games at")
+    lines.append("     neutral sites should set homeAdvantage to 0 in the frontend.")
+    lines.append("")
+    lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append("=" * 78)
+    with open(ANALYSIS_PATH, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+
+if __name__ == "__main__":
     main()

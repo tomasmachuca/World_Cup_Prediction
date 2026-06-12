@@ -1,79 +1,65 @@
+==============================================================================
+WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
+==============================================================================
 
-================================================================================
-WORLD CUP 2026 PREDICTION ENGINE — Scientific Analysis Report
-================================================================================
+1. DATA
+------------------------------------------------------------------------------
+   Unique matches      : 10992
+   Span                : 2015-01-04 -> 2026-06-11
+   Teams (all)         : 295
+   Core WC2026 squads  : 48
 
-1. MODEL SPECIFICATIONS
-────────────────────────────────────────────────────────────────────────────────
-Algorithm:        Dixon-Coles Poisson Regression + ELO Ensemble
-Training Data:    573 international matches (2021-2026)
-Teams Analyzed:   154 national teams
-Calibration:      99% confidence level
-Prediction Type:  Exact PRODE recommendations (not generic results)
+2. MODEL
+------------------------------------------------------------------------------
+   Primary  : Dixon-Coles bivariate Poisson, penalised MLE (L-BFGS-B)
+   Secondary: Multinomial logistic (NumPy)
+   Deployed : ensemble  (Dixon-Coles blend weight = 0.65)
+   Temporal decay xi   : 0.0008  (half-life ~866 days)
+   Home advantage      : +0.2416 log-goals (x1.27 scoring rate)
+   Dixon-Coles rho     : -0.0469
+   Calibration temp. T : 0.792
 
-2. TRAINING RESULTS
-────────────────────────────────────────────────────────────────────────────────
-Test Accuracy:           66.28%
-Correct Predictions:     57/86
-Goal Difference Error:   1.017
-Model Status:            ✓ Trained without bias
+3. HONEST TEMPORAL-HOLDOUT METRICS
+------------------------------------------------------------------------------
+   Evaluated on the most recent 1979 matches (never seen in training).
+   1X2 accuracy        : 59.98%
+   Multiclass Brier    : 0.5037   (lower is better; 0.66 = random)
+   Log-loss            : 0.8596   (lower is better; 1.099 = random)
 
-3. TOP 10 TEAMS BY ELO RATING
-────────────────────────────────────────────────────────────────────────────────
- 1. Morocco              │ ELO: 1692.7
- 2. Norway               │ ELO: 1672.0
- 3. England              │ ELO: 1671.1
- 4. Japan                │ ELO: 1657.4
- 5. Turkey               │ ELO: 1646.1
- 6. Germany              │ ELO: 1643.8
- 7. Spain                │ ELO: 1643.1
- 8. France               │ ELO: 1640.2
- 9. Algeria              │ ELO: 1639.8
-10. Netherlands          │ ELO: 1639.3
+4. CALIBRATION (reliability of the top pick)
+------------------------------------------------------------------------------
+   confidence bin           n    avg conf    actual acc
+   33%-46%                599       40.4%         39.6%
+   46%-60%                558       52.7%         53.0%
+   60%-73%                441       66.2%         71.0%
+   73%-87%                274       79.2%         87.6%
+   87%-100%               107       91.6%         94.4%
 
-4. MODEL INTERPRETATION
-────────────────────────────────────────────────────────────────────────────────
-The Dixon-Coles model estimates Poisson goal intensities (λ) for each team:
-- λ_home = exp(strength_home + strength_away_opponent + home_advantage)
-- λ_away = exp(strength_away + strength_home_opponent)
+5. TOP 15 TEAMS BY ELO
+------------------------------------------------------------------------------
+    1. Spain                  Elo  2031.1  | attack +1.48  defence +1.34
+    2. Argentina              Elo  1991.6  | attack +1.29  defence +1.60
+    3. France                 Elo  1964.8  | attack +1.30  defence +1.21
+    4. Morocco                Elo  1955.1  | attack +0.90  defence +1.45
+    5. England                Elo  1938.1  | attack +1.23  defence +1.45
+    6. Japan                  Elo  1928.9  | attack +1.04  defence +1.14
+    7. Portugal               Elo  1902.8  | attack +1.34  defence +1.18
+    8. Brazil                 Elo  1901.7  | attack +1.37  defence +1.29
+    9. Mexico                 Elo  1901.6  | attack +0.82  defence +1.00
+   10. Colombia               Elo  1885.6  | attack +1.23  defence +1.17
+   11. Iran                   Elo  1867.4  | attack +0.86  defence +0.88
+   12. Senegal                Elo  1867.3  | attack +0.88  defence +1.06
+   13. Algeria                Elo  1862.6  | attack +0.97  defence +0.87
+   14. Ecuador                Elo  1861.7  | attack +0.78  defence +1.40
+   15. Netherlands            Elo  1860.7  | attack +1.29  defence +1.05
 
-Key features:
-✓ Home advantage factor: -0.2595
-✓ Dependence correction (xi): 0.0025
-✓ No temporal bias: uniform weighting across last 5 years
-✓ Tournament context: World Cup matches weighted +50%
+6. NOTES
+------------------------------------------------------------------------------
+   * Metrics are from a strict chronological holdout, so they reflect
+     genuine out-of-sample predictive power - not in-sample fit.
+   * The professional ceiling for international 1X2 is ~70-73%.
+   * Home advantage applies to host venues; WC2026 group games at
+     neutral sites should set homeAdvantage to 0 in the frontend.
 
-5. CONFIDENCE LEVELS FOR PRODE
-────────────────────────────────────────────────────────────────────────────────
-🟢 VERY HIGH (≥50%):  Use as primary selection
-🟡 HIGH (40-50%):     Reasonable confidence, monitor odds
-🟠 MEDIUM (35-40%):   Apply risk management
-🔴 LOW (<35%):        Consider alternatives
-
-6. PREDICTION QUALITY ASSURANCE
-────────────────────────────────────────────────────────────────────────────────
-✓ Cross-validation: 5-fold stratified CV
-✓ Feature engineering: ELO ratings, goal differential, venue advantage
-✓ Statistical significance: All parameters p < 0.05
-✓ No data leakage: Train/test split temporal
-✓ Calibration: Probabilities validated against historical accuracy
-
-7. PRODE STRATEGY RECOMMENDATIONS
-────────────────────────────────────────────────────────────────────────────────
-1. Core predictions (🟢 VERY HIGH): Use as mandatory selections
-2. Medium confidence (🟡): Consider expected goals (λ values) for tie-breaking
-3. Low confidence (🔴): Apply contrarian strategy or skip
-4. Watch ELO advantage: If >200 points, confidence increases
-5. Monitor pre-tournament updates: Team form may change
-
-8. TECHNICAL NOTES
-────────────────────────────────────────────────────────────────────────────────
-- Algorithm: Dixon-Coles (1997) with Poisson regression
-- Learning: Gradient descent optimization (1000 iterations)
-- Normalization: Parameters centered for numerical stability
-- Rho factor: Handles under/over-scoring in (0-0), (1-0), (1-1) outcomes
-- No generic predictions: Each match has individualized probability matrix
-
-Generated: 2026-06-12T17:50:43.957Z
-Quality Assurance: Data Science Team
-================================================================================
+Generated: 2026-06-12 16:22:35
+==============================================================================
