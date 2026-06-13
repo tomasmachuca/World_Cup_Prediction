@@ -214,6 +214,21 @@ def tier_for(tournament: str):
 # fixture is the single source of truth for who we predict.
 CORE_SQUADS = sorted({t for (_d, _g, h, a, _c) in WC2026_FIXTURE for t in (h, a)})
 
+# WC2026 co-hosts. In the group stage each host plays all its matches in its
+# own country (Mexico group A, Canada group B, USA group D), so the host gets
+# the home-field advantage even when the official fixture lists them as the
+# away side (e.g. "Czech Republic vs Mexico" is played in Mexico City).
+HOST_NATIONS = {"Mexico", "United States", "Canada"}
+
+
+def host_side(home, away):
+    """'home', 'away' or None — which side plays as a WC2026 host (group stage)."""
+    if home in HOST_NATIONS:
+        return "home"
+    if away in HOST_NATIONS:
+        return "away"
+    return None
+
 # Normalise dataset spellings to our canonical names (used in the fixture).
 NAME_MAP = {
     "Cape Verde": "Cabo Verde",
@@ -980,13 +995,23 @@ def write_fixture(mp, elo):
     team_games = defaultdict(int)   # round-robin: a team's k-th game is matchday k
     fixtures = []
     for date, group, home, away, city in WC2026_FIXTURE:
-        e = mp.get(f"{home}|{away}") or mp.get(f"{away}|{home}")
-        if e and mp.get(f"{home}|{away}"):
-            p1, pX, p2 = e["p1n"], e["pXn"], e["p2n"]
-            lh, la = e["lambdaHomeN"], e["lambdaAwayN"]
-        elif e:  # stored under the reverse key; swap perspective
-            p1, pX, p2 = e["p2n"], e["pXn"], e["p1n"]
-            lh, la = e["lambdaAwayN"], e["lambdaHomeN"]
+        fwd = mp.get(f"{home}|{away}")
+        rev = mp.get(f"{away}|{home}")
+        host = host_side(home, away)
+        host_team = home if host == "home" else (away if host == "away" else None)
+
+        if host == "home" and fwd:               # home side is the host -> home advantage
+            p1, pX, p2 = fwd["p1"], fwd["pX"], fwd["p2"]
+            lh, la = fwd["lambdaHome"], fwd["lambdaAway"]
+        elif host == "away" and rev:             # away side is the host: reverse pairing, swapped
+            p1, pX, p2 = rev["p2"], rev["pX"], rev["p1"]
+            lh, la = rev["lambdaAway"], rev["lambdaHome"]
+        elif fwd:                                 # neutral site
+            p1, pX, p2 = fwd["p1n"], fwd["pXn"], fwd["p2n"]
+            lh, la = fwd["lambdaHomeN"], fwd["lambdaAwayN"]
+        elif rev:                                 # neutral, stored under the reverse key
+            p1, pX, p2 = rev["p2n"], rev["pXn"], rev["p1n"]
+            lh, la = rev["lambdaAwayN"], rev["lambdaHomeN"]
         else:
             p1 = pX = p2 = lh = la = None
 
@@ -1010,13 +1035,15 @@ def write_fixture(mp, elo):
             "prob_1": p1, "prob_X": pX, "prob_2": p2,
             "expectedGoals": (f"{lh:.2f} - {la:.2f}" if lh is not None else None),
             "prediction": pick, "confidence": conf,
+            "hostTeam": host_team,   # WC2026 host playing at home, or null (neutral)
         })
 
     data = {
         "tournament": "FIFA World Cup 2026",
         "stage": "Group stage",
         "matchday": ACTIVE_MATCHDAY,
-        "venuesNeutral": True,
+        "venuesNeutral": True,        # neutral for everyone except the three hosts
+        "hostAdvantage": sorted(HOST_NATIONS),
         "timezone": "America/Argentina (UTC-3)",
         "matches": fixtures,
     }

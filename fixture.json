@@ -3,6 +3,11 @@
   "stage": "Group stage",
   "matchday": 1,
   "venuesNeutral": true,
+  "hostAdvantage": [
+    "Canada",
+    "Mexico",
+    "United States"
+  ],
   "timezone": "America/Argentina (UTC-3)",
   "matches": [
     {
@@ -13,12 +18,13 @@
       "away": "South Africa",
       "city": "Mexico City",
       "kickoffArg": "16:00",
-      "prob_1": 59.9,
-      "prob_X": 27.8,
-      "prob_2": 12.3,
-      "expectedGoals": "1.22 - 0.57",
+      "prob_1": 69.9,
+      "prob_X": 21.3,
+      "prob_2": 8.8,
+      "expectedGoals": "1.56 - 0.57",
       "prediction": "1",
-      "confidence": 59.9
+      "confidence": 69.9,
+      "hostTeam": "Mexico"
     },
     {
       "date": "2026-06-11",
@@ -28,12 +34,13 @@
       "away": "Czech Republic",
       "city": "Guadalajara",
       "kickoffArg": "23:00",
-      "prob_1": 46.8,
-      "prob_X": 27.0,
-      "prob_2": 26.2,
+      "prob_1": 47.0,
+      "prob_X": 26.6,
+      "prob_2": 26.3,
       "expectedGoals": "1.15 - 1.06",
       "prediction": "1",
-      "confidence": 46.8
+      "confidence": 47.0,
+      "hostTeam": null
     },
     {
       "date": "2026-06-12",
@@ -43,12 +50,13 @@
       "away": "Bosnia and Herzegovina",
       "city": "Toronto",
       "kickoffArg": "16:00",
-      "prob_1": 57.5,
-      "prob_X": 28.2,
-      "prob_2": 14.3,
-      "expectedGoals": "1.22 - 0.68",
+      "prob_1": 66.2,
+      "prob_X": 23.2,
+      "prob_2": 10.6,
+      "expectedGoals": "1.56 - 0.68",
       "prediction": "1",
-      "confidence": 57.5
+      "confidence": 66.2,
+      "hostTeam": "Canada"
     },
     {
       "date": "2026-06-12",
@@ -58,12 +66,13 @@
       "away": "Paraguay",
       "city": "Los Angeles",
       "kickoffArg": "22:00",
-      "prob_1": 32.6,
-      "prob_X": 31.9,
-      "prob_2": 35.5,
-      "expectedGoals": "0.80 - 0.93",
-      "prediction": "2",
-      "confidence": 35.5
+      "prob_1": 41.0,
+      "prob_X": 30.0,
+      "prob_2": 29.0,
+      "expectedGoals": "1.01 - 0.93",
+      "prediction": "1",
+      "confidence": 41.0,
+      "hostTeam": "United States"
     },
     {
       "date": "2026-06-13",
@@ -73,12 +82,13 @@
       "away": "Switzerland",
       "city": "San Francisco",
       "kickoffArg": "16:00",
-      "prob_1": 8.7,
-      "prob_X": 16.6,
-      "prob_2": 74.8,
+      "prob_1": 8.4,
+      "prob_X": 18.0,
+      "prob_2": 73.6,
       "expectedGoals": "0.62 - 2.45",
       "prediction": "2",
-      "confidence": 74.8
+      "confidence": 73.6,
+      "hostTeam": null
     },
     {
       "date": "2026-06-13",
@@ -88,12 +98,13 @@
       "away": "Morocco",
       "city": "New Jersey",
       "kickoffArg": "19:00",
-      "prob_1": 34.9,
-      "prob_X": 34.4,
-      "prob_2": 30.7,
+      "prob_1": 36.6,
+      "prob_X": 32.9,
+      "prob_2": 30.5,
       "expectedGoals": "0.92 - 0.68",
       "prediction": "1",
-      "confidence": 34.9
+      "confidence": 36.6,
+      "hostTeam": null
     },
     {
       "date": "2026-06-13",
@@ -103,12 +114,13 @@
       "away": "Scotland",
       "city": "Boston",
       "kickoffArg": "22:00",
-      "prob_1": 18.2,
-      "prob_X": 22.0,
-      "prob_2": 59.8,
+      "prob_1": 17.4,
+      "prob_X": 21.2,
+      "prob_2": 61.4,
       "expectedGoals": "0.71 - 1.96",
       "prediction": "2",
-      "confidence": 59.8
+      "confidence": 61.4,
+      "hostTeam": null
     },
     {
       "date": "2026-06-13",
@@ -118,12 +130,13 @@
       "away": "Turkey",
       "city": "Vancouver",
       "kickoffArg": "01:00 (+1)",
-      "prob_1": 38.0,
-      "prob_X": 30.8,
-      "prob_2": 31.2,
+      "prob_1": 35.7,
+      "prob_X": 31.5,
+      "prob_2": 32.8,
       "expectedGoals": "1.08 - 1.07",
       "prediction": "1",
-      "confidence": 38.0
+      "confidence": 35.7,
+      "hostTeam": null
     },
     {
       "date": "2026-06-14",
@@ -133,12 +146,13 @@
       "away": "Curaçao",
       "city": "Houston",
       "kickoffArg": "14:00",
-      "prob_1": 84.6,
-      "prob_X": 9.9,
-      "prob_2": 5.5,
+      "prob_1": 85.5,
+      "prob_X": 8.5,
+      "prob_2": 6.0,
       "expectedGoals": "3.21 - 0.44",
       "prediction": "1",
-      "confidence": 84.6
+      "confidence": 85.5,
+      "hostTeam": null
     },
     {
       "date": "2026-06-14",
@@ -148,12 +162,13 @@
       "away": "Japan",
       "city": "Dallas",
       "kickoffArg": "17:00",
-      "prob_1": 37.4,
-      "prob_X": 31.8,
-      "prob_2": 30.8,
-      "expectedGoals": "1.17 - 0.99",
+      "prob_1": 38.4,
+      "prob_X": 30.2,
+      "prob_2": 31.4,
+      "expectedGoals": "1.17 - 0.98",
       "prediction": "1",
-      "confidence": 37.4
+      "confidence": 38.4,
+      "hostTeam": null
     },
     {
       "date": "2026-06-14",
@@ -163,12 +178,13 @@
       "away": "Ecuador",
       "city": "Philadelphia",
       "kickoffArg": "20:00",
-      "prob_1": 20.9,
-      "prob_X": 37.5,
-      "prob_2": 41.6,
+      "prob_1": 20.5,
+      "prob_X": 37.1,
+      "prob_2": 42.4,
       "expectedGoals": "0.48 - 0.83",
       "prediction": "2",
-      "confidence": 41.6
+      "confidence": 42.4,
+      "hostTeam": null
     },
     {
       "date": "2026-06-14",
@@ -178,12 +194,13 @@
       "away": "Tunisia",
       "city": "Guadalupe",
       "kickoffArg": "23:00",
-      "prob_1": 37.3,
-      "prob_X": 30.2,
-      "prob_2": 32.6,
+      "prob_1": 38.1,
+      "prob_X": 30.1,
+      "prob_2": 31.8,
       "expectedGoals": "1.10 - 0.89",
       "prediction": "1",
-      "confidence": 37.3
+      "confidence": 38.1,
+      "hostTeam": null
     },
     {
       "date": "2026-06-15",
@@ -193,12 +210,13 @@
       "away": "Cabo Verde",
       "city": "Atlanta",
       "kickoffArg": "13:00",
-      "prob_1": 87.1,
-      "prob_X": 10.5,
-      "prob_2": 2.4,
-      "expectedGoals": "2.59 - 0.37",
+      "prob_1": 85.5,
+      "prob_X": 11.3,
+      "prob_2": 3.2,
+      "expectedGoals": "2.60 - 0.37",
       "prediction": "1",
-      "confidence": 87.1
+      "confidence": 85.5,
+      "hostTeam": null
     },
     {
       "date": "2026-06-15",
@@ -208,12 +226,13 @@
       "away": "Egypt",
       "city": "Vancouver",
       "kickoffArg": "16:00",
-      "prob_1": 51.0,
-      "prob_X": 29.1,
-      "prob_2": 20.0,
+      "prob_1": 49.5,
+      "prob_X": 30.0,
+      "prob_2": 20.5,
       "expectedGoals": "1.29 - 0.63",
       "prediction": "1",
-      "confidence": 51.0
+      "confidence": 49.5,
+      "hostTeam": null
     },
     {
       "date": "2026-06-15",
@@ -223,12 +242,13 @@
       "away": "Uruguay",
       "city": "Miami",
       "kickoffArg": "19:00",
-      "prob_1": 13.0,
-      "prob_X": 29.5,
-      "prob_2": 57.5,
+      "prob_1": 13.5,
+      "prob_X": 29.6,
+      "prob_2": 57.0,
       "expectedGoals": "0.39 - 1.24",
       "prediction": "2",
-      "confidence": 57.5
+      "confidence": 57.0,
+      "hostTeam": null
     },
     {
       "date": "2026-06-15",
@@ -238,12 +258,13 @@
       "away": "New Zealand",
       "city": "Los Angeles",
       "kickoffArg": "22:00",
-      "prob_1": 62.0,
-      "prob_X": 26.3,
-      "prob_2": 11.7,
+      "prob_1": 60.1,
+      "prob_X": 27.3,
+      "prob_2": 12.6,
       "expectedGoals": "1.32 - 0.53",
       "prediction": "1",
-      "confidence": 62.0
+      "confidence": 60.1,
+      "hostTeam": null
     },
     {
       "date": "2026-06-16",
@@ -254,11 +275,12 @@
       "city": "New Jersey",
       "kickoffArg": "16:00",
       "prob_1": 51.0,
-      "prob_X": 28.9,
-      "prob_2": 20.1,
+      "prob_X": 28.7,
+      "prob_2": 20.3,
       "expectedGoals": "1.27 - 0.72",
       "prediction": "1",
-      "confidence": 51.0
+      "confidence": 51.0,
+      "hostTeam": null
     },
     {
       "date": "2026-06-16",
@@ -268,12 +290,13 @@
       "away": "Norway",
       "city": "Boston",
       "kickoffArg": "19:00",
-      "prob_1": 13.3,
-      "prob_X": 24.5,
-      "prob_2": 62.2,
+      "prob_1": 14.1,
+      "prob_X": 23.9,
+      "prob_2": 62.0,
       "expectedGoals": "0.55 - 1.66",
       "prediction": "2",
-      "confidence": 62.2
+      "confidence": 62.0,
+      "hostTeam": null
     },
     {
       "date": "2026-06-16",
@@ -283,12 +306,13 @@
       "away": "Algeria",
       "city": "Kansas City",
       "kickoffArg": "22:00",
-      "prob_1": 60.8,
-      "prob_X": 26.0,
-      "prob_2": 13.3,
+      "prob_1": 58.6,
+      "prob_X": 25.8,
+      "prob_2": 15.6,
       "expectedGoals": "1.53 - 0.53",
       "prediction": "1",
-      "confidence": 60.8
+      "confidence": 58.6,
+      "hostTeam": null
     },
     {
       "date": "2026-06-16",
@@ -298,12 +322,13 @@
       "away": "Jordan",
       "city": "San Francisco",
       "kickoffArg": "01:00 (+1)",
-      "prob_1": 55.2,
-      "prob_X": 24.2,
-      "prob_2": 20.6,
+      "prob_1": 54.9,
+      "prob_X": 23.1,
+      "prob_2": 21.9,
       "expectedGoals": "1.62 - 0.70",
       "prediction": "1",
-      "confidence": 55.2
+      "confidence": 54.9,
+      "hostTeam": null
     },
     {
       "date": "2026-06-17",
@@ -313,12 +338,13 @@
       "away": "DR Congo",
       "city": "Houston",
       "kickoffArg": "14:00",
-      "prob_1": 64.5,
-      "prob_X": 24.7,
-      "prob_2": 10.8,
+      "prob_1": 61.4,
+      "prob_X": 26.3,
+      "prob_2": 12.2,
       "expectedGoals": "1.54 - 0.48",
       "prediction": "1",
-      "confidence": 64.5
+      "confidence": 61.4,
+      "hostTeam": null
     },
     {
       "date": "2026-06-17",
@@ -328,12 +354,13 @@
       "away": "Croatia",
       "city": "Dallas",
       "kickoffArg": "17:00",
-      "prob_1": 52.6,
-      "prob_X": 29.9,
-      "prob_2": 17.4,
+      "prob_1": 49.8,
+      "prob_X": 30.4,
+      "prob_2": 19.7,
       "expectedGoals": "1.20 - 0.68",
       "prediction": "1",
-      "confidence": 52.6
+      "confidence": 49.8,
+      "hostTeam": null
     },
     {
       "date": "2026-06-17",
@@ -343,12 +370,13 @@
       "away": "Panama",
       "city": "Toronto",
       "kickoffArg": "20:00",
-      "prob_1": 30.7,
-      "prob_X": 28.8,
+      "prob_1": 29.9,
+      "prob_X": 29.6,
       "prob_2": 40.5,
       "expectedGoals": "1.05 - 0.97",
       "prediction": "2",
-      "confidence": 40.5
+      "confidence": 40.5,
+      "hostTeam": null
     },
     {
       "date": "2026-06-17",
@@ -358,12 +386,13 @@
       "away": "Colombia",
       "city": "Mexico City",
       "kickoffArg": "23:00",
-      "prob_1": 15.9,
-      "prob_X": 27.0,
-      "prob_2": 57.1,
+      "prob_1": 17.0,
+      "prob_X": 25.2,
+      "prob_2": 57.8,
       "expectedGoals": "0.51 - 1.43",
       "prediction": "2",
-      "confidence": 57.1
+      "confidence": 57.8,
+      "hostTeam": null
     }
   ]
 }

@@ -251,6 +251,7 @@
     .fixture-score { color: #f0f2f8; font-size: 0.9em; margin-top: 5px; }
     .fixture-score b { color: #fff; font-size: 1.05em; }
     .live-tag { color: #f87171; font-weight: 700; font-size: 0.82em; }
+    .host-tag { color: #34d399; font-weight: 700; }
 
     .verdict { font-size: 1.5em; font-weight: 900; line-height: 1; margin-top: 4px; }
     .verdict.ok { color: #34d399; }
@@ -834,31 +835,21 @@
       return { sh, sa, outcome, live: !!r.live, finished, hit: outcome === m.prediction };
     }
 
-    /** Probabilidades neutrales [p1,pX,p2] del modelo para un cruce cualquiera. */
-    function modelNeutralProbs(home, away) {
-      let a = model.matchProbabilities[`${home}|${away}`];
-      if (a) return [a[3] / 100, a[4] / 100, a[5] / 100];
-      a = model.matchProbabilities[`${away}|${home}`];      // orden invertido
-      if (a) return [a[5] / 100, a[4] / 100, a[3] / 100];    // y swap 1<->2
-      const r = dixonColesProbs(home, away, true);
-      return [r.p1, r.pX, r.p2];
-    }
-
     /**
-     * Rendimiento acumulado del modelo en TODO el torneo: recorre los partidos
-     * ya terminados (results.json) y los compara con la predicción neutral del
-     * modelo. Devuelve aciertos, % y Brier multiclase. null si aún no hay datos.
+     * Rendimiento acumulado del modelo: recorre los partidos del fixture ya
+     * terminados y los compara con la predicción publicada (que ya incluye la
+     * ventaja de local de los anfitriones). Consistente con los ✓/✗ por partido.
+     * Devuelve aciertos, % y Brier multiclase. null si aún no hay datos.
      */
     function computeTracker() {
-      if (!resultsData || !resultsData.matches) return null;
+      if (!fixtureData) return null;
       let n = 0, hits = 0, brier = 0;
-      for (const key in resultsData.matches) {
-        const v = resultsData.matches[key];
-        if (v.status !== 'FINISHED') continue;
-        const p = modelNeutralProbs(v.home, v.away);
-        const out = v.homeGoals > v.awayGoals ? 0 : (v.homeGoals === v.awayGoals ? 1 : 2);
-        const pick = p.indexOf(Math.max(...p));
-        n++; if (pick === out) hits++;
+      for (const m of fixtureData.matches) {
+        const rr = matchResult(m);
+        if (!rr || !rr.finished || m.prob_1 == null) continue;
+        n++; if (rr.hit) hits++;
+        const p = [m.prob_1 / 100, m.prob_X / 100, m.prob_2 / 100];
+        const out = rr.outcome === '1' ? 0 : (rr.outcome === 'X' ? 1 : 2);
         const y = [0, 0, 0]; y[out] = 1;
         brier += p.reduce((s, pi, i) => s + (pi - y[i]) ** 2, 0);
       }
@@ -878,7 +869,7 @@
         ? `<div class="tracker">
              <span class="t-main">📊 ${t.acc.toFixed(0)}% de acierto</span>
              <span class="t-sub"><b>${t.hits}/${t.n}</b> partidos jugados · Brier <b>${t.brier.toFixed(3)}</b>
-             (más bajo = mejor) · predicción neutral del modelo vs resultado real</span>
+             (más bajo = mejor) · predicción del modelo vs resultado real</span>
            </div>`
         : '';
 
@@ -913,7 +904,7 @@
             <div class="fixture-match pick-${code}${rr && rr.finished ? (rr.hit ? ' done-ok' : ' done-bad') : ''}">
               <div>
                 <div class="fixture-teams">${m.home} <span style="color:#555d75">vs</span> ${m.away}</div>
-                <div class="fixture-meta">${kick}Grupo ${m.group} · ${m.city}</div>
+                <div class="fixture-meta">${kick}Grupo ${m.group} · ${m.city}${m.hostTeam ? ` · <span class="host-tag">🏠 ${m.hostTeam} de local</span>` : ''}</div>
                 ${scoreLine}
                 ${probsLine}
               </div>
