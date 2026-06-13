@@ -263,9 +263,6 @@
 
     /* Predictor enriquecido: resultados exactos + mercados. */
     .extra-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
       margin-top: 16px;
     }
     .extra-block {
@@ -281,15 +278,14 @@
       letter-spacing: 0.04em;
       margin-bottom: 10px;
     }
-    .score-row, .market-row {
+    .score-row {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 8px;
       font-size: 0.92em;
     }
-    .score-label, .market-label { width: 64px; font-weight: 700; color: #f0f2f8; }
-    .market-label { width: auto; flex: 1; font-weight: 600; color: #cdd2e0; }
+    .score-label { width: 64px; font-weight: 700; color: #f0f2f8; }
     .bar {
       flex: 1;
       height: 8px;
@@ -298,7 +294,7 @@
       overflow: hidden;
     }
     .bar > span { display: block; height: 100%; background: linear-gradient(90deg, #f0b429, #f59e0b); }
-    .score-pct, .market-pct { width: 46px; text-align: right; color: #f0b429; font-weight: 700; }
+    .score-pct { width: 46px; text-align: right; color: #f0b429; font-weight: 700; }
 
     /* ---- Tracker de precisión del modelo (Fixture) ---- */
     .tracker {
@@ -333,9 +329,6 @@
       .probability-item { padding: 10px 6px; }
       .prob-value { font-size: 1.35em; }
       #recommendation { font-size: 1.1em; }
-
-      /* Predictor enriquecido apilado en mobile. */
-      .extra-stats { grid-template-columns: 1fr; }
 
       /* Tablas de posiciones: scroll horizontal en vez de desbordar. */
       .standings-group { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -489,10 +482,6 @@
             <div class="extra-block">
               <div class="extra-title">Resultados exactos más probables</div>
               <div id="scoreList" class="score-list"></div>
-            </div>
-            <div class="extra-block">
-              <div class="extra-title">Mercados</div>
-              <div id="marketList" class="market-list"></div>
             </div>
           </div>
 
@@ -704,15 +693,12 @@
       return { M, N, lambdaHome, lambdaAway };
     }
 
-    /** Top-5 marcadores exactos + mercados O/U 2.5 y BTTS desde la matriz. */
+    /** Top-5 marcadores exactos más probables desde la matriz Dixon-Coles. */
     function renderExtraStats(home, away, neutral) {
       const { M, N } = scorelineMatrix(home, away, neutral);
       const scores = [];
-      let over = 0, btts = 0;
       for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
         scores.push({ s: `${i}-${j}`, p: M[i][j] });
-        if (i + j >= 3) over += M[i][j];
-        if (i >= 1 && j >= 1) btts += M[i][j];
       }
       scores.sort((a, b) => b.p - a.p);
       const top = scores.slice(0, 5);
@@ -723,18 +709,6 @@
           <span class="score-label">${x.s}</span>
           <span class="bar"><span style="width:${(x.p / max * 100).toFixed(0)}%"></span></span>
           <span class="score-pct">${(x.p * 100).toFixed(1)}%</span>
-        </div>`).join('');
-
-      const markets = [
-        { label: 'Más de 2.5 goles', p: over },
-        { label: 'Menos de 2.5 goles', p: 1 - over },
-        { label: 'Ambos marcan (BTTS)', p: btts },
-      ];
-      document.getElementById('marketList').innerHTML = markets.map(m => `
-        <div class="market-row">
-          <span class="market-label">${m.label}</span>
-          <span class="bar"><span style="width:${(m.p * 100).toFixed(0)}%"></span></span>
-          <span class="market-pct">${(m.p * 100).toFixed(0)}%</span>
         </div>`).join('');
     }
 
