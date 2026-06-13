@@ -325,53 +325,50 @@
     .chance-win { width: 64px; text-align: right; color: #8b92a8; font-size: 0.85em; }
     .chance-row.qualify .chance-team { color: #34d399; }
 
-    /* ---- Cuadro / bracket de eliminatorias (proyección) ---- */
-    .bracket-round { margin-bottom: 22px; }
-    .bracket-round > h3 {
-      color: #22d3ee;
-      font-size: 1.05em;
-      margin: 0 0 10px 2px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid rgba(34, 211, 238, 0.25);
+    /* ---- Cuadro tradicional (bracket horizontal con conectores) ---- */
+    .bk-hint { color: #555d75; font-size: 0.9em; }
+    .bk-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 10px; }
+    .bk {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      min-width: 1000px;
     }
-    .ko-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+    .bk-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      flex: 1 1 0;
+      min-width: 108px;
+      padding: 0 9px;
+      position: relative;
+      z-index: 1;
     }
-    .ko-grid.one { grid-template-columns: 1fr; }
-    .ko-match {
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 8px;
+    .bk-col.bk-final { justify-content: center; }
+    .bk-match {
+      background: rgba(26, 31, 53, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
       overflow: hidden;
+      margin: 3px 0;
     }
-    .ko-side {
+    .bk-final .bk-match { border-color: rgba(240, 180, 41, 0.55); }
+    .bk-team {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px 11px;
-      font-size: 0.9em;
+      gap: 6px;
+      padding: 5px 8px;
+      font-size: 0.74em;
+      white-space: nowrap;
     }
-    .ko-side + .ko-side { border-top: 1px solid rgba(255, 255, 255, 0.06); }
-    .ko-side .seed { color: #555d75; font-size: 0.78em; font-weight: 700; width: 24px; flex-shrink: 0; }
-    .ko-side .name { flex: 1; color: #cdd2e0; }
-    .ko-side .wp { color: #8b92a8; font-size: 0.8em; }
-    .ko-side.win { background: rgba(52, 211, 153, 0.1); }
-    .ko-side.win .name { color: #34d399; font-weight: 800; }
-    .ko-side.win .wp { color: #34d399; }
-
-    .champion-banner {
-      text-align: center;
-      background: linear-gradient(135deg, rgba(240,180,41,0.18), rgba(245,158,11,0.12));
-      border: 1px solid rgba(240, 180, 41, 0.5);
-      border-radius: 12px;
-      padding: 18px;
-      margin-bottom: 20px;
-    }
-    .champion-banner .lbl { color: #8b92a8; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
-    .champion-banner .team { font-size: 1.8em; font-weight: 900; color: #f0b429; margin-top: 4px; }
+    .bk-team + .bk-team { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+    .bk-seed { color: #555d75; font-size: 0.82em; font-weight: 700; min-width: 22px; flex-shrink: 0; }
+    .bk-name { color: #e6e9f2; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+    .bk-team.empty .bk-name { color: #4a5169; font-weight: 500; }
+    .bk-team.win { background: rgba(52, 211, 153, 0.14); }
+    .bk-team.win .bk-name { color: #34d399; font-weight: 800; }
+    .side-r .bk-team { flex-direction: row-reverse; }
+    .bk-lines { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 0; }
 
     /* ===================== MOBILE (mobile-first pass) ===================== */
     @media (max-width: 600px) {
@@ -1239,36 +1236,55 @@
       return out;
     }
 
-    /** En una llave (neutral) avanza el favorito; empates ~50/50 (penales). */
-    function koWinner(a, b) {
-      if (!a || !b) return a || b;
-      const SH = model.teamStrengthHome, SA = model.teamStrengthAway;
-      const la = Math.exp((SH[a.team] || 0) + (SA[b.team] || 0));
-      const lb = Math.exp((SH[b.team] || 0) + (SA[a.team] || 0));
-      const [pw, pd, pl] = wdl(la, lb);
-      const pa = pw + pd / 2, pb = pl + pd / 2;
-      const w = pa >= pb ? a : b;
-      return { ...w, wp: Math.max(pa, pb) };
+    /** Ganador REAL de una llave (results.json). null si no se jugó o sin definir. */
+    function realKOWinner(a, b) {
+      if (!a || !b) return null;
+      const rs = realScore(a.team, b.team);
+      if (!rs) return null;
+      if (rs[0] > rs[1]) return a;
+      if (rs[1] > rs[0]) return b;
+      return null;   // empate (se define por penales, dato no disponible aún)
     }
 
-    /** Proyecta todo el cuadro y devuelve los cruces y ganadores por ronda. */
-    function projectBracket() {
+    /**
+     * Arma el cuadro: los 16avos se completan con la proyección de grupos;
+     * las rondas siguientes sólo se llenan cuando hay un resultado REAL.
+     */
+    function buildBracketTeams() {
       const { stand, qualThirds } = projectGroups();
       const thirdOf = assignThirds(qualThirds);
       const teamOf = ([type, ref]) =>
         type === '1' ? stand[ref][0] : type === '2' ? stand[ref][1] : thirdOf[ref];
 
-      const matchups = {}, winners = {};
-      for (const m in R32) {
-        const a = teamOf(R32[m][0]), b = teamOf(R32[m][1]);
-        matchups[m] = [a, b]; winners[m] = koWinner(a, b);
-      }
-      const play = def => { for (const m in def) { const a = winners[def[m][0]], b = winners[def[m][1]]; matchups[m] = [a, b]; winners[m] = koWinner(a, b); } };
-      play(R16); play(QF); play(SF);
-      const fa = winners[FINAL_SRC[0]], fb = winners[FINAL_SRC[1]];
-      matchups[FINAL_M] = [fa, fb]; winners[FINAL_M] = koWinner(fa, fb);
-      return { matchups, winners, champion: winners[FINAL_M] };
+      const slot = {}, winner = {};
+      for (const m in R32) slot[m] = [teamOf(R32[m][0]), teamOf(R32[m][1])];
+      for (const m in R32) { const w = realKOWinner(slot[m][0], slot[m][1]); if (w) winner[m] = w; }
+      const advance = def => {
+        for (const m in def) {
+          const [fa, fb] = def[m];
+          slot[m] = [winner[fa] || null, winner[fb] || null];
+          const w = realKOWinner(slot[m][0], slot[m][1]); if (w) winner[m] = w;
+        }
+      };
+      advance(R16); advance(QF); advance(SF);
+      slot[FINAL_M] = [winner[FINAL_SRC[0]] || null, winner[FINAL_SRC[1]] || null];
+      const fw = realKOWinner(slot[FINAL_M][0], slot[FINAL_M][1]); if (fw) winner[FINAL_M] = fw;
+      return { slot, winner };
     }
+
+    // Orden visual de las columnas: lado izquierdo -> Final -> lado derecho.
+    const seedLabel = ([type, ref]) => type === '1' ? `1°${ref}` : type === '2' ? `2°${ref}` : '3°';
+    const BK_COLS = [
+      { round: 'r32', side: 'l', m: [74, 77, 73, 75, 83, 84, 81, 82] },
+      { round: 'r16', side: 'l', m: [89, 90, 93, 94] },
+      { round: 'qf', side: 'l', m: [97, 98] },
+      { round: 'sf', side: 'l', m: [101] },
+      { round: 'final', side: 'c', m: [104] },
+      { round: 'sf', side: 'r', m: [102] },
+      { round: 'qf', side: 'r', m: [99, 100] },
+      { round: 'r16', side: 'r', m: [91, 92, 95, 96] },
+      { round: 'r32', side: 'r', m: [76, 78, 79, 80, 86, 88, 85, 87] },
+    ];
 
     let bracketKey = '';
     function renderBracket() {
@@ -1276,55 +1292,68 @@
       const key = resultsData
         ? (resultsData.updated || '') + ':' + Object.keys(resultsData.matches || {}).length
         : 'none';
-      if (key === bracketKey && document.getElementById('bracketContainer').innerHTML) return;
+      const container = document.getElementById('bracketContainer');
+      if (key === bracketKey && container.innerHTML) { setTimeout(drawConnectors, 40); return; }
       bracketKey = key;
+      document.getElementById('bracketChampion').innerHTML = '';
 
-      const { matchups, winners, champion } = projectBracket();
+      const { slot, winner } = buildBracketTeams();
       const played = resultsData ? Object.values(resultsData.matches || {}).filter(v => v.status === 'FINISHED').length : 0;
-
       document.getElementById('bracketMeta').innerHTML =
-        `🏆 Cuadro <b>proyectado</b> con los ${played} resultados ya jugados + el modelo. ` +
-        `Los puestos de cada grupo salen de la tabla proyectada y en cada llave avanza el favorito ` +
-        `(empates a penales ≈ 50/50). Se actualiza con cada resultado.`;
+        `🏆 Cuadro oficial. Los <b>16avos</b> se completan con la proyección de la fase de grupos ` +
+        `según los <b>${played}</b> resultados de ahora; las rondas siguientes se van llenando a medida ` +
+        `que se juegan. Se actualiza solo. <span class="bk-hint">↔ deslizá para ver todo el cuadro.</span>`;
 
-      document.getElementById('bracketChampion').innerHTML = champion ? `
-        <div class="champion-banner">
-          <div class="lbl">Campeón proyectado</div>
-          <div class="team">🏆 ${champion.team}</div>
-        </div>` : '';
-
-      const seedLabel = ([type, ref]) => type === '1' ? `1°${ref}` : type === '2' ? `2°${ref}` : '3°';
-      const rounds = [
-        ['16avos de final', R32, m => [seedLabel(R32[m][0]), seedLabel(R32[m][1])]],
-        ['Octavos de final', R16, () => ['', '']],
-        ['Cuartos de final', QF, () => ['', '']],
-        ['Semifinales', SF, () => ['', '']],
-      ];
-      let html = '';
-      const renderMatch = (m, seeds) => {
-        const [a, b] = matchups[m] || [];
-        const w = winners[m];
-        const side = (t, seed) => {
-          if (!t) return `<div class="ko-side"><span class="seed">${seed || ''}</span><span class="name" style="color:#555d75">—</span></div>`;
-          const isW = w && w.team === t.team;
-          return `<div class="ko-side${isW ? ' win' : ''}">
-            <span class="seed">${seed || ''}</span>
-            <span class="name">${t.team}</span>
-            <span class="wp">${isW ? (w.wp * 100).toFixed(0) + '%' : ''}</span>
-          </div>`;
-        };
-        return `<div class="ko-match">${side(a, seeds[0])}${side(b, seeds[1])}</div>`;
+      const teamRow = (t, seed, side) => {
+        const name = t ? t.team : '—';
+        const cls = `bk-team${t ? '' : ' empty'}`;
+        const seedHtml = seed ? `<span class="bk-seed">${seed}</span>` : '';
+        const nameHtml = `<span class="bk-name">${name}</span>`;
+        return `<div class="${cls}">${side === 'r' ? nameHtml + seedHtml : seedHtml + nameHtml}</div>`;
       };
-      for (const [title, def, seedFn] of rounds) {
-        const ids = Object.keys(def);
-        html += `<div class="bracket-round"><h3>${title}</h3><div class="ko-grid">`;
-        ids.forEach(m => { html += renderMatch(m, seedFn(m)); });
-        html += `</div></div>`;
+      const matchBox = (m, side) => {
+        const [a, b] = slot[m] || [null, null];
+        const seeds = R32[m] ? [seedLabel(R32[m][0]), seedLabel(R32[m][1])] : ['', ''];
+        return `<div class="bk-match" data-m="${m}">${teamRow(a, seeds[0], side)}${teamRow(b, seeds[1], side)}</div>`;
+      };
+
+      let cols = '';
+      for (const c of BK_COLS) {
+        cols += `<div class="bk-col bk-${c.round} side-${c.side}">`;
+        for (const m of c.m) cols += matchBox(m, c.side);
+        cols += `</div>`;
       }
-      // Final
-      html += `<div class="bracket-round"><h3>Final</h3><div class="ko-grid one">${renderMatch(FINAL_M, ['', ''])}</div></div>`;
-      document.getElementById('bracketContainer').innerHTML = html;
+      container.innerHTML = `<div class="bk-scroll"><div class="bk" id="bkInner"><svg class="bk-lines" id="bkLines"></svg>${cols}</div></div>`;
+      setTimeout(drawConnectors, 40);
     }
+
+    /** Dibuja los conectores del cuadro midiendo la posición de cada llave. */
+    function drawConnectors() {
+      const bk = document.getElementById('bkInner'), svg = document.getElementById('bkLines');
+      if (!bk || !svg) return;
+      const base = bk.getBoundingClientRect();
+      const rel = [];
+      const add = def => { for (const t in def) def[t].forEach(f => rel.push([+t, +f])); };
+      add(R16); add(QF); add(SF); rel.push([FINAL_M, FINAL_SRC[0]], [FINAL_M, FINAL_SRC[1]]);
+      let d = '';
+      for (const [t, f] of rel) {
+        const tb = bk.querySelector(`[data-m="${t}"]`), fb = bk.querySelector(`[data-m="${f}"]`);
+        if (!tb || !fb) continue;
+        const tr = tb.getBoundingClientRect(), fr = fb.getBoundingClientRect();
+        const fy = fr.top + fr.height / 2 - base.top, ty = tr.top + tr.height / 2 - base.top;
+        let fx, tx;
+        if (fr.left < tr.left) { fx = fr.right - base.left; tx = tr.left - base.left; }
+        else { fx = fr.left - base.left; tx = tr.right - base.left; }
+        const mx = (fx + tx) / 2;
+        d += `<path d="M${fx} ${fy} H${mx} V${ty} H${tx}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>`;
+      }
+      svg.setAttribute('width', bk.scrollWidth);
+      svg.setAttribute('height', bk.scrollHeight);
+      svg.innerHTML = d;
+    }
+    window.addEventListener('resize', () => {
+      if (modelReady && !document.getElementById('bracketPanel').classList.contains('hidden')) drawConnectors();
+    });
 
     window.addEventListener('load', () => {
       loadModel();
