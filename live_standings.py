@@ -29,6 +29,26 @@ API_BASE = "https://api.football-data.org/v4"
 COMPETITION = "WC"  # FIFA World Cup
 HERE = os.path.dirname(os.path.abspath(__file__))
 STANDINGS_PATH = os.path.join(HERE, "standings.json")
+RESULTS_PATH = os.path.join(HERE, "results.json")
+
+# football-data.org spellings -> the names used in fixture.json / the model.
+API_NAME_MAP = {
+    "Czechia": "Czech Republic",
+    "Korea Republic": "South Korea",
+    "IR Iran": "Iran",
+    "Türkiye": "Turkey",
+    "Turkiye": "Turkey",
+    "Cape Verde": "Cabo Verde",
+    "DR Congo": "DR Congo",
+    "Côte d'Ivoire": "Ivory Coast",
+    "Cote d'Ivoire": "Ivory Coast",
+    "USA": "United States",
+}
+
+
+def _norm_team(name):
+    name = (name or "").strip()
+    return API_NAME_MAP.get(name, name)
 
 
 def _get(path, token):
@@ -62,7 +82,7 @@ def build_standings(token):
 
         rows = []
         for r in block.get("table", []):
-            team = (r.get("team") or {}).get("name") or (r.get("team") or {}).get("shortName") or "?"
+            team = _norm_team((r.get("team") or {}).get("name") or (r.get("team") or {}).get("shortName") or "?")
             won = r.get("won", 0)
             drawn = r.get("draw", r.get("drawn", 0))
             lost = r.get("lost", 0)
@@ -98,6 +118,48 @@ def count_played(token):
         return played
     except Exception:
         return None
+
+
+def _outcome(gh, ga):
+    """1 = home win, X = draw, 2 = away win."""
+    return "1" if gh > ga else ("X" if gh == ga else "2")
+
+
+def build_results(token):
+    """
+    Match results keyed by the unordered, alphabetically-sorted team pair, so
+    the front-end can line each fixture row up regardless of home/away order:
+
+        "Mexico|South Africa": {
+            "home": "Mexico", "away": "South Africa",
+            "homeGoals": 2, "awayGoals": 0, "outcome": "1",
+            "status": "FINISHED", "live": false
+        }
+
+    Includes in-play matches (with the running score) so the Fixture can show a
+    live score; the tick/cross is only meaningful once status is FINISHED.
+    """
+    data = _get(f"/competitions/{COMPETITION}/matches", token)
+    out = {}
+    for m in data.get("matches", []):
+        status = (m.get("status") or "").upper()
+        ft = (m.get("score") or {}).get("fullTime") or {}
+        gh, ga = ft.get("home"), ft.get("away")
+        if gh is None or ga is None:
+            continue  # not started / no score yet
+        home = _norm_team((m.get("homeTeam") or {}).get("name"))
+        away = _norm_team((m.get("awayTeam") or {}).get("name"))
+        if not home or not away:
+            continue
+        key = "|".join(sorted((home, away)))
+        out[key] = {
+            "home": home, "away": away,
+            "homeGoals": gh, "awayGoals": ga,
+            "outcome": _outcome(gh, ga),
+            "status": status,
+            "live": status in ("IN_PLAY", "PAUSED", "LIVE"),
+        }
+    return out
 
 
 def main():
@@ -136,6 +198,22 @@ def main():
     with open(STANDINGS_PATH, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2, ensure_ascii=False)
     print(f"Wrote {STANDINGS_PATH}  ({len(groups)} groups, {played} matches played)")
+
+    # ---- results.json: real scores so the Fixture can show tick/cross -------
+    # Always written (even empty) so the workflow's `git add` never fails.
+    try:
+        results = build_results(token)
+    except Exception as e:  # noqa: BLE001 — never fail the whole run over results
+        print(f"WARN: could not build results.json: {e}", file=sys.stderr)
+        results = {}
+    with open(RESULTS_PATH, "w", encoding="utf-8") as f:
+        json.dump({
+            "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "source": "football-data.org",
+            "matches": results,
+        }, f, indent=2, ensure_ascii=False)
+    print(f"Wrote {RESULTS_PATH}  ({len(results)} matches with a score)")
+
     return 0
 
 

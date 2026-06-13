@@ -248,6 +248,18 @@
     .pick-X { border-left-color: #f0b429 !important; }
     .pick-2 { border-left-color: #22d3ee !important; }
 
+    .fixture-score { color: #f0f2f8; font-size: 0.9em; margin-top: 5px; }
+    .fixture-score b { color: #fff; font-size: 1.05em; }
+    .live-tag { color: #f87171; font-weight: 700; font-size: 0.82em; }
+
+    .verdict { font-size: 1.5em; font-weight: 900; line-height: 1; margin-top: 4px; }
+    .verdict.ok { color: #34d399; }
+    .verdict.bad { color: #f87171; }
+
+    /* Tinte sutil del partido ya jugado según si el modelo acertó. */
+    .fixture-match.done-ok { background: rgba(52, 211, 153, 0.07); }
+    .fixture-match.done-bad { background: rgba(248, 113, 113, 0.07); }
+
     .fixture-kick {
       color: #f0b429;
       font-weight: 700;
@@ -611,6 +623,7 @@
 
     // ---- Fixture (calendario oficial del Mundial 2026) -----------------
     let fixtureData = null;
+    let resultsData = null;   // resultados reales en vivo (results.json)
 
     const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     const WDAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -624,11 +637,38 @@
         const res = await fetch('fixture.json');
         if (!res.ok) throw new Error('No se pudo cargar fixture.json');
         fixtureData = await res.json();
+        await loadResults();   // trae los resultados antes de pintar
         renderFixture();
       } catch (e) {
         document.getElementById('fixtureContainer').innerHTML =
           `<p style="color:#f87171; text-align:center;">No se pudo cargar el fixture (${e.message}).</p>`;
       }
+    }
+
+    /** Resultados reales (en vivo). No es fatal si aún no existe el archivo. */
+    async function loadResults() {
+      try {
+        const res = await fetch('results.json?t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) resultsData = await res.json();
+      } catch { /* sin resultados todavía: el fixture se muestra sin tilde */ }
+    }
+
+    /**
+     * Cruza un partido del fixture con su resultado real. Devuelve el marcador
+     * orientado como el fixture (local/visitante), el resultado 1/X/2 efectivo
+     * y si la predicción del modelo acertó. null si todavía no hay marcador.
+     */
+    function matchResult(m) {
+      if (!resultsData || !resultsData.matches) return null;
+      const key = [m.home, m.away].sort().join('|');
+      const r = resultsData.matches[key];
+      if (!r) return null;
+      const sameOrder = r.home === m.home;
+      const sh = sameOrder ? r.homeGoals : r.awayGoals;
+      const sa = sameOrder ? r.awayGoals : r.homeGoals;
+      const outcome = sh > sa ? '1' : (sh === sa ? 'X' : '2');
+      const finished = r.status === 'FINISHED';
+      return { sh, sa, outcome, live: !!r.live, finished, hit: outcome === m.prediction };
     }
 
     function renderFixture() {
@@ -638,9 +678,20 @@
       const byDate = {};
       fixtureData.matches.forEach(m => { (byDate[m.date] = byDate[m.date] || []).push(m); });
 
+      // Tally de aciertos sobre los partidos ya terminados.
+      let hits = 0, finished = 0;
+      fixtureData.matches.forEach(m => {
+        const rr = matchResult(m);
+        if (rr && rr.finished) { finished++; if (rr.hit) hits++; }
+      });
+      const tally = finished
+        ? `<b style="color:#34d399">Aciertos del modelo: ${hits}/${finished}</b>
+           (${(hits / finished * 100).toFixed(0)}%) · `
+        : '';
+
       let html = `<p class="source-note" style="margin-top:0; margin-bottom:14px;">
-        Fecha ${fixtureData.matchday} · horarios en <b>hora de Argentina</b> (UTC-3).
-        Las fechas 2 y 3 se publican al reentrenar con los resultados de la ronda previa.</p>`;
+        ${tally}Fecha ${fixtureData.matchday} · horarios en <b>hora de Argentina</b> (UTC-3).
+        <span style="color:#34d399">✓</span> = el modelo acertó · <span style="color:#f87171">✗</span> = falló.</p>`;
       Object.keys(byDate).sort().forEach(date => {
         html += `<div class="fixture-day"><div class="fixture-day-header">${formatDate(date)}</div>`;
         byDate[date].forEach(m => {
@@ -651,16 +702,32 @@
           const probsLine = (showProbs && m.prob_1 != null)
             ? `<div class="fixture-probs">1: ${m.prob_1}% · X: ${m.prob_X}% · 2: ${m.prob_2}% &nbsp;|&nbsp; λ ${m.expectedGoals}</div>`
             : '';
+
+          // Resultado real (en vivo): marcador + tilde/cruz si ya terminó.
+          const rr = matchResult(m);
+          let scoreLine = '', verdict = '';
+          if (rr) {
+            const liveTag = rr.live ? ' <span class="live-tag">🔴 EN VIVO</span>' : '';
+            scoreLine = `<div class="fixture-score">Resultado: <b>${rr.sh} - ${rr.sa}</b>${liveTag}</div>`;
+            if (rr.finished) {
+              verdict = rr.hit
+                ? `<div class="verdict ok" title="El modelo acertó">✓</div>`
+                : `<div class="verdict bad" title="El modelo falló">✗</div>`;
+            }
+          }
+
           html += `
-            <div class="fixture-match pick-${code}">
+            <div class="fixture-match pick-${code}${rr && rr.finished ? (rr.hit ? ' done-ok' : ' done-bad') : ''}">
               <div>
                 <div class="fixture-teams">${m.home} <span style="color:#555d75">vs</span> ${m.away}</div>
                 <div class="fixture-meta">${kick}Grupo ${m.group} · ${m.city}</div>
+                ${scoreLine}
                 ${probsLine}
               </div>
               <div class="fixture-pick">
                 <div class="pick-code" style="color:${colors[code] || '#8b92a8'}">${code}</div>
                 <div class="pick-conf">${conf}</div>
+                ${verdict}
               </div>
             </div>`;
         });
@@ -724,8 +791,10 @@
       // Refresco en vivo de las posiciones: vuelve a pedir standings.json cada
       // 45 s (solo cuando la pestaña del navegador está visible, para no gastar
       // pedidos de fondo). El workflow live-standings la regenera en el server.
-      setInterval(() => {
-        if (modelReady && document.visibilityState === 'visible') loadStandings();
+      setInterval(async () => {
+        if (!modelReady || document.visibilityState !== 'visible') return;
+        loadStandings();
+        if (fixtureData) { await loadResults(); renderFixture(); }
       }, 45000);
     });
   </script>
