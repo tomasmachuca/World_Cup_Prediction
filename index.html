@@ -325,6 +325,54 @@
     .chance-win { width: 64px; text-align: right; color: #8b92a8; font-size: 0.85em; }
     .chance-row.qualify .chance-team { color: #34d399; }
 
+    /* ---- Cuadro / bracket de eliminatorias (proyección) ---- */
+    .bracket-round { margin-bottom: 22px; }
+    .bracket-round > h3 {
+      color: #22d3ee;
+      font-size: 1.05em;
+      margin: 0 0 10px 2px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(34, 211, 238, 0.25);
+    }
+    .ko-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .ko-grid.one { grid-template-columns: 1fr; }
+    .ko-match {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .ko-side {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 11px;
+      font-size: 0.9em;
+    }
+    .ko-side + .ko-side { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+    .ko-side .seed { color: #555d75; font-size: 0.78em; font-weight: 700; width: 24px; flex-shrink: 0; }
+    .ko-side .name { flex: 1; color: #cdd2e0; }
+    .ko-side .wp { color: #8b92a8; font-size: 0.8em; }
+    .ko-side.win { background: rgba(52, 211, 153, 0.1); }
+    .ko-side.win .name { color: #34d399; font-weight: 800; }
+    .ko-side.win .wp { color: #34d399; }
+
+    .champion-banner {
+      text-align: center;
+      background: linear-gradient(135deg, rgba(240,180,41,0.18), rgba(245,158,11,0.12));
+      border: 1px solid rgba(240, 180, 41, 0.5);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+    .champion-banner .lbl { color: #8b92a8; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
+    .champion-banner .team { font-size: 1.8em; font-weight: 900; color: #f0b429; margin-top: 4px; }
+
     /* ===================== MOBILE (mobile-first pass) ===================== */
     @media (max-width: 600px) {
       body { padding: 12px; }
@@ -447,6 +495,7 @@
       <button class="tab-btn" id="tabBtnFixture" onclick="showTab('fixture')">📅 Fixture</button>
       <button class="tab-btn" id="tabBtnStandings" onclick="showTab('standings')">📊 Posiciones</button>
       <button class="tab-btn" id="tabBtnChances" onclick="showTab('chances')">🔮 Chances</button>
+      <button class="tab-btn" id="tabBtnBracket" onclick="showTab('bracket')">🏆 Cuadro</button>
     </div>
 
     <div class="card hidden" id="formPanel">
@@ -522,6 +571,12 @@
     <div class="card hidden" id="chancesPanel">
       <p class="source-note" id="chancesMeta" style="margin-top:0; margin-bottom:16px;"></p>
       <div id="chancesContainer"></div>
+    </div>
+
+    <div class="card hidden" id="bracketPanel">
+      <p class="source-note" id="bracketMeta" style="margin-top:0; margin-bottom:16px;"></p>
+      <div id="bracketChampion"></div>
+      <div id="bracketContainer"></div>
     </div>
 
     <footer>
@@ -770,13 +825,14 @@
 
     /** Cambia de pestaña (Predictor / Fixture / Posiciones / Chances). */
     function showTab(name) {
-      const panels = { predictor: 'formPanel', fixture: 'fixturePanel', standings: 'standingsPanel', chances: 'chancesPanel' };
-      const buttons = { predictor: 'tabBtnPredictor', fixture: 'tabBtnFixture', standings: 'tabBtnStandings', chances: 'tabBtnChances' };
+      const panels = { predictor: 'formPanel', fixture: 'fixturePanel', standings: 'standingsPanel', chances: 'chancesPanel', bracket: 'bracketPanel' };
+      const buttons = { predictor: 'tabBtnPredictor', fixture: 'tabBtnFixture', standings: 'tabBtnStandings', chances: 'tabBtnChances', bracket: 'tabBtnBracket' };
       for (const [k, id] of Object.entries(panels)) {
         document.getElementById(id).classList.toggle('hidden', k !== name);
         document.getElementById(buttons[k]).classList.toggle('active', k === name);
       }
       if (name === 'chances') renderChances();   // simula al abrir (lazy)
+      if (name === 'bracket') renderBracket();
     }
 
     // ---- Fixture (calendario oficial del Mundial 2026) -----------------
@@ -1102,6 +1158,174 @@
       document.getElementById('chancesContainer').innerHTML = html;
     }
 
+    // ---- Cuadro de eliminatorias (proyección dinámica) -----------------
+    // Estructura oficial WC2026 (números de partido FIFA). 1X = ganador grupo X,
+    // 2X = segundo de X, 3@m = mejor tercero asignado al partido m.
+    const R32 = {
+      73: [['2', 'A'], ['2', 'B']], 74: [['1', 'E'], ['3', 74]], 75: [['1', 'F'], ['2', 'C']],
+      76: [['1', 'C'], ['2', 'F']], 77: [['1', 'I'], ['3', 77]], 78: [['2', 'E'], ['2', 'I']],
+      79: [['1', 'A'], ['3', 79]], 80: [['1', 'L'], ['3', 80]], 81: [['1', 'D'], ['3', 81]],
+      82: [['1', 'G'], ['3', 82]], 83: [['2', 'K'], ['2', 'L']], 84: [['1', 'H'], ['2', 'J']],
+      85: [['1', 'B'], ['3', 85]], 86: [['1', 'J'], ['2', 'H']], 87: [['1', 'K'], ['3', 87]],
+      88: [['2', 'D'], ['2', 'G']],
+    };
+    // Grupos elegibles para el tercero de cada llave (tabla FIFA).
+    const THIRD_SLOTS = {
+      74: ['A', 'B', 'C', 'D', 'F'], 77: ['C', 'D', 'F', 'G', 'H'], 79: ['C', 'E', 'F', 'H', 'I'],
+      80: ['E', 'H', 'I', 'J', 'K'], 81: ['B', 'E', 'F', 'I', 'J'], 82: ['A', 'E', 'H', 'I', 'J'],
+      85: ['E', 'F', 'G', 'I', 'J'], 87: ['D', 'E', 'I', 'J', 'L'],
+    };
+    const R16 = { 89: [74, 77], 90: [73, 75], 91: [76, 78], 92: [79, 80], 93: [83, 84], 94: [81, 82], 95: [86, 88], 96: [85, 87] };
+    const QF = { 97: [89, 90], 98: [93, 94], 99: [91, 92], 100: [95, 96] };
+    const SF = { 101: [97, 98], 102: [99, 100] };
+    const FINAL_M = 104, FINAL_SRC = [101, 102];
+
+    /** P(local gana), P(empate), P(visitante gana) de dos λ (Poisson indep.). */
+    function wdl(la, lb) {
+      const N = 8, A = [], B = [];
+      for (let i = 0; i < N; i++) { A.push(poissonPmf(i, la)); B.push(poissonPmf(i, lb)); }
+      let pw = 0, pd = 0, pl = 0;
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+        const p = A[i] * B[j];
+        if (i > j) pw += p; else if (i === j) pd += p; else pl += p;
+      }
+      return [pw, pd, pl];
+    }
+
+    /** Tabla proyectada por grupo: resultados reales + puntos esperados del resto. */
+    function projectGroups() {
+      const stand = {}, thirds = [];
+      for (const g in GROUPS) {
+        const teams = GROUPS[g], xp = {}, xgd = {}, xgf = {};
+        teams.forEach(t => { xp[t] = xgd[t] = xgf[t] = 0; });
+        for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) {
+          const a = teams[i], b = teams[j], rs = realScore(a, b);
+          if (rs) {
+            const [ga, gb] = rs;
+            xgf[a] += ga; xgd[a] += ga - gb; xgf[b] += gb; xgd[b] += gb - ga;
+            if (ga > gb) xp[a] += 3; else if (ga < gb) xp[b] += 3; else { xp[a]++; xp[b]++; }
+          } else {
+            const [la, lb] = simLambdas(a, b), [pw, pd] = wdl(la, lb), pl = 1 - pw - pd;
+            xp[a] += 3 * pw + pd; xp[b] += 3 * pl + pd;
+            xgf[a] += la; xgd[a] += la - lb; xgf[b] += lb; xgd[b] += lb - la;
+          }
+        }
+        const ranked = teams.slice().sort((x, y) => xp[y] - xp[x] || xgd[y] - xgd[x] || xgf[y] - xgf[x]);
+        stand[g] = ranked.map(t => ({ team: t, group: g, xp: xp[t], xgd: xgd[t], xgf: xgf[t] }));
+        thirds.push(stand[g][2]);
+      }
+      thirds.sort((x, y) => y.xp - x.xp || y.xgd - x.xgd || y.xgf - x.xgf);
+      return { stand, qualThirds: thirds.slice(0, 8) };
+    }
+
+    /** Asigna los 8 mejores terceros a sus llaves (matching válido por grupo). */
+    function assignThirds(qualThirds) {
+      const slots = Object.keys(THIRD_SLOTS).map(Number);
+      const groups = qualThirds.map(t => t.group);
+      const assign = {}, used = new Set();
+      (function bt(si) {
+        if (si === slots.length) return true;
+        for (const grp of THIRD_SLOTS[slots[si]]) {
+          if (groups.includes(grp) && !used.has(grp)) {
+            assign[slots[si]] = grp; used.add(grp);
+            if (bt(si + 1)) return true;
+            used.delete(grp); delete assign[slots[si]];
+          }
+        }
+        return false;
+      })(0);
+      const byGroup = {}; qualThirds.forEach(t => (byGroup[t.group] = t));
+      const out = {}; for (const s in assign) out[s] = byGroup[assign[s]];
+      return out;
+    }
+
+    /** En una llave (neutral) avanza el favorito; empates ~50/50 (penales). */
+    function koWinner(a, b) {
+      if (!a || !b) return a || b;
+      const SH = model.teamStrengthHome, SA = model.teamStrengthAway;
+      const la = Math.exp((SH[a.team] || 0) + (SA[b.team] || 0));
+      const lb = Math.exp((SH[b.team] || 0) + (SA[a.team] || 0));
+      const [pw, pd, pl] = wdl(la, lb);
+      const pa = pw + pd / 2, pb = pl + pd / 2;
+      const w = pa >= pb ? a : b;
+      return { ...w, wp: Math.max(pa, pb) };
+    }
+
+    /** Proyecta todo el cuadro y devuelve los cruces y ganadores por ronda. */
+    function projectBracket() {
+      const { stand, qualThirds } = projectGroups();
+      const thirdOf = assignThirds(qualThirds);
+      const teamOf = ([type, ref]) =>
+        type === '1' ? stand[ref][0] : type === '2' ? stand[ref][1] : thirdOf[ref];
+
+      const matchups = {}, winners = {};
+      for (const m in R32) {
+        const a = teamOf(R32[m][0]), b = teamOf(R32[m][1]);
+        matchups[m] = [a, b]; winners[m] = koWinner(a, b);
+      }
+      const play = def => { for (const m in def) { const a = winners[def[m][0]], b = winners[def[m][1]]; matchups[m] = [a, b]; winners[m] = koWinner(a, b); } };
+      play(R16); play(QF); play(SF);
+      const fa = winners[FINAL_SRC[0]], fb = winners[FINAL_SRC[1]];
+      matchups[FINAL_M] = [fa, fb]; winners[FINAL_M] = koWinner(fa, fb);
+      return { matchups, winners, champion: winners[FINAL_M] };
+    }
+
+    let bracketKey = '';
+    function renderBracket() {
+      if (!modelReady) return;
+      const key = resultsData
+        ? (resultsData.updated || '') + ':' + Object.keys(resultsData.matches || {}).length
+        : 'none';
+      if (key === bracketKey && document.getElementById('bracketContainer').innerHTML) return;
+      bracketKey = key;
+
+      const { matchups, winners, champion } = projectBracket();
+      const played = resultsData ? Object.values(resultsData.matches || {}).filter(v => v.status === 'FINISHED').length : 0;
+
+      document.getElementById('bracketMeta').innerHTML =
+        `🏆 Cuadro <b>proyectado</b> con los ${played} resultados ya jugados + el modelo. ` +
+        `Los puestos de cada grupo salen de la tabla proyectada y en cada llave avanza el favorito ` +
+        `(empates a penales ≈ 50/50). Se actualiza con cada resultado.`;
+
+      document.getElementById('bracketChampion').innerHTML = champion ? `
+        <div class="champion-banner">
+          <div class="lbl">Campeón proyectado</div>
+          <div class="team">🏆 ${champion.team}</div>
+        </div>` : '';
+
+      const seedLabel = ([type, ref]) => type === '1' ? `1°${ref}` : type === '2' ? `2°${ref}` : '3°';
+      const rounds = [
+        ['16avos de final', R32, m => [seedLabel(R32[m][0]), seedLabel(R32[m][1])]],
+        ['Octavos de final', R16, () => ['', '']],
+        ['Cuartos de final', QF, () => ['', '']],
+        ['Semifinales', SF, () => ['', '']],
+      ];
+      let html = '';
+      const renderMatch = (m, seeds) => {
+        const [a, b] = matchups[m] || [];
+        const w = winners[m];
+        const side = (t, seed) => {
+          if (!t) return `<div class="ko-side"><span class="seed">${seed || ''}</span><span class="name" style="color:#555d75">—</span></div>`;
+          const isW = w && w.team === t.team;
+          return `<div class="ko-side${isW ? ' win' : ''}">
+            <span class="seed">${seed || ''}</span>
+            <span class="name">${t.team}</span>
+            <span class="wp">${isW ? (w.wp * 100).toFixed(0) + '%' : ''}</span>
+          </div>`;
+        };
+        return `<div class="ko-match">${side(a, seeds[0])}${side(b, seeds[1])}</div>`;
+      };
+      for (const [title, def, seedFn] of rounds) {
+        const ids = Object.keys(def);
+        html += `<div class="bracket-round"><h3>${title}</h3><div class="ko-grid">`;
+        ids.forEach(m => { html += renderMatch(m, seedFn(m)); });
+        html += `</div></div>`;
+      }
+      // Final
+      html += `<div class="bracket-round"><h3>Final</h3><div class="ko-grid one">${renderMatch(FINAL_M, ['', ''])}</div></div>`;
+      document.getElementById('bracketContainer').innerHTML = html;
+    }
+
     window.addEventListener('load', () => {
       loadModel();
       document.getElementById('fixtureProbsToggle').addEventListener('change', renderFixture);
@@ -1113,8 +1337,9 @@
         if (!modelReady || document.visibilityState !== 'visible') return;
         loadStandings();
         if (fixtureData) { await loadResults(); renderFixture(); }
-        // Si la pestaña Chances está abierta, re-simula (solo si cambiaron los resultados).
+        // Si Chances o Cuadro están abiertos, recalculan (solo si cambiaron los resultados).
         if (!document.getElementById('chancesPanel').classList.contains('hidden')) renderChances();
+        if (!document.getElementById('bracketPanel').classList.contains('hidden')) renderBracket();
       }, 45000);
     });
   </script>
