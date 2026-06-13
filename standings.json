@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-13T00:13:41+00:00",
+  "updated": "2026-06-13T00:38:31+00:00",
   "matchesPlayed": 3,
   "live": true,
   "source": "football-data.org",
@@ -28,7 +28,7 @@
         "points": 3
       },
       {
-        "team": "Czechia",
+        "team": "Czech Republic",
         "played": 1,
         "won": 0,
         "drawn": 0,
