@@ -312,6 +312,19 @@
     .tracker .t-sub { color: #8b92a8; font-size: 0.85em; }
     .tracker b { color: #f0f2f8; }
 
+    /* ---- Simulador de clasificación (Chances) ---- */
+    .chance-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 2px;
+      font-size: 0.9em;
+    }
+    .chance-team { width: 130px; font-weight: 600; color: #f0f2f8; flex-shrink: 0; }
+    .chance-adv { width: 42px; text-align: right; font-weight: 800; color: #f0f2f8; }
+    .chance-win { width: 64px; text-align: right; color: #8b92a8; font-size: 0.85em; }
+    .chance-row.qualify .chance-team { color: #34d399; }
+
     /* ===================== MOBILE (mobile-first pass) ===================== */
     @media (max-width: 600px) {
       body { padding: 12px; }
@@ -433,6 +446,7 @@
       <button class="tab-btn active" id="tabBtnPredictor" onclick="showTab('predictor')">🎯 Predictor</button>
       <button class="tab-btn" id="tabBtnFixture" onclick="showTab('fixture')">📅 Fixture</button>
       <button class="tab-btn" id="tabBtnStandings" onclick="showTab('standings')">📊 Posiciones</button>
+      <button class="tab-btn" id="tabBtnChances" onclick="showTab('chances')">🔮 Chances</button>
     </div>
 
     <div class="card hidden" id="formPanel">
@@ -503,6 +517,11 @@
     <div class="card hidden" id="standingsPanel">
       <p class="source-note" id="standingsMeta" style="margin-top:0; margin-bottom:16px;"></p>
       <div id="standingsContainer"></div>
+    </div>
+
+    <div class="card hidden" id="chancesPanel">
+      <p class="source-note" id="chancesMeta" style="margin-top:0; margin-bottom:16px;"></p>
+      <div id="chancesContainer"></div>
     </div>
 
     <footer>
@@ -749,14 +768,15 @@
       document.getElementById('resultPanel').classList.remove('hidden');
     }
 
-    /** Cambia de pestaña (Predictor / Fixture / Posiciones). */
+    /** Cambia de pestaña (Predictor / Fixture / Posiciones / Chances). */
     function showTab(name) {
-      const panels = { predictor: 'formPanel', fixture: 'fixturePanel', standings: 'standingsPanel' };
-      const buttons = { predictor: 'tabBtnPredictor', fixture: 'tabBtnFixture', standings: 'tabBtnStandings' };
+      const panels = { predictor: 'formPanel', fixture: 'fixturePanel', standings: 'standingsPanel', chances: 'chancesPanel' };
+      const buttons = { predictor: 'tabBtnPredictor', fixture: 'tabBtnFixture', standings: 'tabBtnStandings', chances: 'tabBtnChances' };
       for (const [k, id] of Object.entries(panels)) {
         document.getElementById(id).classList.toggle('hidden', k !== name);
         document.getElementById(buttons[k]).classList.toggle('active', k === name);
       }
+      if (name === 'chances') renderChances();   // simula al abrir (lazy)
     }
 
     // ---- Fixture (calendario oficial del Mundial 2026) -----------------
@@ -942,6 +962,146 @@
       container.innerHTML = html;
     }
 
+    // ---- Simulador de clasificación (Monte Carlo dinámico) --------------
+    // Composición oficial de los 12 grupos (sorteo final, dic 2025).
+    const GROUPS = {
+      A: ['Czech Republic', 'Mexico', 'South Africa', 'South Korea'],
+      B: ['Bosnia and Herzegovina', 'Canada', 'Qatar', 'Switzerland'],
+      C: ['Brazil', 'Haiti', 'Morocco', 'Scotland'],
+      D: ['Australia', 'Paraguay', 'Turkey', 'United States'],
+      E: ['Curaçao', 'Ecuador', 'Germany', 'Ivory Coast'],
+      F: ['Japan', 'Netherlands', 'Sweden', 'Tunisia'],
+      G: ['Belgium', 'Egypt', 'Iran', 'New Zealand'],
+      H: ['Cabo Verde', 'Saudi Arabia', 'Spain', 'Uruguay'],
+      I: ['France', 'Iraq', 'Norway', 'Senegal'],
+      J: ['Algeria', 'Argentina', 'Austria', 'Jordan'],
+      K: ['Colombia', 'DR Congo', 'Portugal', 'Uzbekistan'],
+      L: ['Croatia', 'England', 'Ghana', 'Panama'],
+    };
+    const HOST_SET = new Set(['Mexico', 'United States', 'Canada']);
+    const SIM_RUNS = 8000;
+
+    /** Muestra Poisson (Knuth) — goles de un equipo dado su λ. */
+    function poissonSample(lambda) {
+      const L = Math.exp(-lambda);
+      let k = 0, p = 1;
+      do { k++; p *= Math.random(); } while (p > L);
+      return k - 1;
+    }
+
+    /** λ de cada lado con ventaja de anfitrión (igual criterio que el fixture). */
+    function simLambdas(home, away) {
+      const SH = model.teamStrengthHome, SA = model.teamStrengthAway;
+      const haH = HOST_SET.has(home) ? model.homeAdvantage : 0;
+      const haA = HOST_SET.has(away) ? model.homeAdvantage : 0;
+      return [
+        Math.exp((SH[home] || 0) + (SA[away] || 0) + haH),
+        Math.exp((SH[away] || 0) + (SA[home] || 0) + haA),
+      ];
+    }
+
+    /** Marcador real [gA, gB] si el partido ya terminó, orientado a (a,b). */
+    function realScore(a, b) {
+      if (!resultsData || !resultsData.matches) return null;
+      const v = resultsData.matches[[a, b].sort().join('|')];
+      if (!v || v.status !== 'FINISHED') return null;
+      return v.home === a ? [v.homeGoals, v.awayGoals] : [v.awayGoals, v.homeGoals];
+    }
+
+    /** Precalcula los 6 cruces de cada grupo: marcador fijo (ya jugado) o λ. */
+    function buildSimPlan() {
+      const plan = {};
+      let played = 0;
+      for (const g in GROUPS) {
+        const teams = GROUPS[g], matches = [];
+        for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) {
+          const a = teams[i], b = teams[j], rs = realScore(a, b);
+          if (rs) { matches.push({ a, b, fixed: rs }); played++; }
+          else { const [la, lb] = simLambdas(a, b); matches.push({ a, b, la, lb }); }
+        }
+        plan[g] = { teams, matches };
+      }
+      return { plan, played };
+    }
+
+    /** Corre N simulaciones y agrega % de ganar grupo / clasificar por equipo. */
+    function runSimulation(plan, N) {
+      const agg = {};
+      for (const g in GROUPS) GROUPS[g].forEach(t => (agg[t] = { team: t, group: g, win: 0, adv: 0 }));
+
+      for (let s = 0; s < N; s++) {
+        const thirds = [];
+        for (const g in plan) {
+          const { teams, matches } = plan[g];
+          const pts = {}, gd = {}, gf = {};
+          teams.forEach(t => { pts[t] = gd[t] = gf[t] = 0; });
+          for (const m of matches) {
+            const ga = m.fixed ? m.fixed[0] : poissonSample(m.la);
+            const gb = m.fixed ? m.fixed[1] : poissonSample(m.lb);
+            gf[m.a] += ga; gd[m.a] += ga - gb;
+            gf[m.b] += gb; gd[m.b] += gb - ga;
+            if (ga > gb) pts[m.a] += 3; else if (ga < gb) pts[m.b] += 3; else { pts[m.a]++; pts[m.b]++; }
+          }
+          const ranked = teams.slice().sort((x, y) =>
+            pts[y] - pts[x] || gd[y] - gd[x] || gf[y] - gf[x] || Math.random() - 0.5);
+          agg[ranked[0]].win++; agg[ranked[0]].adv++;   // 1º: gana grupo + clasifica
+          agg[ranked[1]].adv++;                          // 2º: clasifica
+          thirds.push({ team: ranked[2], pts: pts[ranked[2]], gd: gd[ranked[2]], gf: gf[ranked[2]] });
+        }
+        // 8 mejores terceros
+        thirds.sort((x, y) => y.pts - x.pts || y.gd - x.gd || y.gf - x.gf || Math.random() - 0.5);
+        for (let i = 0; i < 8; i++) agg[thirds[i].team].adv++;
+      }
+      for (const t in agg) { agg[t].winPct = agg[t].win / N * 100; agg[t].advPct = agg[t].adv / N * 100; }
+      return agg;
+    }
+
+    let chancesKey = '';
+    /** Renderiza el simulador; re-corre solo si cambiaron los resultados. */
+    function renderChances() {
+      if (!modelReady) return;
+      const container = document.getElementById('chancesContainer');
+      const key = resultsData
+        ? (resultsData.updated || '') + ':' + Object.keys(resultsData.matches || {}).length
+        : 'none';
+      if (key === chancesKey && container.innerHTML) return;   // sin cambios
+
+      container.innerHTML = '<p class="source-note" style="text-align:center;">Simulando 8.000 torneos…</p>';
+      // setTimeout para que pinte "Simulando…" antes del cálculo (bloqueante ~1s).
+      setTimeout(() => {
+        const { plan, played } = buildSimPlan();
+        const agg = runSimulation(plan, SIM_RUNS);
+        chancesKey = key;
+        paintChances(agg, played);
+      }, 20);
+    }
+
+    function paintChances(agg, played) {
+      document.getElementById('chancesMeta').innerHTML =
+        `🔮 Simulación Monte Carlo (<b>8.000</b> torneos) de los partidos que faltan, ` +
+        `fijando los <b>${played}</b> ya jugados. Se actualiza con cada resultado. ` +
+        `<b>%</b> = probabilidad de clasificar (avanzan 2 por grupo + 8 mejores terceros) · ` +
+        `🥇 = ganar el grupo.`;
+      let html = '';
+      for (const g in GROUPS) {
+        const rows = GROUPS[g].map(t => agg[t]).sort((a, b) => b.advPct - a.advPct || b.winPct - a.winPct);
+        html += `<div class="standings-group"><h3>Grupo ${g}</h3>`;
+        rows.forEach((r, i) => {
+          const adv = r.advPct, win = r.winPct;
+          const grad = adv >= 50 ? '#34d399,#10b981' : (adv >= 20 ? '#f0b429,#f59e0b' : '#8b92a8,#6b7280');
+          html += `
+            <div class="chance-row${i < 2 ? ' qualify' : ''}">
+              <span class="chance-team">${r.team}</span>
+              <span class="bar"><span style="width:${adv.toFixed(0)}%; background:linear-gradient(90deg,${grad})"></span></span>
+              <span class="chance-adv">${adv.toFixed(0)}%</span>
+              <span class="chance-win">🥇 ${win.toFixed(0)}%</span>
+            </div>`;
+        });
+        html += `</div>`;
+      }
+      document.getElementById('chancesContainer').innerHTML = html;
+    }
+
     window.addEventListener('load', () => {
       loadModel();
       document.getElementById('fixtureProbsToggle').addEventListener('change', renderFixture);
@@ -953,6 +1113,8 @@
         if (!modelReady || document.visibilityState !== 'visible') return;
         loadStandings();
         if (fixtureData) { await loadResults(); renderFixture(); }
+        // Si la pestaña Chances está abierta, re-simula (solo si cambiaron los resultados).
+        if (!document.getElementById('chancesPanel').classList.contains('hidden')) renderChances();
       }, 45000);
     });
   </script>
