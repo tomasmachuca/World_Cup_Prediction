@@ -245,6 +245,17 @@
       margin-bottom: 8px;
     }
 
+    .dc-tip {
+      margin-top: 6px;
+      font-size: 0.8em;
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.1);
+      border-radius: 6px;
+      padding: 4px 8px;
+      display: inline-block;
+    }
+    .dc-tip b { color: #34d399; font-weight: 800; }
+
     .fixture-teams { font-weight: 600; font-size: 1.02em; }
     .fixture-meta { color: #8b92a8; font-size: 0.8em; margin-top: 3px; }
     .fixture-probs { color: #8b92a8; font-size: 0.82em; margin-top: 5px; }
@@ -914,6 +925,17 @@
     }
 
     /**
+     * Doble chance para partidos parejos (ningún resultado pasa de 45%):
+     * combina al favorito con el empate -> 1X (local o empate) o X2 (visitante
+     * o empate). Devuelve null si hay un favorito razonable. Probs en fracción.
+     */
+    function doubleChance(p1, pX, p2) {
+      if (Math.max(p1, p2) >= 0.45) return null;
+      const homeFav = p1 >= p2;
+      return { code: homeFav ? '1X' : 'X2', homeFav, prob: homeFav ? p1 + pX : pX + p2 };
+    }
+
+    /**
      * Explica en lenguaje natural por qué salió esa probabilidad y, si está
      * muy ajustado, recomienda las alternativas (otro equipo o empate).
      */
@@ -977,6 +999,12 @@
         `<span style="font-size:0.7em; color:${best.color}">(${best.conf.toFixed(1)}% · Confianza ${best.level})</span>`;
       rec.style.background = 'rgba(255,255,255,0.04)';
       rec.style.border = `1px solid ${best.color}`;
+      const dc = doubleChance(r.p1, r.pX, r.p2);
+      if (dc) {
+        const dcLabel = dc.homeFav ? `${home} o empate` : `${away} o empate`;
+        rec.innerHTML += `<div style="font-size:0.6em; margin-top:8px; color:#34d399; font-weight:700;">` +
+          `💡 Pick más seguro: ${dc.code} (${dcLabel}) · ${(dc.prob * 100).toFixed(0)}%</div>`;
+      }
 
       document.getElementById('matchTitle').innerHTML = `${flag(home)} ${home} <span style="color:#555d75">vs</span> ${flag(away)} ${away}`;
       document.getElementById('homeLabel').innerHTML = `${flag(home)} ${home}`;
@@ -1110,6 +1138,11 @@
           const probsLine = (showProbs && m.prob_1 != null)
             ? `<div class="fixture-probs">1: ${m.prob_1}% · X: ${m.prob_X}% · 2: ${m.prob_2}% &nbsp;|&nbsp; λ ${m.expectedGoals}</div>`
             : '';
+          // Doble chance para partidos parejos (favorito < 45%).
+          const dcF = m.prob_1 != null ? doubleChance(m.prob_1 / 100, m.prob_X / 100, m.prob_2 / 100) : null;
+          const dcLine = dcF
+            ? `<div class="dc-tip">💡 Parejo · pick seguro <b>${dcF.code}</b> (${dcF.homeFav ? m.home : m.away} o empate · ${(dcF.prob * 100).toFixed(0)}%)</div>`
+            : '';
 
           // Resultado real (en vivo): marcador + tilde/cruz si ya terminó.
           const rr = matchResult(m);
@@ -1131,6 +1164,7 @@
                 <div class="fixture-meta">${kick}Grupo ${m.group} · ${m.city}${m.hostTeam ? ` · <span class="host-tag">🏠 ${m.hostTeam} de local</span>` : ''}</div>
                 ${scoreLine}
                 ${probsLine}
+                ${dcLine}
               </div>
               <div class="fixture-pick">
                 <div class="pick-code" style="color:${colors[code] || '#8b92a8'}">${code}</div>
