@@ -669,10 +669,11 @@
       container.innerHTML = html;
     }
 
-    // ---- Posiciones (tabla de grupos, desde resultados reales) ----------
+    // ---- Posiciones (tabla de grupos, en vivo desde football-data.org) ---
     async function loadStandings() {
       try {
-        const res = await fetch('standings.json');
+        // Cache-busting: el CDN de Pages podría servir una copia vieja.
+        const res = await fetch('standings.json?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok) throw new Error('No se pudo cargar standings.json');
         const data = await res.json();
         renderStandings(data);
@@ -682,10 +683,22 @@
       }
     }
 
+    /** Formatea un ISO a hora local "HH:MM:SS". */
+    function formatTime(iso) {
+      try {
+        return new Date(iso).toLocaleTimeString('es-AR', { hour12: false });
+      } catch { return iso || ''; }
+    }
+
     function renderStandings(data) {
       const meta = document.getElementById('standingsMeta');
-      meta.textContent = `${data.matchesPlayed} partidos de grupos jugados · se actualiza al reentrenar ` +
-        `con nuevos resultados. Los 2 primeros de cada grupo (verde) avanzan, más los 8 mejores terceros.`;
+      const live = !!data.live;
+      const dot = live
+        ? `<span style="color:#f87171;">🔴 EN VIVO</span> · datos de ${data.source || 'football-data.org'} · `
+        : '';
+      const stamp = data.updated ? `actualizado ${formatTime(data.updated)} · ` : '';
+      meta.innerHTML = `${dot}${stamp}${data.matchesPlayed} partidos de grupos jugados. ` +
+        `Los 2 primeros de cada grupo (verde) avanzan, más los 8 mejores terceros.`;
       const container = document.getElementById('standingsContainer');
       let html = '';
       Object.keys(data.groups).sort().forEach(g => {
@@ -707,6 +720,13 @@
     window.addEventListener('load', () => {
       loadModel();
       document.getElementById('fixtureProbsToggle').addEventListener('change', renderFixture);
+
+      // Refresco en vivo de las posiciones: vuelve a pedir standings.json cada
+      // 45 s (solo cuando la pestaña del navegador está visible, para no gastar
+      // pedidos de fondo). El workflow live-standings la regenera en el server.
+      setInterval(() => {
+        if (modelReady && document.visibilityState === 'visible') loadStandings();
+      }, 45000);
     });
   </script>
 </body>
