@@ -85,6 +85,8 @@
       font-size: 1em;
       cursor: pointer;
     }
+    /* Opciones del desplegable nativo: fondo sólido para que se lean. */
+    select option { background-color: #141a30; color: #f0f2f8; }
 
     select:hover {
       border-color: rgba(34, 211, 238, 0.6);
@@ -547,8 +549,10 @@
     body.light footer { color: #5b6478; }
     body.light select,
     body.light .tab-btn {
-      background: #eef1f8; color: #5b6478; border-color: rgba(0, 0, 0, 0.12);
+      background: #eef1f8; color: #1a1f35; border-color: rgba(0, 0, 0, 0.12);
     }
+    body.light select option { background-color: #ffffff; color: #1a1f35; }
+    body.light .tab-btn { color: #5b6478; }
     body.light .tab-btn.active { color: #0a0e1a; }
     body.light .theme-toggle { background: #ffffff; border-color: rgba(0, 0, 0, 0.15); }
     body.light .fixture-match,
