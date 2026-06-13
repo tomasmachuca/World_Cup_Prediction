@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-13T22:48:29+00:00",
+  "updated": "2026-06-13T23:53:52+00:00",
   "matchesPlayed": 5,
   "live": true,
   "source": "football-data.org",
@@ -98,15 +98,26 @@
     ],
     "C": [
       {
-        "team": "Morocco",
+        "team": "Brazil",
         "played": 1,
-        "won": 1,
-        "drawn": 0,
+        "won": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 1,
-        "ga": 0,
-        "gd": 1,
-        "points": 3
+        "ga": 1,
+        "gd": 0,
+        "points": 1
+      },
+      {
+        "team": "Morocco",
+        "played": 1,
+        "won": 0,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 1,
+        "ga": 1,
+        "gd": 0,
+        "points": 1
       },
       {
         "team": "Haiti",
@@ -128,17 +139,6 @@
         "gf": 0,
         "ga": 0,
         "gd": 0,
-        "points": 0
-      },
-      {
-        "team": "Brazil",
-        "played": 1,
-        "won": 0,
-        "drawn": 0,
-        "lost": 1,
-        "gf": 0,
-        "ga": 1,
-        "gd": -1,
         "points": 0
       }
     ],
