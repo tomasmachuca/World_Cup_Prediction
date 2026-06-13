@@ -260,6 +260,91 @@
     .fixture-match.done-ok { background: rgba(52, 211, 153, 0.07); }
     .fixture-match.done-bad { background: rgba(248, 113, 113, 0.07); }
 
+    /* Predictor enriquecido: resultados exactos + mercados. */
+    .extra-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .extra-block {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .extra-title {
+      color: #8b92a8;
+      font-size: 0.8em;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .score-row, .market-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.92em;
+    }
+    .score-label, .market-label { width: 64px; font-weight: 700; color: #f0f2f8; }
+    .market-label { width: auto; flex: 1; font-weight: 600; color: #cdd2e0; }
+    .bar {
+      flex: 1;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar > span { display: block; height: 100%; background: linear-gradient(90deg, #f0b429, #f59e0b); }
+    .score-pct, .market-pct { width: 46px; text-align: right; color: #f0b429; font-weight: 700; }
+
+    /* ---- Tracker de precisión del modelo (Fixture) ---- */
+    .tracker {
+      background: rgba(52, 211, 153, 0.08);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: baseline;
+    }
+    .tracker .t-main { font-size: 1.15em; font-weight: 800; color: #34d399; }
+    .tracker .t-sub { color: #8b92a8; font-size: 0.85em; }
+    .tracker b { color: #f0f2f8; }
+
+    /* ===================== MOBILE (mobile-first pass) ===================== */
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      header { padding: 20px 14px; margin-bottom: 24px; }
+      h1 { font-size: 1.6em; }
+      .subtitle { font-size: 0.95em; }
+      .card { padding: 16px; }
+
+      /* Pestañas: que no se aprieten ni desborden. */
+      .tabs { flex-wrap: wrap; }
+      .tab-btn { font-size: 0.9em; padding: 10px; }
+
+      /* Probabilidades 1/X/2 en una sola fila más compacta. */
+      .probability-grid { gap: 8px; }
+      .probability-item { padding: 10px 6px; }
+      .prob-value { font-size: 1.35em; }
+      #recommendation { font-size: 1.1em; }
+
+      /* Predictor enriquecido apilado en mobile. */
+      .extra-stats { grid-template-columns: 1fr; }
+
+      /* Tablas de posiciones: scroll horizontal en vez de desbordar. */
+      .standings-group { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table.standings { min-width: 480px; font-size: 0.82em; }
+
+      /* Fixture: pick un poco más chico. */
+      .pick-code { font-size: 1.35em; }
+      .verdict { font-size: 1.3em; }
+    }
+
     .fixture-kick {
       color: #f0b429;
       font-weight: 700;
@@ -368,7 +453,7 @@
       </div>
 
       <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-        <input type="checkbox" id="neutral" style="width:auto; cursor:pointer;">
+        <input type="checkbox" id="neutral" checked style="width:auto; cursor:pointer;">
         <label for="neutral" style="margin:0; cursor:pointer;">
           Sede neutral (sin ventaja de local) — recomendado para el Mundial
         </label>
@@ -398,6 +483,18 @@
           </div>
 
           <div class="expected-goals" id="expectedGoals"></div>
+
+          <div id="extraStats" class="extra-stats">
+            <div class="extra-block">
+              <div class="extra-title">Resultados exactos más probables</div>
+              <div id="scoreList" class="score-list"></div>
+            </div>
+            <div class="extra-block">
+              <div class="extra-title">Mercados</div>
+              <div id="marketList" class="market-list"></div>
+            </div>
+          </div>
+
           <div class="source-note" id="sourceNote"></div>
         </div>
       </div>
@@ -576,6 +673,70 @@
       return { ...best, conf, level, color };
     }
 
+    /**
+     * Matriz de marcadores P(i goles local, j goles visitante) con la
+     * corrección Dixon-Coles para marcadores bajos, renormalizada. Misma
+     * λ que se muestra como "goles esperados", así los exactos son coherentes.
+     */
+    function scorelineMatrix(home, away, neutral) {
+      const SH = model.teamStrengthHome, SA = model.teamStrengthAway;
+      const ha = neutral ? 0 : model.homeAdvantage;
+      const lambdaHome = Math.exp((SH[home] || 0) + (SA[away] || 0) + ha);
+      const lambdaAway = Math.exp((SH[away] || 0) + (SA[home] || 0));
+      const rho = model.rho, N = 8;
+      const ph = [], pa = [];
+      for (let i = 0; i < N; i++) { ph.push(poissonPmf(i, lambdaHome)); pa.push(poissonPmf(i, lambdaAway)); }
+      const M = []; let s = 0;
+      for (let i = 0; i < N; i++) {
+        M.push([]);
+        for (let j = 0; j < N; j++) {
+          let pij = ph[i] * pa[j];
+          if (i === 0 && j === 0) pij *= 1 - lambdaHome * lambdaAway * rho;
+          else if (i === 0 && j === 1) pij *= 1 + lambdaHome * rho;
+          else if (i === 1 && j === 0) pij *= 1 + lambdaAway * rho;
+          else if (i === 1 && j === 1) pij *= 1 - rho;
+          if (pij < 0) pij = 0;
+          M[i][j] = pij; s += pij;
+        }
+      }
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) M[i][j] /= s;
+      return { M, N, lambdaHome, lambdaAway };
+    }
+
+    /** Top-5 marcadores exactos + mercados O/U 2.5 y BTTS desde la matriz. */
+    function renderExtraStats(home, away, neutral) {
+      const { M, N } = scorelineMatrix(home, away, neutral);
+      const scores = [];
+      let over = 0, btts = 0;
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+        scores.push({ s: `${i}-${j}`, p: M[i][j] });
+        if (i + j >= 3) over += M[i][j];
+        if (i >= 1 && j >= 1) btts += M[i][j];
+      }
+      scores.sort((a, b) => b.p - a.p);
+      const top = scores.slice(0, 5);
+      const max = top[0].p || 1;
+
+      document.getElementById('scoreList').innerHTML = top.map(x => `
+        <div class="score-row">
+          <span class="score-label">${x.s}</span>
+          <span class="bar"><span style="width:${(x.p / max * 100).toFixed(0)}%"></span></span>
+          <span class="score-pct">${(x.p * 100).toFixed(1)}%</span>
+        </div>`).join('');
+
+      const markets = [
+        { label: 'Más de 2.5 goles', p: over },
+        { label: 'Menos de 2.5 goles', p: 1 - over },
+        { label: 'Ambos marcan (BTTS)', p: btts },
+      ];
+      document.getElementById('marketList').innerHTML = markets.map(m => `
+        <div class="market-row">
+          <span class="market-label">${m.label}</span>
+          <span class="bar"><span style="width:${(m.p * 100).toFixed(0)}%"></span></span>
+          <span class="market-pct">${(m.p * 100).toFixed(0)}%</span>
+        </div>`).join('');
+    }
+
     /** Realiza una predicción y la muestra. */
     function makePrediction() {
       if (!modelReady) return;
@@ -606,7 +767,9 @@
       document.getElementById('awayProb').textContent = (r.p2 * 100).toFixed(1) + '%';
       document.getElementById('expectedGoals').textContent =
         `Goles esperados (λ): ${lam.lambdaHome.toFixed(2)} - ${lam.lambdaAway.toFixed(2)}`;
-      document.getElementById('sourceNote').textContent = `Fuente: ${r.source}`;
+      renderExtraStats(home, away, neutral);
+      document.getElementById('sourceNote').textContent =
+        `Fuente 1/X/2: ${r.source}. Resultados exactos y mercados: modelo de goles Dixon-Coles.`;
 
       document.getElementById('resultPanel').classList.remove('hidden');
     }
@@ -671,6 +834,37 @@
       return { sh, sa, outcome, live: !!r.live, finished, hit: outcome === m.prediction };
     }
 
+    /** Probabilidades neutrales [p1,pX,p2] del modelo para un cruce cualquiera. */
+    function modelNeutralProbs(home, away) {
+      let a = model.matchProbabilities[`${home}|${away}`];
+      if (a) return [a[3] / 100, a[4] / 100, a[5] / 100];
+      a = model.matchProbabilities[`${away}|${home}`];      // orden invertido
+      if (a) return [a[5] / 100, a[4] / 100, a[3] / 100];    // y swap 1<->2
+      const r = dixonColesProbs(home, away, true);
+      return [r.p1, r.pX, r.p2];
+    }
+
+    /**
+     * Rendimiento acumulado del modelo en TODO el torneo: recorre los partidos
+     * ya terminados (results.json) y los compara con la predicción neutral del
+     * modelo. Devuelve aciertos, % y Brier multiclase. null si aún no hay datos.
+     */
+    function computeTracker() {
+      if (!resultsData || !resultsData.matches) return null;
+      let n = 0, hits = 0, brier = 0;
+      for (const key in resultsData.matches) {
+        const v = resultsData.matches[key];
+        if (v.status !== 'FINISHED') continue;
+        const p = modelNeutralProbs(v.home, v.away);
+        const out = v.homeGoals > v.awayGoals ? 0 : (v.homeGoals === v.awayGoals ? 1 : 2);
+        const pick = p.indexOf(Math.max(...p));
+        n++; if (pick === out) hits++;
+        const y = [0, 0, 0]; y[out] = 1;
+        brier += p.reduce((s, pi, i) => s + (pi - y[i]) ** 2, 0);
+      }
+      return n ? { n, hits, acc: hits / n * 100, brier: brier / n } : null;
+    }
+
     function renderFixture() {
       if (!fixtureData) return;
       const showProbs = document.getElementById('fixtureProbsToggle').checked;
@@ -678,19 +872,18 @@
       const byDate = {};
       fixtureData.matches.forEach(m => { (byDate[m.date] = byDate[m.date] || []).push(m); });
 
-      // Tally de aciertos sobre los partidos ya terminados.
-      let hits = 0, finished = 0;
-      fixtureData.matches.forEach(m => {
-        const rr = matchResult(m);
-        if (rr && rr.finished) { finished++; if (rr.hit) hits++; }
-      });
-      const tally = finished
-        ? `<b style="color:#34d399">Aciertos del modelo: ${hits}/${finished}</b>
-           (${(hits / finished * 100).toFixed(0)}%) · `
+      // Tracker acumulado del modelo en todo el torneo (results.json).
+      const t = computeTracker();
+      const tracker = t
+        ? `<div class="tracker">
+             <span class="t-main">📊 ${t.acc.toFixed(0)}% de acierto</span>
+             <span class="t-sub"><b>${t.hits}/${t.n}</b> partidos jugados · Brier <b>${t.brier.toFixed(3)}</b>
+             (más bajo = mejor) · predicción neutral del modelo vs resultado real</span>
+           </div>`
         : '';
 
-      let html = `<p class="source-note" style="margin-top:0; margin-bottom:14px;">
-        ${tally}Fecha ${fixtureData.matchday} · horarios en <b>hora de Argentina</b> (UTC-3).
+      let html = tracker + `<p class="source-note" style="margin-top:0; margin-bottom:14px;">
+        Fecha ${fixtureData.matchday} · horarios en <b>hora de Argentina</b> (UTC-3).
         <span style="color:#34d399">✓</span> = el modelo acertó · <span style="color:#f87171">✗</span> = falló.</p>`;
       Object.keys(byDate).sort().forEach(date => {
         html += `<div class="fixture-day"><div class="fixture-day-header">${formatDate(date)}</div>`;
