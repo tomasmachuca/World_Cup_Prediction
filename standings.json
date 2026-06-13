@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-13T00:40:25+00:00",
-  "matchesPlayed": 3,
+  "updated": "2026-06-13T04:51:35+00:00",
+  "matchesPlayed": 4,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -144,18 +144,18 @@
     ],
     "D": [
       {
-        "team": "Australia",
-        "played": 0,
-        "won": 0,
+        "team": "United States",
+        "played": 1,
+        "won": 1,
         "drawn": 0,
         "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
+        "gf": 4,
+        "ga": 1,
+        "gd": 3,
+        "points": 3
       },
       {
-        "team": "Paraguay",
+        "team": "Australia",
         "played": 0,
         "won": 0,
         "drawn": 0,
@@ -177,14 +177,14 @@
         "points": 0
       },
       {
-        "team": "United States",
-        "played": 0,
+        "team": "Paraguay",
+        "played": 1,
         "won": 0,
         "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "lost": 1,
+        "gf": 1,
+        "ga": 4,
+        "gd": -3,
         "points": 0
       }
     ],
