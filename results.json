@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-13T21:44:43+00:00",
+  "updated": "2026-06-13T22:48:30+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -46,6 +46,15 @@
       "outcome": "X",
       "status": "FINISHED",
       "live": false
+    },
+    "Brazil|Morocco": {
+      "home": "Brazil",
+      "away": "Morocco",
+      "homeGoals": 1,
+      "awayGoals": 1,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
