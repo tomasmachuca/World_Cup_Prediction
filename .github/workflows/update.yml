@@ -42,7 +42,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes."
           else
-            git commit -m "chore: auto-update predictions [skip ci]"
+            git commit -m "chore: auto-update predictions"
             git pull --rebase origin main
             git push
           fi

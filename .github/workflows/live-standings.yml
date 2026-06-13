@@ -39,7 +39,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No standings changes."
           else
-            git commit -m "chore: live standings update [skip ci]"
+            git commit -m "chore: live standings update"
             git pull --rebase origin main
             git push
           fi
