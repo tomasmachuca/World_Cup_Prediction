@@ -39,6 +39,7 @@ API_NAME_MAP = {
     "Türkiye": "Turkey",
     "Turkiye": "Turkey",
     "Cape Verde": "Cabo Verde",
+    "Cape Verde Islands": "Cabo Verde",
     "Bosnia-Herzegovina": "Bosnia and Herzegovina",
     "Bosnia & Herzegovina": "Bosnia and Herzegovina",
     "Congo DR": "DR Congo",

@@ -182,6 +182,16 @@
       display: none;
     }
 
+    .flag {
+      width: 20px;
+      height: 14px;
+      object-fit: cover;
+      border-radius: 2px;
+      vertical-align: middle;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+    }
+
     .tabs {
       display: flex;
       gap: 10px;
@@ -265,6 +275,22 @@
     .extra-stats {
       margin-top: 16px;
     }
+
+    .why {
+      background: rgba(255, 255, 255, 0.04);
+      border-left: 3px solid #22d3ee;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 14px;
+      font-size: 0.92em;
+      line-height: 1.55;
+      color: #cdd2e0;
+    }
+    .why.clear { border-left-color: #34d399; }
+    .why.tight { border-left-color: #f0b429; }
+    .why b { color: #f0f2f8; }
+    body.light .why b { color: #1a1f35; }
+    body.light .why { color: #41485c; }
     .extra-block {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.07);
@@ -470,9 +496,72 @@
       margin-top: 40px;
       padding: 20px;
     }
+
+    /* Conectores del cuadro (color por CSS, así cambia con el tema). */
+    .bk-lines path { fill: none; stroke: rgba(255, 255, 255, 0.22); stroke-width: 1.5; }
+
+    /* Botón de tema (flotante arriba a la derecha). */
+    .theme-toggle {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      width: auto;
+      z-index: 50;
+      padding: 8px 12px;
+      font-size: 1.1em;
+      background: rgba(26, 31, 53, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      cursor: pointer;
+      color: inherit;
+    }
+    .theme-toggle:hover { transform: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+    /* ===================== TEMA CLARO (blanco y negro) ===================== */
+    body.light {
+      background: linear-gradient(135deg, #eef1f8 0%, #e4e8f3 50%, #eef1f8 100%);
+      color: #1a1f35;
+    }
+    body.light header,
+    body.light .card { background: #ffffff; border-color: rgba(0, 0, 0, 0.08); }
+    body.light .subtitle,
+    body.light label,
+    body.light .source-note,
+    body.light .prob-label,
+    body.light .fixture-meta,
+    body.light .fixture-probs,
+    body.light .pick-conf,
+    body.light .t-sub,
+    body.light .chance-win,
+    body.light footer { color: #5b6478; }
+    body.light select,
+    body.light .tab-btn {
+      background: #eef1f8; color: #5b6478; border-color: rgba(0, 0, 0, 0.12);
+    }
+    body.light .tab-btn.active { color: #0a0e1a; }
+    body.light .theme-toggle { background: #ffffff; border-color: rgba(0, 0, 0, 0.15); }
+    body.light .fixture-match,
+    body.light .extra-block,
+    body.light .probability-item { background: #f5f7fc; border-color: rgba(0, 0, 0, 0.07); }
+    body.light .result-box { background: #eef6fb; }
+    body.light table.standings th { color: #5b6478; border-bottom-color: rgba(0, 0, 0, 0.12); }
+    body.light table.standings td.team { color: #1a1f35; }
+    body.light .bar,
+    body.light .chance-row .bar { background: rgba(0, 0, 0, 0.08); }
+    body.light .chance-team,
+    body.light .chance-adv,
+    body.light .score-label,
+    body.light .bk-seed { color: #1a1f35; }
+    body.light .bk-match { background: #ffffff; border-color: rgba(0, 0, 0, 0.14); }
+    body.light .bk-name { color: #1a1f35; }
+    body.light .bk-team.empty .bk-name { color: #aab0c2; }
+    body.light .bk-team + .bk-team { border-top-color: rgba(0, 0, 0, 0.1); }
+    body.light .bk-lines path { stroke: rgba(0, 0, 0, 0.28); }
+    body.light .why { background: #f5f7fc; }
   </style>
 </head>
 <body>
+  <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema claro/oscuro">🌙</button>
   <div class="container">
     <header>
       <h1>⚽ World Cup 2026 Predictor</h1>
@@ -538,6 +627,8 @@
 
           <div class="expected-goals" id="expectedGoals"></div>
 
+          <div id="why"></div>
+
           <div id="extraStats" class="extra-stats">
             <div class="extra-block">
               <div class="extra-title">Resultados exactos más probables</div>
@@ -586,6 +677,44 @@
     let model = null;
     let modelReady = false;
 
+    // Código ISO (flagcdn) por selección. Banderas reales, también en Windows.
+    const FLAGS = {
+      'Mexico': 'mx', 'South Africa': 'za', 'South Korea': 'kr', 'Czech Republic': 'cz',
+      'Canada': 'ca', 'Bosnia and Herzegovina': 'ba', 'Qatar': 'qa', 'Switzerland': 'ch',
+      'Brazil': 'br', 'Haiti': 'ht', 'Morocco': 'ma', 'Scotland': 'gb-sct',
+      'Australia': 'au', 'Paraguay': 'py', 'Turkey': 'tr', 'United States': 'us',
+      'Germany': 'de', 'Curaçao': 'cw', 'Netherlands': 'nl', 'Japan': 'jp',
+      'Ivory Coast': 'ci', 'Ecuador': 'ec', 'Sweden': 'se', 'Tunisia': 'tn',
+      'Spain': 'es', 'Cabo Verde': 'cv', 'Belgium': 'be', 'Egypt': 'eg',
+      'Saudi Arabia': 'sa', 'Uruguay': 'uy', 'Iran': 'ir', 'New Zealand': 'nz',
+      'France': 'fr', 'Senegal': 'sn', 'Iraq': 'iq', 'Norway': 'no',
+      'Argentina': 'ar', 'Algeria': 'dz', 'Austria': 'at', 'Jordan': 'jo',
+      'Portugal': 'pt', 'DR Congo': 'cd', 'England': 'gb-eng', 'Croatia': 'hr',
+      'Ghana': 'gh', 'Panama': 'pa', 'Uzbekistan': 'uz', 'Colombia': 'co',
+      'Cape Verde Islands': 'cv',   // alias por si llega sin normalizar
+    };
+    /** <img> de bandera para una selección (vacío si no la conocemos). */
+    function flag(team) {
+      const c = FLAGS[team];
+      return c ? `<img class="flag" src="https://flagcdn.com/w40/${c}.png" alt="" loading="lazy">` : '';
+    }
+
+    /** Alterna tema claro/oscuro y lo recuerda. */
+    function toggleTheme() {
+      const light = !document.body.classList.contains('light');
+      document.body.classList.toggle('light', light);
+      document.getElementById('themeToggle').textContent = light ? '☀️' : '🌙';
+      try { localStorage.setItem('wc26theme', light ? 'light' : 'dark'); } catch (e) {}
+    }
+    function applyTheme() {
+      let t = 'dark';
+      try { t = localStorage.getItem('wc26theme') || 'dark'; } catch (e) {}
+      if (t === 'light') {
+        document.body.classList.add('light');
+        document.getElementById('themeToggle').textContent = '☀️';
+      }
+    }
+
     /**
      * Carga el modelo preentrenado desde model.json
      */
@@ -607,6 +736,7 @@
           rho: data.rho ?? 0,
           temperature: data.calibrationTemperature ?? 1,
           matchProbabilities: data.matchProbabilities || {},
+          eloRatings: data.eloRatings || {},
           validation: data.validation || {},
           totalTrainingSamples: data.totalTrainingSamples,
           teamsCount: data.teamsCount,
@@ -783,6 +913,49 @@
         </div>`).join('');
     }
 
+    /**
+     * Explica en lenguaje natural por qué salió esa probabilidad y, si está
+     * muy ajustado, recomienda las alternativas (otro equipo o empate).
+     */
+    function explainPrediction(home, away, neutral, r, lam) {
+      const ps = [
+        { c: '1', team: home, label: `gana ${home}` },
+        { c: 'X', team: 'empate', label: 'el empate' },
+        { c: '2', team: away, label: `gana ${away}` },
+      ].map(o => ({ ...o, p: o.c === '1' ? r.p1 : o.c === 'X' ? r.pX : r.p2 }))
+        .sort((a, b) => b.p - a.p);
+      const [top, second, third] = ps;
+      const margin = (top.p - second.p) * 100;
+      const lh = lam.lambdaHome, la = lam.lambdaAway;
+      const elo = model.eloRatings || {}, eh = elo[home], ea = elo[away];
+
+      const reasons = [`el modelo espera <b>${lh.toFixed(1)}</b> goles de ${home} y <b>${la.toFixed(1)}</b> de ${away}`];
+      if (eh != null && ea != null) {
+        const diff = eh - ea, strong = diff >= 0 ? home : away;
+        reasons.push(Math.abs(diff) >= 35
+          ? `${strong} tiene bastante mejor Elo (${Math.round(eh)} vs ${Math.round(ea)})`
+          : `están parejos en Elo (${Math.round(eh)} vs ${Math.round(ea)})`);
+      }
+      reasons.push(neutral ? 'se juega en sede neutral' : `${home} es local (suma ventaja de localía)`);
+
+      const pct = x => (x.p * 100).toFixed(0) + '%';
+      const topName = top.c === 'X' ? 'El empate' : top.team;
+      let verdict, cls;
+      if (margin >= 18) {
+        verdict = `<b>${topName}</b> es el favorito claro (${pct(top)}).`;
+        cls = 'clear';
+      } else if (margin >= 7) {
+        verdict = `Ligera ventaja para <b>${topName}</b> (${pct(top)}), pero el partido está abierto.`;
+        cls = 'mid';
+      } else {
+        verdict = `⚖️ <b>Muy parejo</b>: cualquiera puede pasar. Lo más probable es ${top.label} (${pct(top)}), ` +
+          `pero ${second.label} (${pct(second)}) o ${third.label} (${pct(third)}) son alternativas reales — ` +
+          `${top.c === 'X' || second.c === 'X' ? 'ojo con el empate' : 'no descartes el empate'}.`;
+        cls = 'tight';
+      }
+      return `<div class="why ${cls}"><b>Por qué:</b> ${reasons.join('; ')}. ${verdict}</div>`;
+    }
+
     /** Realiza una predicción y la muestra. */
     function makePrediction() {
       if (!modelReady) return;
@@ -805,14 +978,15 @@
       rec.style.background = 'rgba(255,255,255,0.04)';
       rec.style.border = `1px solid ${best.color}`;
 
-      document.getElementById('matchTitle').textContent = `${home} vs ${away}`;
-      document.getElementById('homeLabel').textContent = home;
+      document.getElementById('matchTitle').innerHTML = `${flag(home)} ${home} <span style="color:#555d75">vs</span> ${flag(away)} ${away}`;
+      document.getElementById('homeLabel').innerHTML = `${flag(home)} ${home}`;
       document.getElementById('homeProb').textContent = (r.p1 * 100).toFixed(1) + '%';
       document.getElementById('drawProb').textContent = (r.pX * 100).toFixed(1) + '%';
-      document.getElementById('awayLabel').textContent = away;
+      document.getElementById('awayLabel').innerHTML = `${flag(away)} ${away}`;
       document.getElementById('awayProb').textContent = (r.p2 * 100).toFixed(1) + '%';
       document.getElementById('expectedGoals').textContent =
         `Goles esperados (λ): ${lam.lambdaHome.toFixed(2)} - ${lam.lambdaAway.toFixed(2)}`;
+      document.getElementById('why').innerHTML = explainPrediction(home, away, neutral, r, lam);
       renderExtraStats(home, away, neutral);
       document.getElementById('sourceNote').textContent =
         `Fuente 1/X/2: ${r.source}. Resultados exactos y mercados: modelo de goles Dixon-Coles.`;
@@ -829,12 +1003,15 @@
         document.getElementById(buttons[k]).classList.toggle('active', k === name);
       }
       if (name === 'chances') renderChances();   // simula al abrir (lazy)
-      if (name === 'bracket') renderBracket();
+      if (name === 'bracket') {
+        if (!standingsData) loadStandings().then(renderBracket); else renderBracket();
+      }
     }
 
     // ---- Fixture (calendario oficial del Mundial 2026) -----------------
     let fixtureData = null;
     let resultsData = null;   // resultados reales en vivo (results.json)
+    let standingsData = null;  // tabla real en vivo (standings.json)
 
     const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     const WDAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -950,7 +1127,7 @@
           html += `
             <div class="fixture-match pick-${code}${rr && rr.finished ? (rr.hit ? ' done-ok' : ' done-bad') : ''}">
               <div>
-                <div class="fixture-teams">${m.home} <span style="color:#555d75">vs</span> ${m.away}</div>
+                <div class="fixture-teams">${flag(m.home)} ${m.home} <span style="color:#555d75">vs</span> ${flag(m.away)} ${m.away}</div>
                 <div class="fixture-meta">${kick}Grupo ${m.group} · ${m.city}${m.hostTeam ? ` · <span class="host-tag">🏠 ${m.hostTeam} de local</span>` : ''}</div>
                 ${scoreLine}
                 ${probsLine}
@@ -974,6 +1151,7 @@
         const res = await fetch('standings.json?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok) throw new Error('No se pudo cargar standings.json');
         const data = await res.json();
+        standingsData = data;
         renderStandings(data);
       } catch (e) {
         document.getElementById('standingsContainer').innerHTML =
@@ -1007,7 +1185,7 @@
           const cls = i < 2 ? 'qualify' : '';
           const gd = (r.gd > 0 ? '+' : '') + r.gd;
           html += `<tr class="${cls}">
-            <td class="team">${r.team}</td><td>${r.played}</td><td>${r.won}</td><td>${r.drawn}</td>
+            <td class="team">${flag(r.team)} ${r.team}</td><td>${r.played}</td><td>${r.won}</td><td>${r.drawn}</td>
             <td>${r.lost}</td><td>${r.gf}</td><td>${r.ga}</td><td>${gd}</td><td class="pts">${r.points}</td></tr>`;
         });
         html += `</table></div>`;
@@ -1144,7 +1322,7 @@
           const grad = adv >= 50 ? '#34d399,#10b981' : (adv >= 20 ? '#f0b429,#f59e0b' : '#8b92a8,#6b7280');
           html += `
             <div class="chance-row${i < 2 ? ' qualify' : ''}">
-              <span class="chance-team">${r.team}</span>
+              <span class="chance-team">${flag(r.team)} ${r.team}</span>
               <span class="bar"><span style="width:${adv.toFixed(0)}%; background:linear-gradient(90deg,${grad})"></span></span>
               <span class="chance-adv">${adv.toFixed(0)}%</span>
               <span class="chance-win">🥇 ${win.toFixed(0)}%</span>
@@ -1246,12 +1424,30 @@
       return null;   // empate (se define por penales, dato no disponible aún)
     }
 
+    /** Posiciones REALES (standings.json) por grupo + 8 mejores terceros. */
+    function realGroupTables() {
+      if (!standingsData || !standingsData.groups) return null;
+      const stand = {}, thirds = [];
+      for (const g in GROUPS) {
+        const rows = (standingsData.groups[g] || []).slice()
+          .sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf || a.team.localeCompare(b.team));
+        if (rows.length < 4) return null;   // tabla incompleta: esperar
+        stand[g] = rows.map(r => ({ team: r.team, group: g, pts: r.points, gd: r.gd, gf: r.gf }));
+        thirds.push(stand[g][2]);
+      }
+      thirds.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+      return { stand, qualThirds: thirds.slice(0, 8) };
+    }
+
     /**
-     * Arma el cuadro: los 16avos se completan con la proyección de grupos;
-     * las rondas siguientes sólo se llenan cuando hay un resultado REAL.
+     * Arma el cuadro: los 16avos salen de la TABLA REAL (standings.json) y se
+     * recalculan a medida que se juegan los partidos; las rondas siguientes
+     * sólo se llenan cuando hay un resultado REAL de eliminación.
      */
     function buildBracketTeams() {
-      const { stand, qualThirds } = projectGroups();
+      const tables = realGroupTables();
+      if (!tables) return null;
+      const { stand, qualThirds } = tables;
       const thirdOf = assignThirds(qualThirds);
       const teamOf = ([type, ref]) =>
         type === '1' ? stand[ref][0] : type === '2' ? stand[ref][1] : thirdOf[ref];
@@ -1289,26 +1485,32 @@
     let bracketKey = '';
     function renderBracket() {
       if (!modelReady) return;
-      const key = resultsData
-        ? (resultsData.updated || '') + ':' + Object.keys(resultsData.matches || {}).length
-        : 'none';
       const container = document.getElementById('bracketContainer');
+      const su = standingsData ? (standingsData.updated || '') : '';
+      const ru = resultsData ? (resultsData.updated || '') + ':' + Object.keys(resultsData.matches || {}).length : '';
+      const key = su + '|' + ru;
       if (key === bracketKey && container.innerHTML) { setTimeout(drawConnectors, 40); return; }
       bracketKey = key;
       document.getElementById('bracketChampion').innerHTML = '';
 
-      const { slot, winner } = buildBracketTeams();
-      const played = resultsData ? Object.values(resultsData.matches || {}).filter(v => v.status === 'FINISHED').length : 0;
+      const built = buildBracketTeams();
+      if (!built) {
+        document.getElementById('bracketMeta').innerHTML = '🏆 Cuadro oficial del Mundial 2026.';
+        container.innerHTML = '<p class="source-note" style="text-align:center;">Esperando la tabla de posiciones en vivo…</p>';
+        return;
+      }
+      const { slot, winner } = built;
+      const played = standingsData ? standingsData.matchesPlayed : 0;
       document.getElementById('bracketMeta').innerHTML =
-        `🏆 Cuadro oficial. Los <b>16avos</b> se completan con la proyección de la fase de grupos ` +
-        `según los <b>${played}</b> resultados de ahora; las rondas siguientes se van llenando a medida ` +
-        `que se juegan. Se actualiza solo. <span class="bk-hint">↔ deslizá para ver todo el cuadro.</span>`;
+        `🏆 Cuadro oficial. Los <b>16avos</b> salen de la <b>tabla real</b> (1°/2° de cada grupo + 8 mejores terceros) ` +
+        `con los <b>${played}</b> partidos jugados hasta ahora y se reacomodan a medida que se juega. Las rondas ` +
+        `siguientes se llenan con los resultados de eliminación. <span class="bk-hint">↔ deslizá para ver todo.</span>`;
 
       const teamRow = (t, seed, side) => {
         const name = t ? t.team : '—';
         const cls = `bk-team${t ? '' : ' empty'}`;
         const seedHtml = seed ? `<span class="bk-seed">${seed}</span>` : '';
-        const nameHtml = `<span class="bk-name">${name}</span>`;
+        const nameHtml = `<span class="bk-name">${t ? flag(t.team) + ' ' : ''}${name}</span>`;
         return `<div class="${cls}">${side === 'r' ? nameHtml + seedHtml : seedHtml + nameHtml}</div>`;
       };
       const matchBox = (m, side) => {
@@ -1345,7 +1547,7 @@
         if (fr.left < tr.left) { fx = fr.right - base.left; tx = tr.left - base.left; }
         else { fx = fr.left - base.left; tx = tr.right - base.left; }
         const mx = (fx + tx) / 2;
-        d += `<path d="M${fx} ${fy} H${mx} V${ty} H${tx}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>`;
+        d += `<path d="M${fx} ${fy} H${mx} V${ty} H${tx}"/>`;
       }
       svg.setAttribute('width', bk.scrollWidth);
       svg.setAttribute('height', bk.scrollHeight);
@@ -1356,6 +1558,7 @@
     });
 
     window.addEventListener('load', () => {
+      applyTheme();
       loadModel();
       document.getElementById('fixtureProbsToggle').addEventListener('change', renderFixture);
 
@@ -1364,7 +1567,7 @@
       // pedidos de fondo). El workflow live-standings la regenera en el server.
       setInterval(async () => {
         if (!modelReady || document.visibilityState !== 'visible') return;
-        loadStandings();
+        await loadStandings();
         if (fixtureData) { await loadResults(); renderFixture(); }
         // Si Chances o Cuadro están abiertos, recalculan (solo si cambiaron los resultados).
         if (!document.getElementById('chancesPanel').classList.contains('hidden')) renderChances();
