@@ -7,6 +7,13 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Bot commits (live standings/results, daily retrain) are pushed with the
+  # default GITHUB_TOKEN, which by design does NOT trigger the push event
+  # above. workflow_run re-deploys once those workflows finish so live data
+  # actually reaches the site.
+  workflow_run:
+    workflows: ["Live standings", "Update predictions & standings"]
+    types: [completed]
   workflow_dispatch: {}
 
 permissions:
