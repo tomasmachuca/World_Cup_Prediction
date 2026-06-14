@@ -352,6 +352,38 @@
     .an-bar > span { display: block; height: 100%; background: linear-gradient(90deg, #22d3ee, #0ea5b7); }
     body.light .an-name { color: #41485c; }
     body.light .an-bar { background: rgba(0,0,0,0.08); }
+
+    /* ---- Apuestas recomendadas ---- */
+    .bet-match {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    body.light .bet-match { background: #f7f9fd; border-color: rgba(0,0,0,0.07); }
+    .bet-head {
+      font-weight: 700; font-size: 1.02em; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .bet-row {
+      display: flex; align-items: baseline; gap: 10px;
+      padding: 8px 10px; margin-bottom: 7px; border-radius: 8px;
+      border-left: 4px solid #555d75; background: rgba(255,255,255,0.03);
+    }
+    body.light .bet-row { background: rgba(0,0,0,0.03); }
+    .bet-row:last-child { margin-bottom: 0; }
+    .bet-row.safe { border-left-color: #34d399; }
+    .bet-row.medium { border-left-color: #f0b429; }
+    .bet-row.risky { border-left-color: #f87171; }
+    .bet-tier { font-weight: 800; font-size: 0.8em; width: 78px; flex-shrink: 0; }
+    .bet-row.safe .bet-tier { color: #34d399; }
+    .bet-row.medium .bet-tier { color: #f0b429; }
+    .bet-row.risky .bet-tier { color: #f87171; }
+    .bet-pick { flex: 1; font-weight: 600; }
+    .bet-num { color: #8b92a8; font-size: 0.85em; white-space: nowrap; }
+    .bet-num b { color: #f0f2f8; }
+    body.light .bet-num b { color: #1a1f35; }
     body.light .why b { color: #1a1f35; }
     body.light .why { color: #41485c; }
     .extra-block {
@@ -667,6 +699,7 @@
       <button class="tab-btn" id="tabBtnStandings" onclick="showTab('standings')">📊 Posiciones</button>
       <button class="tab-btn" id="tabBtnChances" onclick="showTab('chances')">🔮 Chances</button>
       <button class="tab-btn" id="tabBtnBracket" onclick="showTab('bracket')">🏆 Cuadro</button>
+      <button class="tab-btn" id="tabBtnBets" onclick="showTab('bets')">💰 Apuestas</button>
     </div>
 
     <div class="card hidden" id="formPanel">
@@ -755,6 +788,13 @@
       <p class="source-note" id="bracketMeta" style="margin-top:0; margin-bottom:16px;"></p>
       <div id="bracketChampion"></div>
       <div id="bracketContainer"></div>
+    </div>
+
+    <div class="card hidden" id="betsPanel">
+      <p class="source-note" id="betsMeta" style="margin-top:0; margin-bottom:14px;"></p>
+      <div class="group-filter" id="betsGroupFilter"></div>
+      <button id="betsCopyBtn" class="analytics-toggle" style="margin-top:0;margin-bottom:14px;" onclick="copyBets()">📋 Copiar todos los tips</button>
+      <div id="betsContainer"></div>
     </div>
 
     <footer>
@@ -1127,6 +1167,128 @@
         open ? '📊 Ocultar detalle analítico' : '📊 Ver detalle analítico';
     }
 
+    // ---- Motor de apuestas (multi-mercado, sobre probabilidades calibradas) --
+    /** P(total > line) para un total ~ Poisson(mean). line tipo 8.5. */
+    function poissonOver(mean, line) {
+      let cum = 0, k = Math.floor(line);
+      for (let i = 0; i <= k; i++) cum += poissonPmf(i, mean);
+      return 1 - cum;
+    }
+
+    /**
+     * Lista de apuestas candidatas (cada una con su probabilidad) derivadas de
+     * TODOS los modelos: 1X2, doble chance, goles O/U, BTTS, marcador exacto,
+     * córners y tarjetas. Luego elige una segura / media / complicada.
+     */
+    function buildBets(home, away, neutral, p1, pX, p2) {
+      const c = [];
+      const add = (p, pick) => { if (p > 0.02 && p < 0.985) c.push({ p, pick }); };
+      add(p1, `Gana ${home}`); add(pX, 'Empate'); add(p2, `Gana ${away}`);
+      add(p1 + pX, `${home} o empate (doble 1X)`);
+      add(pX + p2, `${away} o empate (doble X2)`);
+      add(p1 + p2, `Sin empate (doble 12)`);
+
+      const { M, N } = scorelineMatrix(home, away, neutral);
+      let o15 = 0, o25 = 0, o35 = 0, btts = 0; const scores = [];
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+        const p = M[i][j], tot = i + j;
+        if (tot >= 2) o15 += p; if (tot >= 3) o25 += p; if (tot >= 4) o35 += p;
+        if (i >= 1 && j >= 1) btts += p; scores.push({ s: `${i}-${j}`, p });
+      }
+      add(o15, 'Más de 1.5 goles'); add(1 - o15, 'Menos de 1.5 goles');
+      add(o25, 'Más de 2.5 goles'); add(1 - o25, 'Menos de 2.5 goles');
+      add(o35, 'Más de 3.5 goles'); add(1 - o35, 'Menos de 3.5 goles');
+      add(btts, 'Ambos marcan'); add(1 - btts, 'No ambos marcan');
+      scores.sort((a, b) => b.p - a.p);
+      scores.slice(0, 3).forEach(x => add(x.p, `Resultado exacto ${x.s}`));
+
+      const st = expectedStats(home, away);
+      if (st) {
+        const totC = st.cH + st.cA, totK = st.kH + st.kA;
+        [8.5, 9.5, 10.5].forEach(l => { add(poissonOver(totC, l), `Más de ${l} córners`); add(1 - poissonOver(totC, l), `Menos de ${l} córners`); });
+        [3.5, 4.5].forEach(l => { add(poissonOver(totK, l), `Más de ${l} tarjetas`); add(1 - poissonOver(totK, l), `Menos de ${l} tarjetas`); });
+      }
+
+      const used = new Set();
+      const pick = (lo, hi, cmp) => {
+        const f = c.filter(x => x.p >= lo && x.p <= hi && !used.has(x.pick));
+        if (!f.length) return null;
+        f.sort(cmp); used.add(f[0].pick); return f[0];
+      };
+      // Segura: la prob más alta razonable (no trivial). Media: lo más cercano a 0.55.
+      // Complicada: bajo prob / alto pago (preferimos las de menor probabilidad).
+      const safe = pick(0.60, 0.93, (a, b) => b.p - a.p) || pick(0.50, 0.99, (a, b) => b.p - a.p);
+      const medium = pick(0.44, 0.66, (a, b) => Math.abs(0.55 - a.p) - Math.abs(0.55 - b.p));
+      const risky = pick(0.08, 0.27, (a, b) => a.p - b.p);
+      return { safe, medium, risky };
+    }
+
+    const TIERS = [
+      ['safe', '🟢 Segura', 'safe'],
+      ['medium', '🟡 Media', 'medium'],
+      ['risky', '🔴 Complicada', 'risky'],
+    ];
+    /** Apuestas para un partido del fixture (usa sus probs host-aware). */
+    function betsForMatch(m) {
+      if (m.prob_1 == null) return null;
+      const neutral = !m.hostTeam;
+      return buildBets(m.home, m.away, neutral, m.prob_1 / 100, m.prob_X / 100, m.prob_2 / 100);
+    }
+    const fairOdds = p => (1 / p).toFixed(2);
+
+    function renderBets() {
+      if (!modelReady || !fixtureData) return;
+      const container = document.getElementById('betsContainer');
+      renderGroupChips('betsGroupFilter', betsGroup, g => { betsGroup = g; renderBets(); });
+      document.getElementById('betsMeta').innerHTML =
+        `💰 Apuestas recomendadas por partido, derivadas de las <b>probabilidades calibradas</b> del modelo ` +
+        `(1X2, doble chance, goles, córners, tarjetas). <b>Cuota</b> = cuota justa (1/probabilidad). ` +
+        `Solo informativo — apostá con responsabilidad.`;
+      const matches = fixtureData.matches.filter(m => betsGroup === 'all' || m.group === betsGroup);
+      let html = '';
+      matches.forEach(m => {
+        const b = betsForMatch(m);
+        if (!b) return;
+        const rows = TIERS.map(([k, lbl, cls]) => {
+          const bet = b[k];
+          if (!bet) return '';
+          return `<div class="bet-row ${cls}">
+            <span class="bet-tier">${lbl}</span>
+            <span class="bet-pick">${bet.pick}</span>
+            <span class="bet-num"><b>${(bet.p * 100).toFixed(0)}%</b> · cuota ${fairOdds(bet.p)}</span>
+          </div>`;
+        }).join('');
+        html += `<div class="bet-match">
+          <div class="bet-head">${flag(m.home)} ${m.home} <span style="color:#555d75">vs</span> ${flag(m.away)} ${m.away}</div>
+          ${rows}</div>`;
+      });
+      container.innerHTML = html || '<p class="source-note" style="text-align:center;">Sin partidos para este filtro.</p>';
+    }
+
+    /** Texto plano de todos los tips visibles, para copiar/compartir. */
+    function betsMessage() {
+      const matches = fixtureData.matches.filter(m => betsGroup === 'all' || m.group === betsGroup);
+      const lines = ['🎯 TIPS — Mundial 2026 (modelo Dixon-Coles + ML)', ''];
+      matches.forEach(m => {
+        const b = betsForMatch(m); if (!b) return;
+        lines.push(`⚽ ${m.home} vs ${m.away}`);
+        TIERS.forEach(([k, lbl]) => {
+          const bet = b[k];
+          if (bet) lines.push(`  ${lbl}: ${bet.pick} — ${(bet.p * 100).toFixed(0)}% (cuota ${fairOdds(bet.p)})`);
+        });
+        lines.push('');
+      });
+      lines.push('Generado en https://tomasmachuca.github.io/World_Cup_Prediction/ · apostá con responsabilidad.');
+      return lines.join('\n');
+    }
+    function copyBets() {
+      const btn = document.getElementById('betsCopyBtn');
+      navigator.clipboard.writeText(betsMessage()).then(() => {
+        btn.textContent = '✅ ¡Copiado!';
+        setTimeout(() => { btn.textContent = '📋 Copiar todos los tips'; }, 1800);
+      }).catch(() => { btn.textContent = '❌ No se pudo copiar'; });
+    }
+
     /** Realiza una predicción y la muestra. */
     function makePrediction() {
       if (!modelReady) return;
@@ -1174,8 +1336,8 @@
 
     /** Cambia de pestaña (Predictor / Fixture / Posiciones / Chances). */
     function showTab(name) {
-      const panels = { predictor: 'formPanel', fixture: 'fixturePanel', standings: 'standingsPanel', chances: 'chancesPanel', bracket: 'bracketPanel' };
-      const buttons = { predictor: 'tabBtnPredictor', fixture: 'tabBtnFixture', standings: 'tabBtnStandings', chances: 'tabBtnChances', bracket: 'tabBtnBracket' };
+      const panels = { predictor: 'formPanel', fixture: 'fixturePanel', standings: 'standingsPanel', chances: 'chancesPanel', bracket: 'bracketPanel', bets: 'betsPanel' };
+      const buttons = { predictor: 'tabBtnPredictor', fixture: 'tabBtnFixture', standings: 'tabBtnStandings', chances: 'tabBtnChances', bracket: 'tabBtnBracket', bets: 'tabBtnBets' };
       for (const [k, id] of Object.entries(panels)) {
         document.getElementById(id).classList.toggle('hidden', k !== name);
         document.getElementById(buttons[k]).classList.toggle('active', k === name);
@@ -1184,6 +1346,7 @@
       if (name === 'bracket') {
         if (!standingsData) loadStandings().then(renderBracket); else renderBracket();
       }
+      if (name === 'bets') renderBets();
     }
 
     // ---- Fixture (calendario oficial del Mundial 2026) -----------------
@@ -1192,6 +1355,7 @@
     let standingsData = null;  // tabla real en vivo (standings.json)
     let fixtureGroup = 'all';  // filtro de grupo del Fixture
     let standingsGroup = 'all';  // filtro de grupo de Posiciones
+    let betsGroup = 'all';  // filtro de grupo de Apuestas
 
     const GROUP_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
 
