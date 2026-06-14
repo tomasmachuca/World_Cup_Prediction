@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-13T23:53:53+00:00",
+  "updated": "2026-06-14T04:04:21+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -53,8 +53,17 @@
       "homeGoals": 1,
       "awayGoals": 1,
       "outcome": "X",
-      "status": "IN_PLAY",
-      "live": true
+      "status": "FINISHED",
+      "live": false
+    },
+    "Haiti|Scotland": {
+      "home": "Haiti",
+      "away": "Scotland",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "outcome": "2",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
