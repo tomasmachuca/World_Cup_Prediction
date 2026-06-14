@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14T19:57:58+00:00",
+  "updated": "2026-06-14T21:23:04+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -17,15 +17,6 @@
       "homeGoals": 2,
       "awayGoals": 1,
       "outcome": "1",
-      "status": "FINISHED",
-      "live": false
-    },
-    "Bosnia and Herzegovina|Canada": {
-      "home": "Canada",
-      "away": "Bosnia and Herzegovina",
-      "homeGoals": 1,
-      "awayGoals": 1,
-      "outcome": "X",
       "status": "FINISHED",
       "live": false
     },
@@ -82,6 +73,15 @@
       "outcome": "1",
       "status": "FINISHED",
       "live": false
+    },
+    "Japan|Netherlands": {
+      "home": "Netherlands",
+      "away": "Japan",
+      "homeGoals": 1,
+      "awayGoals": 1,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
