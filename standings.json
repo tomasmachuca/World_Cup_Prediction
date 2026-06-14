@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-14T21:23:03+00:00",
-  "matchesPlayed": 9,
+  "updated": "2026-06-14T22:39:33+00:00",
+  "matchesPlayed": 10,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -241,8 +241,8 @@
         "won": 0,
         "drawn": 1,
         "lost": 0,
-        "gf": 0,
-        "ga": 0,
+        "gf": 2,
+        "ga": 2,
         "gd": 0,
         "points": 1
       },
@@ -252,8 +252,8 @@
         "won": 0,
         "drawn": 1,
         "lost": 0,
-        "gf": 0,
-        "ga": 0,
+        "gf": 2,
+        "ga": 2,
         "gd": 0,
         "points": 1
       },
