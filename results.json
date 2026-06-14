@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14T18:08:10+00:00",
+  "updated": "2026-06-14T19:57:58+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -77,11 +77,11 @@
     "Curaçao|Germany": {
       "home": "Germany",
       "away": "Curaçao",
-      "homeGoals": 3,
+      "homeGoals": 7,
       "awayGoals": 1,
       "outcome": "1",
-      "status": "PAUSED",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
