@@ -664,6 +664,28 @@
     body.light .bk-team + .bk-team { border-top-color: rgba(0, 0, 0, 0.1); }
     body.light .bk-lines path { stroke: rgba(0, 0, 0, 0.28); }
     body.light .why { background: #f5f7fc; }
+
+    /* ---- Backtest (modelo vs mercado) ---- */
+    .bt-title { font-size: 1.3em; font-weight: 800; margin-bottom: 6px; }
+    .bt-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+    .bt-stat {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 14px; text-align: center;
+    }
+    body.light .bt-stat { background: #f5f7fc; border-color: rgba(0,0,0,0.07); }
+    .bt-stat .v { font-size: 1.6em; font-weight: 900; }
+    .bt-stat .v.pos { color: #34d399; } .bt-stat .v.neg { color: #f87171; }
+    .bt-stat .l { color: #8b92a8; font-size: 0.8em; margin-top: 4px; }
+    .bt-chart { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; margin: 14px 0; }
+    body.light .bt-chart { background: #f5f7fc; }
+    table.bt-table { width: 100%; border-collapse: collapse; font-size: 0.88em; margin-top: 8px; }
+    table.bt-table th, table.bt-table td { padding: 7px 8px; text-align: center; }
+    table.bt-table th { color: #8b92a8; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    body.light table.bt-table th { border-bottom-color: rgba(0,0,0,0.12); }
+    table.bt-table td.k { text-align: left; }
+    .bt-pos { color: #34d399; } .bt-neg { color: #f87171; }
+    .bt-ex { font-size: 0.85em; color: #cdd2e0; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    body.light .bt-ex { color: #41485c; }
   </style>
 </head>
 <body>
@@ -688,6 +710,7 @@
       <button class="tab-btn" id="tabBtnStandings" onclick="showTab('standings')">📊 Posiciones</button>
       <button class="tab-btn" id="tabBtnChances" onclick="showTab('chances')">🔮 Chances</button>
       <button class="tab-btn" id="tabBtnBracket" onclick="showTab('bracket')">🏆 Cuadro</button>
+      <button class="tab-btn" id="tabBtnBacktest" onclick="showTab('backtest')">📈 Backtest</button>
     </div>
 
     <div class="card hidden" id="formPanel">
@@ -778,6 +801,10 @@
       <p class="source-note" id="bracketMeta" style="margin-top:0; margin-bottom:16px;"></p>
       <div id="bracketChampion"></div>
       <div id="bracketContainer"></div>
+    </div>
+
+    <div class="card hidden" id="backtestPanel">
+      <div id="backtestContainer"></div>
     </div>
 
     <footer>
@@ -1312,8 +1339,8 @@
 
     /** Cambia de pestaña (Predictor / Fixture / Posiciones / Chances). */
     function showTab(name) {
-      const panels = { predictor: 'formPanel', fixture: 'fixturePanel', standings: 'standingsPanel', chances: 'chancesPanel', bracket: 'bracketPanel' };
-      const buttons = { predictor: 'tabBtnPredictor', fixture: 'tabBtnFixture', standings: 'tabBtnStandings', chances: 'tabBtnChances', bracket: 'tabBtnBracket' };
+      const panels = { predictor: 'formPanel', fixture: 'fixturePanel', standings: 'standingsPanel', chances: 'chancesPanel', bracket: 'bracketPanel', backtest: 'backtestPanel' };
+      const buttons = { predictor: 'tabBtnPredictor', fixture: 'tabBtnFixture', standings: 'tabBtnStandings', chances: 'tabBtnChances', bracket: 'tabBtnBracket', backtest: 'tabBtnBacktest' };
       for (const [k, id] of Object.entries(panels)) {
         document.getElementById(id).classList.toggle('hidden', k !== name);
         document.getElementById(buttons[k]).classList.toggle('active', k === name);
@@ -1322,6 +1349,7 @@
       if (name === 'bracket') {
         if (!standingsData) loadStandings().then(renderBracket); else renderBracket();
       }
+      if (name === 'backtest') renderBacktest();
     }
 
     // ---- Fixture (calendario oficial del Mundial 2026) -----------------
@@ -1898,6 +1926,74 @@
     window.addEventListener('resize', () => {
       if (modelReady && !document.getElementById('bracketPanel').classList.contains('hidden')) drawConnectors();
     });
+
+    // ---- Backtest: modelo vs mercado (Pinnacle closing) ----------------
+    let backtestData = null;
+    async function loadBacktest() {
+      if (backtestData) return;
+      try { const r = await fetch('backtest.json'); if (r.ok) backtestData = await r.json(); } catch (e) {}
+    }
+    function renderBacktest() {
+      const c = document.getElementById('backtestContainer');
+      if (!backtestData) {
+        c.innerHTML = '<p class="source-note" style="text-align:center;">Cargando backtest…</p>';
+        loadBacktest().then(() => { if (backtestData) renderBacktest(); });
+        return;
+      }
+      const d = backtestData, h = d.headline, b = d.baselines;
+      const cls = v => v >= 0 ? 'pos' : 'neg';
+      const pct = v => (v >= 0 ? '+' : '') + v + '%';
+
+      // Curva de bankroll (SVG).
+      const curve = d.bankrollCurve, W = 600, H = 190, pad = 10;
+      const mn = Math.min(0, ...curve), mx = Math.max(0, ...curve);
+      const X = i => pad + i / (curve.length - 1) * (W - 2 * pad);
+      const Y = v => pad + (mx - v) / ((mx - mn) || 1) * (H - 2 * pad);
+      const pts = curve.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+      const last = curve[curve.length - 1];
+      const chart = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">
+        <line x1="${pad}" x2="${W - pad}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}"
+          stroke="rgba(255,255,255,0.25)" stroke-dasharray="4"/>
+        <polyline points="${pts}" fill="none" stroke="${last >= 0 ? '#34d399' : '#f87171'}" stroke-width="2"/>
+      </svg>`;
+
+      const edgeRows = d.byEdge.map(r =>
+        `<tr><td class="k">edge &gt; ${(r.edge * 100).toFixed(0)}%</td><td>${r.bets}</td>
+         <td class="${r.roi >= 0 ? 'bt-pos' : 'bt-neg'}">${pct(r.roi)}</td><td>${r.hitRate}%</td></tr>`).join('');
+      const exRows = d.examples.map(e =>
+        `<div class="bt-ex">${e.won ? '✅' : '❌'} <b>${e.pick}</b> · ${e.match} — modelo ${e.modelProb}% vs justa ${e.fairProb}% @ cuota ${e.odd}</div>`).join('');
+
+      c.innerHTML = `
+        <div class="bt-title">📈 Modelo vs Mercado</div>
+        <p class="source-note" style="margin-top:0;">
+          Backtest <b>sin leakage</b> (Elo walk-forward) de las probabilidades del modelo contra
+          <b>${d.examples.length ? 'Pinnacle closing' : 'el mercado'}</b> —el mercado más afilado— en
+          <b>${h.bets}</b> apuestas de valor de partidos internacionales desde ${d.fromDate}. Apuesta de 1 unidad
+          cuando el modelo le ve <b>${(d.edgeThreshold * 100).toFixed(0)}%+</b> de ventaja a la cuota.
+        </p>
+        <div class="bt-stats">
+          <div class="bt-stat"><div class="v ${cls(h.roi)}">${pct(h.roi)}</div><div class="l">ROI (yield)</div></div>
+          <div class="bt-stat"><div class="v">${h.hitRate}%</div><div class="l">acierto (${h.bets} bets)</div></div>
+          <div class="bt-stat"><div class="v ${cls(h.profit)}">${h.profit}u</div><div class="l">ganancia neta</div></div>
+        </div>
+        <div class="bt-chart"><div class="source-note" style="margin:0 0 6px;">Curva de bankroll (unidades acumuladas)</div>${chart}</div>
+        <table class="bt-table">
+          <tr><th class="k" style="text-align:left">Estrategia</th><th>apuestas</th><th>ROI</th><th>acierto</th></tr>
+          <tr><td class="k"><b>Value del modelo</b></td><td>${h.bets}</td><td class="${h.roi>=0?'bt-pos':'bt-neg'}"><b>${pct(h.roi)}</b></td><td>${h.hitRate}%</td></tr>
+          <tr><td class="k">Apostar al favorito</td><td>${b.betFavourite.bets}</td><td class="${b.betFavourite.roi>=0?'bt-pos':'bt-neg'}">${pct(b.betFavourite.roi)}</td><td>${b.betFavourite.hitRate}%</td></tr>
+          <tr><td class="k">Apostar el pick del modelo</td><td>${b.betModelPick.bets}</td><td class="${b.betModelPick.roi>=0?'bt-pos':'bt-neg'}">${pct(b.betModelPick.roi)}</td><td>${b.betModelPick.hitRate}%</td></tr>
+        </table>
+        <p class="source-note" style="margin-bottom:4px;">ROI según el umbral de ventaja exigido:</p>
+        <table class="bt-table"><tr><th class="k" style="text-align:left">Umbral</th><th>apuestas</th><th>ROI</th><th>acierto</th></tr>${edgeRows}</table>
+        <p class="source-note" style="margin-bottom:4px; margin-top:14px;">Ejemplos de apuestas de valor detectadas:</p>
+        ${exRows}
+        <p class="source-note" style="margin-top:14px;">
+          <b>Conclusión honesta:</b> contra Pinnacle closing —que casi nada le gana— el modelo no es rentable
+          (ROI ${pct(h.roi)}), pero pierde <b>menos que las estrategias ingenuas</b> y queda cerca del margen
+          de la casa. Es decir: sus probabilidades son <b>casi tan afiladas como el mercado</b>, lo cual ya es
+          mucho para un modelo simple. Solo informativo · apostá con responsabilidad.
+        </p>`;
+    }
 
     window.addEventListener('load', () => {
       applyTheme();
