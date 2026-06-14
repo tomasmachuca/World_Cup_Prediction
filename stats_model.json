@@ -2,6 +2,8 @@
   "source": "eatpizzanot/soccer-dataset (international matches)",
   "muCorners": 4.555,
   "muCards": 1.895,
+  "firstHalfGoalShare": 0.443,
+  "firstHalfCornerShare": 0.46,
   "shrinkK": 6.0,
   "teamsCovered": 48,
   "teams": {

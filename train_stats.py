@@ -92,16 +92,18 @@ def main():
         name = ALIAS.get(r["name"], r["name"])
         team_name[r["id"]] = name
 
-    # international fixtures -> (home_id, away_id)
+    # international fixtures -> (home_id, away_id, ft_goals_home, ft_goals_away)
     intl = {}
     for r in _rows("fixtures.csv"):
         if _i(r["league_id"]) in INT_LEAGUES and r.get("status") in ("FT", "AET", "PEN"):
-            intl[r["id"]] = (r["home_team_id"], r["away_team_id"])
+            intl[r["id"]] = (r["home_team_id"], r["away_team_id"],
+                             _i(r["goals_home"]), _i(r["goals_away"]))
     print(f"International fixtures: {len(intl)}")
 
     # accumulate per-team corners/cards for & against (only matches with real stats)
     acc = {}  # name -> dict
     used = 0
+    ht_goals = ft_goals = 0   # to estimate the first-half goal share
 
     def bump(name, cf, ca, kf, ka):
         d = acc.setdefault(name, {"m": 0, "cf": 0, "ca": 0, "kf": 0, "ka": 0})
@@ -114,14 +116,20 @@ def main():
         # gate: a real match has shots; all-zero rows are missing stats.
         if _i(r["home_shots_total"]) + _i(r["away_shots_total"]) <= 0:
             continue
-        hid, aid = fx
+        hid, aid, gh, ga = fx
         hc, ac = _i(r["home_corners"]), _i(r["away_corners"])
         hk = _i(r["home_yellow_cards"]) + _i(r["home_red_cards"])
         ak = _i(r["away_yellow_cards"]) + _i(r["away_red_cards"])
         bump(team_name.get(hid, "?"), hc, ac, hk, ak)
         bump(team_name.get(aid, "?"), ac, hc, ak, hk)
+        ht_goals += _i(r["home_goals_ht"]) + _i(r["away_goals_ht"])
+        ft_goals += gh + ga
         used += 1
     print(f"Matches with detailed stats: {used}")
+
+    # Share of goals scored in the first half (real, from HT data).
+    fh_goal_share = round(ht_goals / ft_goals, 3) if ft_goals else 0.45
+    print(f"First-half goal share: {fh_goal_share}")
 
     # global means per team-match
     tot_m = sum(d["m"] for d in acc.values())
@@ -153,6 +161,11 @@ def main():
     payload = {
         "source": "eatpizzanot/soccer-dataset (international matches)",
         "muCorners": round(mu_c, 3), "muCards": round(mu_k, 3),
+        # First-half shares: goals from real HT data; corners is a documented
+        # estimate (the dataset has no half-time corner column — slightly under
+        # half, since more corners come late).
+        "firstHalfGoalShare": fh_goal_share,
+        "firstHalfCornerShare": 0.46,
         "shrinkK": SHRINK_K, "teamsCovered": covered,
         "teams": teams_out,
     }
