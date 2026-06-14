@@ -32,6 +32,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_PATH = os.path.join(HERE, "backtest.json")
 BASE_URL = "https://raw.githubusercontent.com/eatpizzanot/soccer-dataset/main/csv"
 INT_LEAGUES = {78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88}
+# Elo ratings are learned from ALL international play (above), but the betting
+# backtest is evaluated only on these competitions. World Cup only (league 78).
+BET_LEAGUES = {78}
 HFA = 55.0       # modest home-field bump (no neutral flag in this dataset)
 K = 40.0         # Elo K-factor
 EDGE = 0.03      # required model-vs-fair edge to place a value bet (headline)
@@ -75,7 +78,7 @@ def main():
             d = (r["date"] or "")[:10]
             if d:
                 matches.append((d, r["id"], r["home_team_id"], r["away_team_id"],
-                                _i(r["goals_home"]), _i(r["goals_away"])))
+                                _i(r["goals_home"]), _i(r["goals_away"]), _i(r["league_id"])))
     matches.sort()
     print(f"International matches: {len(matches)}")
 
@@ -96,14 +99,14 @@ def main():
 
     # ---- Walk-forward Elo: record pre-match features + outcome ----
     elo = {}
-    feats, ys, rows = [], [], []   # rows: (date, fid, home, away, outcome)
-    for d, fid, h, a, gh, ga in matches:
+    feats, ys, rows = [], [], []   # rows: (date, fid, home, away, outcome, league)
+    for d, fid, h, a, gh, ga, lid in matches:
         eh, ea = elo.get(h, 1500.0), elo.get(a, 1500.0)
         diff = (eh + HFA) - ea
         outcome = 0 if gh > ga else (1 if gh == ga else 2)
         feats.append([diff / 100.0, abs(diff) / 100.0])
         ys.append(outcome)
-        rows.append((d, fid, h, a, outcome))
+        rows.append((d, fid, h, a, outcome, lid))
         # update Elo (margin-of-victory aware)
         exp_h = 1.0 / (1.0 + 10 ** (-diff / 400.0))
         res = 1.0 if gh > ga else (0.5 if gh == ga else 0.0)
@@ -131,14 +134,25 @@ def main():
     by_edge = {e: _new() for e in (0.0, 0.02, 0.05, 0.08, 0.12)}
     curve = []   # cumulative profit of the headline (EDGE) strategy
     examples = []
+    # Stable comparison (doesn't depend on betting variance): how well the
+    # model and the market predicted the same World Cup matches.
+    pq = {"n": 0, "m_hits": 0, "mk_hits": 0, "m_brier": 0.0, "mk_brier": 0.0}
 
     for k in range(len(rows)):
-        d, fid, h, a, outcome = rows[k]
-        if fid not in odds:
+        d, fid, h, a, outcome, lid = rows[k]
+        if fid not in odds or lid not in BET_LEAGUES:
             continue
         o = odds[fid]
         p = clf(feats[k])           # model probs [home, draw, away]
         fair = devig(o)             # market fair probs
+
+        # prediction quality (model vs market) on the same matches
+        pq["n"] += 1
+        y = [0.0, 0.0, 0.0]; y[outcome] = 1.0
+        if int(np.argmax(p)) == outcome: pq["m_hits"] += 1
+        if int(np.argmax(fair)) == outcome: pq["mk_hits"] += 1
+        pq["m_brier"] += sum((p[i] - y[i]) ** 2 for i in range(3))
+        pq["mk_brier"] += sum((fair[i] - y[i]) ** 2 for i in range(3))
 
         # baseline: bet the bookmaker favourite every match
         fav = int(np.argmin(o))
@@ -170,8 +184,16 @@ def main():
 
     payload = {
         "source": "eatpizzanot/soccer-dataset · Pinnacle closing odds",
+        "competition": "Copa del Mundo (FIFA World Cup 2022)",
         "fromDate": first_odds_date,
         "edgeThreshold": EDGE,
+        "predictionQuality": {
+            "n": pq["n"],
+            "model": {"acc": round(pq["m_hits"] / pq["n"] * 100, 1) if pq["n"] else 0,
+                      "brier": round(pq["m_brier"] / pq["n"], 4) if pq["n"] else 0},
+            "market": {"acc": round(pq["mk_hits"] / pq["n"] * 100, 1) if pq["n"] else 0,
+                       "brier": round(pq["mk_brier"] / pq["n"], 4) if pq["n"] else 0},
+        },
         "headline": _summary(results["all"]),
         "baselines": {
             "betFavourite": _summary(results["fav"]),

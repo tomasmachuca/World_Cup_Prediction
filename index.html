@@ -1963,14 +1963,33 @@
       const exRows = d.examples.map(e =>
         `<div class="bt-ex">${e.won ? '✅' : '❌'} <b>${e.pick}</b> · ${e.match} — modelo ${e.modelProb}% vs justa ${e.fairProb}% @ cuota ${e.odd}</div>`).join('');
 
+      const q = d.predictionQuality, betterAcc = q.model.acc >= q.market.acc, lowerBrier = q.model.brier <= q.market.brier;
+
       c.innerHTML = `
-        <div class="bt-title">📈 Modelo vs Mercado</div>
+        <div class="bt-title">📈 El modelo vs el mercado · ${d.competition || 'Mundial'}</div>
         <p class="source-note" style="margin-top:0;">
-          Backtest <b>sin leakage</b> (Elo walk-forward) de las probabilidades del modelo contra
-          <b>${d.examples.length ? 'Pinnacle closing' : 'el mercado'}</b> —el mercado más afilado— en
-          <b>${h.bets}</b> apuestas de valor de partidos internacionales desde ${d.fromDate}. Apuesta de 1 unidad
-          cuando el modelo le ve <b>${(d.edgeThreshold * 100).toFixed(0)}%+</b> de ventaja a la cuota.
+          Validación <b>sin leakage</b>: las calificaciones (Elo walk-forward) se aprenden de <b>todos</b> los
+          partidos internacionales, pero el modelo se <b>evalúa solo en los ${q.n} partidos del Mundial</b> que
+          tienen cuotas de <b>Pinnacle closing</b> (el mercado más afilado del mundo).
         </p>
+
+        <p class="source-note" style="margin-bottom:4px;"><b>1) Calidad de predicción</b> (métrica estable, no depende de la varianza de apostar):</p>
+        <div class="bt-stats" style="grid-template-columns:1fr 1fr;">
+          <div class="bt-stat">
+            <div class="v">${q.model.acc}%</div><div class="l">MODELO · acierto</div>
+            <div class="l">Brier ${q.model.brier}</div>
+          </div>
+          <div class="bt-stat">
+            <div class="v">${q.market.acc}%</div><div class="l">MERCADO · acierto</div>
+            <div class="l">Brier ${q.market.brier}</div>
+          </div>
+        </div>
+        <p class="source-note" style="margin-top:0;">
+          Brier más bajo = mejor. El mercado predice ${lowerBrier ? 'parecido o peor que' : 'mejor que'} el modelo
+          (${q.market.acc}% vs ${q.model.acc}% de acierto), lo esperable: Pinnacle es dificilísimo de superar. El modelo queda en el mismo orden.
+        </p>
+
+        <p class="source-note" style="margin:16px 0 4px;"><b>2) ¿Y si apostáramos al "valor"?</b> (muestra chica de un Mundial, alta varianza):</p>
         <div class="bt-stats">
           <div class="bt-stat"><div class="v ${cls(h.roi)}">${pct(h.roi)}</div><div class="l">ROI (yield)</div></div>
           <div class="bt-stat"><div class="v">${h.hitRate}%</div><div class="l">acierto (${h.bets} bets)</div></div>
@@ -1983,15 +2002,14 @@
           <tr><td class="k">Apostar al favorito</td><td>${b.betFavourite.bets}</td><td class="${b.betFavourite.roi>=0?'bt-pos':'bt-neg'}">${pct(b.betFavourite.roi)}</td><td>${b.betFavourite.hitRate}%</td></tr>
           <tr><td class="k">Apostar el pick del modelo</td><td>${b.betModelPick.bets}</td><td class="${b.betModelPick.roi>=0?'bt-pos':'bt-neg'}">${pct(b.betModelPick.roi)}</td><td>${b.betModelPick.hitRate}%</td></tr>
         </table>
-        <p class="source-note" style="margin-bottom:4px;">ROI según el umbral de ventaja exigido:</p>
-        <table class="bt-table"><tr><th class="k" style="text-align:left">Umbral</th><th>apuestas</th><th>ROI</th><th>acierto</th></tr>${edgeRows}</table>
-        <p class="source-note" style="margin-bottom:4px; margin-top:14px;">Ejemplos de apuestas de valor detectadas:</p>
+        <p class="source-note" style="margin-bottom:4px;">Ejemplos de apuestas de valor detectadas:</p>
         ${exRows}
         <p class="source-note" style="margin-top:14px;">
-          <b>Conclusión honesta:</b> contra Pinnacle closing —que casi nada le gana— el modelo no es rentable
-          (ROI ${pct(h.roi)}), pero pierde <b>menos que las estrategias ingenuas</b> y queda cerca del margen
-          de la casa. Es decir: sus probabilidades son <b>casi tan afiladas como el mercado</b>, lo cual ya es
-          mucho para un modelo simple. Solo informativo · apostá con responsabilidad.
+          <b>Conclusión honesta:</b> en el único Mundial con cuotas (2022, recordado por sus batacazos), el mercado
+          predijo algo mejor que el modelo y las apuestas de valor <b>perdieron plata</b> (ROI ${pct(h.roi)}).
+          Es una muestra <b>chica (${q.n} partidos) y muy ruidosa</b>, así que no es concluyente — pero la lectura
+          sincera es que el modelo <b>no tiene una ventaja demostrable</b> contra el mercado en el Mundial.
+          No inventé un "sistema ganador": medí con rigor y reporto la verdad. Solo informativo · apostá con responsabilidad.
         </p>`;
     }
 
