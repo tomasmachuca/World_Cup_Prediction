@@ -328,6 +328,30 @@
     .why.clear { border-left-color: #34d399; }
     .why.tight { border-left-color: #f0b429; }
     .why b { color: #f0f2f8; }
+
+    .analytics-toggle {
+      width: 100%;
+      margin-top: 14px;
+      padding: 10px;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      border-radius: 8px;
+      color: #22d3ee;
+      font-weight: 700;
+      font-size: 0.95em;
+      cursor: pointer;
+    }
+    .analytics-toggle:hover { transform: none; box-shadow: none; background: rgba(34, 211, 238, 0.18); }
+    #analyticsPanel { margin-top: 12px; }
+    .an-block { margin-bottom: 14px; }
+    .an-title { color: #8b92a8; font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+    .an-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 0.9em; }
+    .an-name { flex: 1; color: #cdd2e0; display: flex; align-items: center; gap: 6px; }
+    .an-val { width: 38px; text-align: right; font-weight: 800; color: #22d3ee; }
+    .an-bar { width: 45%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+    .an-bar > span { display: block; height: 100%; background: linear-gradient(90deg, #22d3ee, #0ea5b7); }
+    body.light .an-name { color: #41485c; }
+    body.light .an-bar { background: rgba(0,0,0,0.08); }
     body.light .why b { color: #1a1f35; }
     body.light .why { color: #41485c; }
     .extra-block {
@@ -697,6 +721,9 @@
             </div>
           </div>
 
+          <button id="analyticsToggle" class="analytics-toggle" onclick="toggleAnalytics()">📊 Ver detalle analítico</button>
+          <div id="analyticsPanel" class="hidden"></div>
+
           <div class="source-note" id="sourceNote"></div>
         </div>
       </div>
@@ -738,7 +765,7 @@
         <a href="https://github.com/tomasmachuca/World_Cup_Prediction" target="_blank" rel="noopener noreferrer" title="Código en GitHub" aria-label="GitHub">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.6 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
         </a>
-        <a id="linkedinLink" href="https://www.linkedin.com/in/tomasmachuca" target="_blank" rel="noopener noreferrer" title="LinkedIn" aria-label="LinkedIn">
+        <a id="linkedinLink" href="https://www.linkedin.com/in/tomas-machuca" target="_blank" rel="noopener noreferrer" title="LinkedIn" aria-label="LinkedIn">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.8 0 0 .78 0 1.74v20.52C0 23.22.8 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.74V1.74C24 .78 23.2 0 22.22 0z"/></svg>
         </a>
       </div>
@@ -748,6 +775,7 @@
   <script>
     let model = null;
     let modelReady = false;
+    let statsModel = null;   // corners/tarjetas esperadas (stats_model.json)
 
     // Código ISO (flagcdn) por selección. Banderas reales, también en Windows.
     const FLAGS = {
@@ -851,6 +879,7 @@
 
         loadFixture();      // pre-carga en segundo plano
         loadStandings();
+        loadStatsModel();
       } catch (error) {
         console.error('Error:', error);
         document.getElementById('loadingPanel').classList.add('hidden');
@@ -1039,6 +1068,65 @@
       return `<div class="why ${cls}"><b>Por qué:</b> ${reasons.join('; ')}. ${verdict}</div>`;
     }
 
+    /** Carga el modelo de corners/tarjetas. No es fatal si falta. */
+    async function loadStatsModel() {
+      try {
+        const res = await fetch('stats_model.json');
+        if (res.ok) statsModel = await res.json();
+      } catch (e) { /* sin stats: el botón de detalle no aparece */ }
+    }
+
+    /** Córners y tarjetas esperadas de un cruce (estimación, sede neutral). */
+    function expectedStats(home, away) {
+      if (!statsModel || !statsModel.teams[home] || !statsModel.teams[away]) return null;
+      const T = statsModel.teams, mc = statsModel.muCorners, mk = statsModel.muCards;
+      return {
+        cH: mc * T[home].cAtt * T[away].cDef, cA: mc * T[away].cAtt * T[home].cDef,
+        kH: mk * T[home].kAtt * T[away].kDef, kA: mk * T[away].kAtt * T[home].kDef,
+        nH: T[home].matches, nA: T[away].matches,
+      };
+    }
+
+    /** Rellena el panel de detalle analítico (queda oculto hasta abrirlo). */
+    function renderAnalytics(home, away) {
+      const panel = document.getElementById('analyticsPanel');
+      const btn = document.getElementById('analyticsToggle');
+      const s = expectedStats(home, away);
+      if (!s) { panel.classList.add('hidden'); btn.classList.add('hidden'); return; }
+      btn.classList.remove('hidden');
+      panel.classList.add('hidden');
+      btn.textContent = '📊 Ver detalle analítico';
+
+      const row = (name, val, frac) => `
+        <div class="an-row">
+          <span class="an-name">${flag(name)} ${name}</span>
+          <span class="an-bar"><span style="width:${Math.min(frac * 100, 100).toFixed(0)}%"></span></span>
+          <span class="an-val">${val.toFixed(1)}</span>
+        </div>`;
+      panel.innerHTML = `
+        <div class="an-block">
+          <div class="an-title">Córners esperados</div>
+          ${row(home, s.cH, s.cH / 10)}
+          ${row(away, s.cA, s.cA / 10)}
+        </div>
+        <div class="an-block">
+          <div class="an-title">Tarjetas esperadas</div>
+          ${row(home, s.kH, s.kH / 4)}
+          ${row(away, s.kA, s.kA / 4)}
+        </div>
+        <p class="source-note" style="margin-top:0;">
+          Estimaciones desde ${Math.min(s.nH, s.nA)}+ partidos internacionales de cada selección
+          (${statsModel.source}). <b>No afectan</b> el pronóstico 1/X/2.
+        </p>`;
+    }
+
+    function toggleAnalytics() {
+      const panel = document.getElementById('analyticsPanel');
+      const open = panel.classList.toggle('hidden') === false;
+      document.getElementById('analyticsToggle').textContent =
+        open ? '📊 Ocultar detalle analítico' : '📊 Ver detalle analítico';
+    }
+
     /** Realiza una predicción y la muestra. */
     function makePrediction() {
       if (!modelReady) return;
@@ -1077,6 +1165,7 @@
         `Goles esperados (λ): ${lam.lambdaHome.toFixed(2)} - ${lam.lambdaAway.toFixed(2)}`;
       document.getElementById('why').innerHTML = explainPrediction(home, away, neutral, r, lam);
       renderExtraStats(home, away, neutral);
+      renderAnalytics(home, away);
       document.getElementById('sourceNote').textContent =
         `Fuente 1/X/2: ${r.source}. Resultados exactos y mercados: modelo de goles Dixon-Coles.`;
 

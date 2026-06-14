@@ -1,0 +1,345 @@
+{
+  "source": "eatpizzanot/soccer-dataset (international matches)",
+  "muCorners": 4.555,
+  "muCards": 1.895,
+  "shrinkK": 6.0,
+  "teamsCovered": 48,
+  "teams": {
+    "Czech Republic": {
+      "matches": 80,
+      "cAtt": 1.226,
+      "cDef": 0.879,
+      "kAtt": 0.911,
+      "kDef": 1.082
+    },
+    "Mexico": {
+      "matches": 65,
+      "cAtt": 1.052,
+      "cDef": 0.898,
+      "kAtt": 0.85,
+      "kDef": 1.006
+    },
+    "South Africa": {
+      "matches": 24,
+      "cAtt": 0.807,
+      "cDef": 0.947,
+      "kAtt": 0.939,
+      "kDef": 0.781
+    },
+    "South Korea": {
+      "matches": 32,
+      "cAtt": 1.238,
+      "cDef": 0.84,
+      "kAtt": 0.838,
+      "kDef": 0.783
+    },
+    "Bosnia and Herzegovina": {
+      "matches": 72,
+      "cAtt": 1.04,
+      "cDef": 1.026,
+      "kAtt": 1.112,
+      "kDef": 0.95
+    },
+    "Canada": {
+      "matches": 39,
+      "cAtt": 1.163,
+      "cDef": 0.846,
+      "kAtt": 1.13,
+      "kDef": 1.001
+    },
+    "Qatar": {
+      "matches": 28,
+      "cAtt": 0.758,
+      "cDef": 1.287,
+      "kAtt": 1.015,
+      "kDef": 1.03
+    },
+    "Switzerland": {
+      "matches": 97,
+      "cAtt": 1.218,
+      "cDef": 0.873,
+      "kAtt": 0.955,
+      "kDef": 1.022
+    },
+    "Brazil": {
+      "matches": 89,
+      "cAtt": 1.17,
+      "cDef": 0.761,
+      "kAtt": 0.974,
+      "kDef": 1.285
+    },
+    "Haiti": {
+      "matches": 11,
+      "cAtt": 0.908,
+      "cDef": 0.921,
+      "kAtt": 0.757,
+      "kDef": 0.788
+    },
+    "Morocco": {
+      "matches": 40,
+      "cAtt": 1.147,
+      "cDef": 0.775,
+      "kAtt": 0.75,
+      "kDef": 1.14
+    },
+    "Scotland": {
+      "matches": 87,
+      "cAtt": 1.143,
+      "cDef": 0.976,
+      "kAtt": 0.904,
+      "kDef": 1.188
+    },
+    "Australia": {
+      "matches": 31,
+      "cAtt": 0.839,
+      "cDef": 0.862,
+      "kAtt": 0.833,
+      "kDef": 0.804
+    },
+    "Paraguay": {
+      "matches": 62,
+      "cAtt": 0.899,
+      "cDef": 1.015,
+      "kAtt": 1.26,
+      "kDef": 1.221
+    },
+    "Turkey": {
+      "matches": 92,
+      "cAtt": 1.119,
+      "cDef": 0.906,
+      "kAtt": 1.192,
+      "kDef": 1.225
+    },
+    "United States": {
+      "matches": 65,
+      "cAtt": 0.981,
+      "cDef": 0.848,
+      "kAtt": 0.731,
+      "kDef": 0.754
+    },
+    "Germany": {
+      "matches": 96,
+      "cAtt": 1.346,
+      "cDef": 0.737,
+      "kAtt": 0.706,
+      "kDef": 0.83
+    },
+    "Curaçao": {
+      "matches": 11,
+      "cAtt": 0.947,
+      "cDef": 0.844,
+      "kAtt": 0.757,
+      "kDef": 1.005
+    },
+    "Ecuador": {
+      "matches": 73,
+      "cAtt": 1.051,
+      "cDef": 0.849,
+      "kAtt": 1.078,
+      "kDef": 1.118
+    },
+    "Ivory Coast": {
+      "matches": 22,
+      "cAtt": 1.14,
+      "cDef": 0.975,
+      "kAtt": 1.157,
+      "kDef": 0.949
+    },
+    "Japan": {
+      "matches": 39,
+      "cAtt": 0.982,
+      "cDef": 0.851,
+      "kAtt": 0.673,
+      "kDef": 0.755
+    },
+    "Netherlands": {
+      "matches": 96,
+      "cAtt": 1.208,
+      "cDef": 0.771,
+      "kAtt": 0.742,
+      "kDef": 1.13
+    },
+    "Sweden": {
+      "matches": 95,
+      "cAtt": 1.179,
+      "cDef": 1.001,
+      "kAtt": 0.843,
+      "kDef": 1.141
+    },
+    "Tunisia": {
+      "matches": 32,
+      "cAtt": 1.065,
+      "cDef": 1.094,
+      "kAtt": 0.894,
+      "kDef": 0.852
+    },
+    "Belgium": {
+      "matches": 100,
+      "cAtt": 1.467,
+      "cDef": 0.753,
+      "kAtt": 0.649,
+      "kDef": 0.968
+    },
+    "Egypt": {
+      "matches": 29,
+      "cAtt": 0.937,
+      "cDef": 1.075,
+      "kAtt": 0.925,
+      "kDef": 0.925
+    },
+    "Iran": {
+      "matches": 23,
+      "cAtt": 1.002,
+      "cDef": 0.699,
+      "kAtt": 1.008,
+      "kDef": 1.026
+    },
+    "New Zealand": {
+      "matches": 15,
+      "cAtt": 0.965,
+      "cDef": 1.133,
+      "kAtt": 0.763,
+      "kDef": 0.612
+    },
+    "Cabo Verde": {
+      "matches": 9,
+      "cAtt": 1.073,
+      "cDef": 1.103,
+      "kAtt": 0.857,
+      "kDef": 0.822
+    },
+    "Saudi Arabia": {
+      "matches": 28,
+      "cAtt": 0.997,
+      "cDef": 0.984,
+      "kAtt": 0.953,
+      "kDef": 0.875
+    },
+    "Spain": {
+      "matches": 101,
+      "cAtt": 1.423,
+      "cDef": 0.655,
+      "kAtt": 0.737,
+      "kDef": 1.097
+    },
+    "Uruguay": {
+      "matches": 81,
+      "cAtt": 0.93,
+      "cDef": 0.834,
+      "kAtt": 0.894,
+      "kDef": 1.046
+    },
+    "France": {
+      "matches": 107,
+      "cAtt": 1.233,
+      "cDef": 0.739,
+      "kAtt": 0.712,
+      "kDef": 0.997
+    },
+    "Iraq": {
+      "matches": 14,
+      "cAtt": 0.849,
+      "cDef": 1.134,
+      "kAtt": 0.854,
+      "kDef": 1.013
+    },
+    "Norway": {
+      "matches": 81,
+      "cAtt": 1.275,
+      "cDef": 0.728,
+      "kAtt": 0.718,
+      "kDef": 0.943
+    },
+    "Senegal": {
+      "matches": 39,
+      "cAtt": 1.134,
+      "cDef": 0.919,
+      "kAtt": 1.06,
+      "kDef": 1.095
+    },
+    "Algeria": {
+      "matches": 22,
+      "cAtt": 1.187,
+      "cDef": 0.865,
+      "kAtt": 1.194,
+      "kDef": 1.251
+    },
+    "Argentina": {
+      "matches": 91,
+      "cAtt": 1.087,
+      "cDef": 0.655,
+      "kAtt": 0.992,
+      "kDef": 1.389
+    },
+    "Austria": {
+      "matches": 93,
+      "cAtt": 1.145,
+      "cDef": 0.799,
+      "kAtt": 0.908,
+      "kDef": 0.988
+    },
+    "Jordan": {
+      "matches": 14,
+      "cAtt": 0.926,
+      "cDef": 1.09,
+      "kAtt": 0.96,
+      "kDef": 0.881
+    },
+    "Colombia": {
+      "matches": 83,
+      "cAtt": 0.938,
+      "cDef": 0.857,
+      "kAtt": 1.093,
+      "kDef": 1.17
+    },
+    "DR Congo": {
+      "matches": 16,
+      "cAtt": 1.101,
+      "cDef": 0.862,
+      "kAtt": 0.777,
+      "kDef": 0.944
+    },
+    "Portugal": {
+      "matches": 102,
+      "cAtt": 1.45,
+      "cDef": 0.737,
+      "kAtt": 0.774,
+      "kDef": 1.155
+    },
+    "Uzbekistan": {
+      "matches": 15,
+      "cAtt": 0.955,
+      "cDef": 0.976,
+      "kAtt": 0.763,
+      "kDef": 0.788
+    },
+    "Croatia": {
+      "matches": 102,
+      "cAtt": 1.192,
+      "cDef": 0.958,
+      "kAtt": 0.891,
+      "kDef": 0.833
+    },
+    "England": {
+      "matches": 107,
+      "cAtt": 1.205,
+      "cDef": 0.619,
+      "kAtt": 0.721,
+      "kDef": 1.071
+    },
+    "Ghana": {
+      "matches": 18,
+      "cAtt": 0.954,
+      "cDef": 0.954,
+      "kAtt": 1.13,
+      "kDef": 0.91
+    },
+    "Panama": {
+      "matches": 50,
+      "cAtt": 0.946,
+      "cDef": 0.934,
+      "kAtt": 0.899,
+      "kDef": 0.842
+    }
+  }
+}
