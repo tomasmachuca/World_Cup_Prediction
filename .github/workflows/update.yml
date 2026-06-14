@@ -43,6 +43,9 @@ jobs:
             echo "No changes."
           else
             git commit -m "chore: auto-update predictions"
-            git pull --rebase origin main
+            # The trainer also rewrites standings.json (owned by the live workflow);
+            # discard that unstaged change so the rebase has a clean tree.
+            git checkout -- standings.json 2>/dev/null || true
+            git pull --rebase --autostash origin main
             git push
           fi

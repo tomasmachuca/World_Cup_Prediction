@@ -42,6 +42,6 @@ jobs:
             echo "No standings changes."
           else
             git commit -m "chore: live standings + results update"
-            git pull --rebase origin main
+            git pull --rebase --autostash origin main
             git push
           fi
