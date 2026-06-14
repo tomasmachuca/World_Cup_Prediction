@@ -184,6 +184,32 @@
       display: none;
     }
 
+    .group-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .gchip {
+      width: auto;
+      padding: 6px 11px;
+      font-size: 0.85em;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      color: #8b92a8;
+      cursor: pointer;
+    }
+    .gchip:hover { transform: none; box-shadow: none; border-color: rgba(34, 211, 238, 0.5); }
+    .gchip.active {
+      background: linear-gradient(135deg, #f0b429, #f59e0b);
+      color: #0a0e1a;
+      border-color: transparent;
+    }
+    body.light .gchip { background: #eef1f8; color: #5b6478; border-color: rgba(0,0,0,0.1); }
+    body.light .gchip.active { color: #0a0e1a; }
+
     .flag {
       width: 20px;
       height: 14px;
@@ -509,6 +535,23 @@
       margin-top: 40px;
       padding: 20px;
     }
+    .footer-credit { margin-top: 10px; color: #8b92a8; }
+    .footer-credit b { color: #f0b429; }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .footer-links a {
+      color: #8b92a8;
+      display: inline-flex;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .footer-links a:hover { color: #f0b429; transform: translateY(-2px); }
+    body.light .footer-credit { color: #5b6478; }
+    body.light .footer-links a { color: #5b6478; }
+    body.light .footer-links a:hover { color: #f59e0b; }
 
     /* Conectores del cuadro (color por CSS, así cambia con el tema). */
     .bk-lines path { fill: none; stroke: rgba(255, 255, 255, 0.22); stroke-width: 1.5; }
@@ -666,11 +709,13 @@
         <input type="checkbox" id="fixtureProbsToggle" checked style="width:auto; cursor:pointer;">
         <label for="fixtureProbsToggle" style="margin:0; cursor:pointer;">Mostrar probabilidades 1 / X / 2</label>
       </div>
+      <div class="group-filter" id="fixtureGroupFilter"></div>
       <div id="fixtureContainer"></div>
     </div>
 
     <div class="card hidden" id="standingsPanel">
       <p class="source-note" id="standingsMeta" style="margin-top:0; margin-bottom:16px;"></p>
+      <div class="group-filter" id="standingsGroupFilter"></div>
       <div id="standingsContainer"></div>
     </div>
 
@@ -688,7 +733,15 @@
     <footer>
       <p id="footerStats">Cargando modelo…</p>
       <p id="footerAlgo">Dixon-Coles + ML Ensemble · calibrado por temperatura</p>
-      <p>Desarrollado por Tomas Machuca 2026</p>
+      <p class="footer-credit">Desarrollado por <b>Tomás Machuca</b> · 2026</p>
+      <div class="footer-links">
+        <a href="https://github.com/tomasmachuca/World_Cup_Prediction" target="_blank" rel="noopener noreferrer" title="Código en GitHub" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.6 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        </a>
+        <a id="linkedinLink" href="https://www.linkedin.com/in/tomasmachuca" target="_blank" rel="noopener noreferrer" title="LinkedIn" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.8 0 0 .78 0 1.74v20.52C0 23.22.8 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.74V1.74C24 .78 23.2 0 22.22 0z"/></svg>
+        </a>
+      </div>
     </footer>
   </div>
 
@@ -1048,6 +1101,20 @@
     let fixtureData = null;
     let resultsData = null;   // resultados reales en vivo (results.json)
     let standingsData = null;  // tabla real en vivo (standings.json)
+    let fixtureGroup = 'all';  // filtro de grupo del Fixture
+    let standingsGroup = 'all';  // filtro de grupo de Posiciones
+
+    const GROUP_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+
+    /** Pinta los chips de filtro por grupo (Todos + A..L) en un contenedor. */
+    function renderGroupChips(containerId, current, onPick) {
+      const cont = document.getElementById(containerId);
+      const chip = (val, label) =>
+        `<button class="gchip${current === val ? ' active' : ''}" data-g="${val}">${label}</button>`;
+      cont.innerHTML = chip('all', 'Todos') + GROUP_LETTERS.map(g => chip(g, g)).join('');
+      cont.querySelectorAll('.gchip').forEach(b =>
+        b.addEventListener('click', () => onPick(b.dataset.g)));
+    }
 
     const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     const WDAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -1120,8 +1187,11 @@
       if (!fixtureData) return;
       const showProbs = document.getElementById('fixtureProbsToggle').checked;
       const container = document.getElementById('fixtureContainer');
+      renderGroupChips('fixtureGroupFilter', fixtureGroup, g => { fixtureGroup = g; renderFixture(); });
       const byDate = {};
-      fixtureData.matches.forEach(m => { (byDate[m.date] = byDate[m.date] || []).push(m); });
+      fixtureData.matches
+        .filter(m => fixtureGroup === 'all' || m.group === fixtureGroup)
+        .forEach(m => { (byDate[m.date] = byDate[m.date] || []).push(m); });
 
       // Tracker acumulado del modelo en todo el torneo (results.json).
       const t = computeTracker();
@@ -1218,8 +1288,11 @@
       meta.innerHTML = `${dot}${stamp}${data.matchesPlayed} partidos de grupos jugados. ` +
         `Los 2 primeros de cada grupo (verde) avanzan, más los 8 mejores terceros.`;
       const container = document.getElementById('standingsContainer');
+      renderGroupChips('standingsGroupFilter', standingsGroup, g => { standingsGroup = g; renderStandings(data); });
       let html = '';
-      Object.keys(data.groups).sort().forEach(g => {
+      Object.keys(data.groups).sort()
+        .filter(g => standingsGroup === 'all' || g === standingsGroup)
+        .forEach(g => {
         html += `<div class="standings-group"><h3>Grupo ${g}</h3>
           <table class="standings">
             <tr><th class="team" style="text-align:left">Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr>`;
