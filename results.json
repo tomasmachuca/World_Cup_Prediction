@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-15T02:54:54+00:00",
+  "updated": "2026-06-15T09:26:00+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -104,11 +104,11 @@
     "Sweden|Tunisia": {
       "home": "Sweden",
       "away": "Tunisia",
-      "homeGoals": 2,
+      "homeGoals": 5,
       "awayGoals": 1,
       "outcome": "1",
-      "status": "IN_PLAY",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
