@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14T23:51:09+00:00",
+  "updated": "2026-06-15T02:54:54+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -91,6 +91,24 @@
       "outcome": "X",
       "status": "FINISHED",
       "live": false
+    },
+    "Ecuador|Ivory Coast": {
+      "home": "Ivory Coast",
+      "away": "Ecuador",
+      "homeGoals": 1,
+      "awayGoals": 0,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Sweden|Tunisia": {
+      "home": "Sweden",
+      "away": "Tunisia",
+      "homeGoals": 2,
+      "awayGoals": 1,
+      "outcome": "1",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }

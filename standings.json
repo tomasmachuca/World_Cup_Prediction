@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-14T23:51:08+00:00",
-  "matchesPlayed": 10,
+  "updated": "2026-06-15T02:54:54+00:00",
+  "matchesPlayed": 11,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -201,26 +201,26 @@
         "points": 3
       },
       {
+        "team": "Ivory Coast",
+        "played": 1,
+        "won": 1,
+        "drawn": 0,
+        "lost": 0,
+        "gf": 1,
+        "ga": 0,
+        "gd": 1,
+        "points": 3
+      },
+      {
         "team": "Ecuador",
         "played": 1,
         "won": 0,
-        "drawn": 1,
-        "lost": 0,
+        "drawn": 0,
+        "lost": 1,
         "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 1
-      },
-      {
-        "team": "Ivory Coast",
-        "played": 1,
-        "won": 0,
-        "drawn": 1,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 1
+        "ga": 1,
+        "gd": -1,
+        "points": 0
       },
       {
         "team": "Curaçao",
@@ -235,6 +235,17 @@
       }
     ],
     "F": [
+      {
+        "team": "Sweden",
+        "played": 1,
+        "won": 1,
+        "drawn": 0,
+        "lost": 0,
+        "gf": 1,
+        "ga": 0,
+        "gd": 1,
+        "points": 3
+      },
       {
         "team": "Japan",
         "played": 1,
@@ -258,25 +269,14 @@
         "points": 1
       },
       {
-        "team": "Sweden",
-        "played": 0,
-        "won": 0,
-        "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
-      },
-      {
         "team": "Tunisia",
-        "played": 0,
+        "played": 1,
         "won": 0,
         "drawn": 0,
-        "lost": 0,
+        "lost": 1,
         "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "ga": 1,
+        "gd": -1,
         "points": 0
       }
     ],
