@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-15T19:31:01+00:00",
-  "matchesPlayed": 13,
+  "updated": "2026-06-15T22:02:15+00:00",
+  "matchesPlayed": 14,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -282,15 +282,26 @@
     ],
     "G": [
       {
-        "team": "Egypt",
+        "team": "Belgium",
         "played": 1,
-        "won": 1,
-        "drawn": 0,
+        "won": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 1,
-        "ga": 0,
-        "gd": 1,
-        "points": 3
+        "ga": 1,
+        "gd": 0,
+        "points": 1
+      },
+      {
+        "team": "Egypt",
+        "played": 1,
+        "won": 0,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 1,
+        "ga": 1,
+        "gd": 0,
+        "points": 1
       },
       {
         "team": "Iran",
@@ -313,22 +324,22 @@
         "ga": 0,
         "gd": 0,
         "points": 0
-      },
-      {
-        "team": "Belgium",
-        "played": 1,
-        "won": 0,
-        "drawn": 0,
-        "lost": 1,
-        "gf": 0,
-        "ga": 1,
-        "gd": -1,
-        "points": 0
       }
     ],
     "H": [
       {
         "team": "Cabo Verde",
+        "played": 1,
+        "won": 0,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 0,
+        "ga": 0,
+        "gd": 0,
+        "points": 1
+      },
+      {
+        "team": "Saudi Arabia",
         "played": 1,
         "won": 0,
         "drawn": 1,
@@ -350,26 +361,15 @@
         "points": 1
       },
       {
-        "team": "Saudi Arabia",
-        "played": 0,
-        "won": 0,
-        "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
-      },
-      {
         "team": "Uruguay",
-        "played": 0,
+        "played": 1,
         "won": 0,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 0,
         "ga": 0,
         "gd": 0,
-        "points": 0
+        "points": 1
       }
     ],
     "I": [
