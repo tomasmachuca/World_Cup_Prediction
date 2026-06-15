@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-15T15:28:15+00:00",
+  "updated": "2026-06-15T19:31:02+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -109,6 +109,24 @@
       "outcome": "1",
       "status": "FINISHED",
       "live": false
+    },
+    "Cabo Verde|Spain": {
+      "home": "Spain",
+      "away": "Cabo Verde",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Belgium|Egypt": {
+      "home": "Belgium",
+      "away": "Egypt",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "outcome": "2",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
