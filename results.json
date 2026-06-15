@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-15T22:02:16+00:00",
+  "updated": "2026-06-15T23:58:31+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -127,6 +127,15 @@
       "outcome": "X",
       "status": "FINISHED",
       "live": false
+    },
+    "Saudi Arabia|Uruguay": {
+      "home": "Saudi Arabia",
+      "away": "Uruguay",
+      "homeGoals": 1,
+      "awayGoals": 1,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
