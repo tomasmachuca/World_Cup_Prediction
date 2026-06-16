@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-16T19:05:00+00:00",
+  "updated": "2026-06-16T21:47:03+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -143,6 +143,15 @@
       "homeGoals": 2,
       "awayGoals": 2,
       "outcome": "X",
+      "status": "FINISHED",
+      "live": false
+    },
+    "France|Senegal": {
+      "home": "France",
+      "away": "Senegal",
+      "homeGoals": 3,
+      "awayGoals": 1,
+      "outcome": "1",
       "status": "FINISHED",
       "live": false
     }
