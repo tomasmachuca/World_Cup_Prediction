@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-15T23:58:31+00:00",
-  "matchesPlayed": 14,
+  "updated": "2026-06-16T05:24:52+00:00",
+  "matchesPlayed": 16,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -282,6 +282,28 @@
     ],
     "G": [
       {
+        "team": "Iran",
+        "played": 1,
+        "won": 0,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 2,
+        "ga": 2,
+        "gd": 0,
+        "points": 1
+      },
+      {
+        "team": "New Zealand",
+        "played": 1,
+        "won": 0,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 2,
+        "ga": 2,
+        "gd": 0,
+        "points": 1
+      },
+      {
         "team": "Belgium",
         "played": 1,
         "won": 0,
@@ -302,41 +324,30 @@
         "ga": 1,
         "gd": 0,
         "points": 1
-      },
-      {
-        "team": "Iran",
-        "played": 0,
-        "won": 0,
-        "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
-      },
-      {
-        "team": "New Zealand",
-        "played": 0,
-        "won": 0,
-        "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
       }
     ],
     "H": [
       {
         "team": "Saudi Arabia",
         "played": 1,
-        "won": 1,
-        "drawn": 0,
+        "won": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 1,
-        "ga": 0,
-        "gd": 1,
-        "points": 3
+        "ga": 1,
+        "gd": 0,
+        "points": 1
+      },
+      {
+        "team": "Uruguay",
+        "played": 1,
+        "won": 0,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 1,
+        "ga": 1,
+        "gd": 0,
+        "points": 1
       },
       {
         "team": "Cabo Verde",
@@ -359,17 +370,6 @@
         "ga": 0,
         "gd": 0,
         "points": 1
-      },
-      {
-        "team": "Uruguay",
-        "played": 1,
-        "won": 0,
-        "drawn": 0,
-        "lost": 1,
-        "gf": 0,
-        "ga": 1,
-        "gd": -1,
-        "points": 0
       }
     ],
     "I": [
