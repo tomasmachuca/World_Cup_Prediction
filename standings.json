@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-16T21:47:03+00:00",
+  "updated": "2026-06-16T23:14:43+00:00",
   "matchesPlayed": 17,
   "live": true,
   "source": "football-data.org",
@@ -385,25 +385,25 @@
         "points": 3
       },
       {
-        "team": "Iraq",
-        "played": 0,
-        "won": 0,
+        "team": "Norway",
+        "played": 1,
+        "won": 1,
         "drawn": 0,
         "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
+        "gf": 2,
+        "ga": 1,
+        "gd": 1,
+        "points": 3
       },
       {
-        "team": "Norway",
-        "played": 0,
+        "team": "Iraq",
+        "played": 1,
         "won": 0,
         "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "lost": 1,
+        "gf": 1,
+        "ga": 2,
+        "gd": -1,
         "points": 0
       },
       {
