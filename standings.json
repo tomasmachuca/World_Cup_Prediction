@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-17T21:54:05+00:00",
-  "matchesPlayed": 21,
+  "updated": "2026-06-17T23:25:00+00:00",
+  "matchesPlayed": 22,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -517,32 +517,32 @@
         "won": 1,
         "drawn": 0,
         "lost": 0,
-        "gf": 3,
+        "gf": 4,
         "ga": 2,
-        "gd": 1,
+        "gd": 2,
         "points": 3
       },
       {
         "team": "Ghana",
-        "played": 0,
+        "played": 1,
         "won": 0,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 0,
         "ga": 0,
         "gd": 0,
-        "points": 0
+        "points": 1
       },
       {
         "team": "Panama",
-        "played": 0,
+        "played": 1,
         "won": 0,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 0,
         "ga": 0,
         "gd": 0,
-        "points": 0
+        "points": 1
       },
       {
         "team": "Croatia",
@@ -551,8 +551,8 @@
         "drawn": 0,
         "lost": 1,
         "gf": 2,
-        "ga": 3,
-        "gd": -1,
+        "ga": 4,
+        "gd": -2,
         "points": 0
       }
     ]
