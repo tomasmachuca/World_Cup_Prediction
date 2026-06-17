@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-16T23:14:43+00:00",
-  "matchesPlayed": 17,
+  "updated": "2026-06-17T01:44:27+00:00",
+  "matchesPlayed": 18,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -374,6 +374,17 @@
     ],
     "I": [
       {
+        "team": "Norway",
+        "played": 1,
+        "won": 1,
+        "drawn": 0,
+        "lost": 0,
+        "gf": 4,
+        "ga": 1,
+        "gd": 3,
+        "points": 3
+      },
+      {
         "team": "France",
         "played": 1,
         "won": 1,
@@ -385,28 +396,6 @@
         "points": 3
       },
       {
-        "team": "Norway",
-        "played": 1,
-        "won": 1,
-        "drawn": 0,
-        "lost": 0,
-        "gf": 2,
-        "ga": 1,
-        "gd": 1,
-        "points": 3
-      },
-      {
-        "team": "Iraq",
-        "played": 1,
-        "won": 0,
-        "drawn": 0,
-        "lost": 1,
-        "gf": 1,
-        "ga": 2,
-        "gd": -1,
-        "points": 0
-      },
-      {
         "team": "Senegal",
         "played": 1,
         "won": 0,
@@ -416,30 +405,30 @@
         "ga": 3,
         "gd": -2,
         "points": 0
+      },
+      {
+        "team": "Iraq",
+        "played": 1,
+        "won": 0,
+        "drawn": 0,
+        "lost": 1,
+        "gf": 1,
+        "ga": 4,
+        "gd": -3,
+        "points": 0
       }
     ],
     "J": [
       {
-        "team": "Algeria",
-        "played": 0,
-        "won": 0,
-        "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
-      },
-      {
         "team": "Argentina",
-        "played": 0,
-        "won": 0,
+        "played": 1,
+        "won": 1,
         "drawn": 0,
         "lost": 0,
-        "gf": 0,
+        "gf": 1,
         "ga": 0,
-        "gd": 0,
-        "points": 0
+        "gd": 1,
+        "points": 3
       },
       {
         "team": "Austria",
@@ -461,6 +450,17 @@
         "gf": 0,
         "ga": 0,
         "gd": 0,
+        "points": 0
+      },
+      {
+        "team": "Algeria",
+        "played": 1,
+        "won": 0,
+        "drawn": 0,
+        "lost": 1,
+        "gf": 0,
+        "ga": 1,
+        "gd": -1,
         "points": 0
       }
     ],
