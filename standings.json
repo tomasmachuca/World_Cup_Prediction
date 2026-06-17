@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-17T01:44:27+00:00",
-  "matchesPlayed": 18,
+  "updated": "2026-06-17T06:53:44+00:00",
+  "matchesPlayed": 20,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -425,31 +425,31 @@
         "won": 1,
         "drawn": 0,
         "lost": 0,
-        "gf": 1,
+        "gf": 3,
         "ga": 0,
-        "gd": 1,
+        "gd": 3,
         "points": 3
       },
       {
         "team": "Austria",
-        "played": 0,
-        "won": 0,
+        "played": 1,
+        "won": 1,
         "drawn": 0,
         "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
+        "gf": 3,
+        "ga": 1,
+        "gd": 2,
+        "points": 3
       },
       {
         "team": "Jordan",
-        "played": 0,
+        "played": 1,
         "won": 0,
         "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "lost": 1,
+        "gf": 1,
+        "ga": 3,
+        "gd": -2,
         "points": 0
       },
       {
@@ -459,8 +459,8 @@
         "drawn": 0,
         "lost": 1,
         "gf": 0,
-        "ga": 1,
-        "gd": -1,
+        "ga": 3,
+        "gd": -3,
         "points": 0
       }
     ],

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-17T01:44:28+00:00",
+  "updated": "2026-06-17T06:53:45+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -167,11 +167,20 @@
     "Algeria|Argentina": {
       "home": "Argentina",
       "away": "Algeria",
-      "homeGoals": 1,
+      "homeGoals": 3,
       "awayGoals": 0,
       "outcome": "1",
-      "status": "IN_PLAY",
-      "live": true
+      "status": "FINISHED",
+      "live": false
+    },
+    "Austria|Jordan": {
+      "home": "Austria",
+      "away": "Jordan",
+      "homeGoals": 3,
+      "awayGoals": 1,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
