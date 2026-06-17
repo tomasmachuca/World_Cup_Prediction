@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-17T17:39:36+00:00",
+  "updated": "2026-06-17T19:51:08+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -186,10 +186,10 @@
       "home": "Portugal",
       "away": "DR Congo",
       "homeGoals": 1,
-      "awayGoals": 0,
-      "outcome": "1",
-      "status": "IN_PLAY",
-      "live": true
+      "awayGoals": 1,
+      "outcome": "X",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
