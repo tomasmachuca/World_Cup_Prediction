@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-17T19:51:07+00:00",
+  "updated": "2026-06-17T21:54:05+00:00",
   "matchesPlayed": 21,
   "live": true,
   "source": "football-data.org",
@@ -512,26 +512,15 @@
     ],
     "L": [
       {
-        "team": "Croatia",
-        "played": 0,
-        "won": 0,
-        "drawn": 0,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
-      },
-      {
         "team": "England",
-        "played": 0,
-        "won": 0,
+        "played": 1,
+        "won": 1,
         "drawn": 0,
         "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "points": 0
+        "gf": 3,
+        "ga": 2,
+        "gd": 1,
+        "points": 3
       },
       {
         "team": "Ghana",
@@ -553,6 +542,17 @@
         "gf": 0,
         "ga": 0,
         "gd": 0,
+        "points": 0
+      },
+      {
+        "team": "Croatia",
+        "played": 1,
+        "won": 0,
+        "drawn": 0,
+        "lost": 1,
+        "gf": 2,
+        "ga": 3,
+        "gd": -1,
         "points": 0
       }
     ]

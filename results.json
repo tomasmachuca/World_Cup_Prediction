@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-17T19:51:08+00:00",
+  "updated": "2026-06-17T21:54:06+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -190,6 +190,15 @@
       "outcome": "X",
       "status": "FINISHED",
       "live": false
+    },
+    "Croatia|England": {
+      "home": "England",
+      "away": "Croatia",
+      "homeGoals": 3,
+      "awayGoals": 2,
+      "outcome": "1",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
