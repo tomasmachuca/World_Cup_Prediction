@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-18T14:25:59+00:00",
+  "updated": "2026-06-18T17:43:21+00:00",
   "matchesPlayed": 24,
   "live": true,
   "source": "football-data.org",
@@ -29,24 +29,24 @@
       },
       {
         "team": "Czech Republic",
-        "played": 1,
-        "won": 0,
+        "played": 2,
+        "won": 1,
         "drawn": 0,
         "lost": 1,
-        "gf": 1,
+        "gf": 2,
         "ga": 2,
-        "gd": -1,
-        "points": 0
+        "gd": 0,
+        "points": 3
       },
       {
         "team": "South Africa",
-        "played": 1,
+        "played": 2,
         "won": 0,
         "drawn": 0,
-        "lost": 1,
+        "lost": 2,
         "gf": 0,
-        "ga": 2,
-        "gd": -2,
+        "ga": 3,
+        "gd": -3,
         "points": 0
       }
     ],
