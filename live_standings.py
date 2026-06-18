@@ -94,6 +94,7 @@ def build_standings(token):
             ga = r.get("goalsAgainst", 0)
             rows.append({
                 "team": team,
+                "position": r.get("position", len(rows) + 1),
                 "played": r.get("playedGames", won + drawn + lost),
                 "won": won,
                 "drawn": drawn,
@@ -104,7 +105,9 @@ def build_standings(token):
                 "points": r.get("points", won * 3 + drawn),
             })
         if rows:
-            rows.sort(key=lambda x: (-x["points"], -x["gd"], -x["gf"], x["team"]))
+            # Keep football-data's official order (it applies the WC2026 rules:
+            # head-to-head BEFORE overall goal difference). Don't re-sort here.
+            rows.sort(key=lambda x: x["position"])
             groups[letter] = rows
 
     return groups

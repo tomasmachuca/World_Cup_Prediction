@@ -1425,10 +1425,10 @@
      * ventaja de local de los anfitriones). Consistente con los ✓/✗ por partido.
      * Devuelve aciertos, % y Brier multiclase. null si aún no hay datos.
      */
-    function computeTracker() {
-      if (!fixtureData) return null;
+    function computeTracker(matches) {
+      if (!matches) return null;
       let n = 0, hits = 0, brier = 0;
-      for (const m of fixtureData.matches) {
+      for (const m of matches) {
         const rr = matchResult(m);
         if (!rr || !rr.finished || m.prob_1 == null) continue;
         n++; if (rr.hit) hits++;
@@ -1460,23 +1460,24 @@
       const container = document.getElementById('fixtureContainer');
       renderMatchdayChips();
       renderGroupChips('fixtureGroupFilter', fixtureGroup, g => { fixtureGroup = g; renderFixture(); });
-      const byDate = {};
-      fixtureData.matches
+      const mdLabel = fixtureMatchday === 'all' ? 'Todas las fechas' : 'Fecha ' + fixtureMatchday;
+      const filtered = fixtureData.matches
         .filter(m => fixtureMatchday === 'all' || m.matchday === fixtureMatchday)
-        .filter(m => fixtureGroup === 'all' || m.group === fixtureGroup)
-        .forEach(m => { (byDate[m.date] = byDate[m.date] || []).push(m); });
+        .filter(m => fixtureGroup === 'all' || m.group === fixtureGroup);
+      const byDate = {};
+      filtered.forEach(m => { (byDate[m.date] = byDate[m.date] || []).push(m); });
 
-      // Tracker acumulado del modelo en todo el torneo (results.json).
-      const t = computeTracker();
+      // Tracker del modelo sobre lo que está mostrando (esta fecha / filtro).
+      const t = computeTracker(filtered);
+      const scope = fixtureMatchday === 'all' ? 'en el torneo' : 'en la ' + mdLabel;
+      const played = filtered.filter(m => { const rr = matchResult(m); return rr && rr.finished; }).length;
       const tracker = t
         ? `<div class="tracker">
-             <span class="t-main">📊 ${t.acc.toFixed(0)}% de acierto</span>
-             <span class="t-sub"><b>${t.hits}/${t.n}</b> partidos jugados · Brier <b>${t.brier.toFixed(3)}</b>
+             <span class="t-main">📊 ${t.acc.toFixed(0)}% de acierto ${scope}</span>
+             <span class="t-sub"><b>${t.hits}/${t.n}</b> jugados · Brier <b>${t.brier.toFixed(3)}</b>
              (más bajo = mejor) · predicción del modelo vs resultado real</span>
            </div>`
-        : '';
-
-      const mdLabel = fixtureMatchday === 'all' ? 'Todas las fechas' : 'Fecha ' + fixtureMatchday;
+        : `<div class="tracker"><span class="t-sub">📊 ${mdLabel}: todavía no se jugó ningún partido — el acierto aparece cuando arranquen.</span></div>`;
       let html = tracker + `<p class="source-note" style="margin-top:0; margin-bottom:14px;">
         ${mdLabel} · fase de grupos · horarios (cuando hay) en <b>hora de Argentina</b> (UTC-3).
         <span style="color:#34d399">✓</span> = el modelo acertó · <span style="color:#f87171">✗</span> = falló.</p>`;
@@ -1644,6 +1645,37 @@
       return { plan, played };
     }
 
+    /**
+     * Ordena un grupo con las reglas oficiales FIFA 2026: puntos, luego
+     * HEAD-TO-HEAD entre los empatados (puntos, DG y GF en sus enfrentamientos
+     * directos), y recién después la DG y GF globales. (Antes era al revés.)
+     */
+    function rankGroup(teams, pts, gd, gf, res) {
+      const byPts = teams.slice().sort((x, y) => pts[y] - pts[x]);
+      const out = [];
+      for (let i = 0; i < byPts.length;) {
+        let j = i;
+        while (j + 1 < byPts.length && pts[byPts[j + 1]] === pts[byPts[i]]) j++;
+        const tied = byPts.slice(i, j + 1);
+        if (tied.length > 1) {
+          const h = {}; tied.forEach(t => (h[t] = { p: 0, gd: 0, gf: 0 }));
+          for (const m of res) {
+            if (h[m.a] && h[m.b]) {           // sólo enfrentamientos entre empatados
+              h[m.a].gf += m.ga; h[m.a].gd += m.ga - m.gb;
+              h[m.b].gf += m.gb; h[m.b].gd += m.gb - m.ga;
+              if (m.ga > m.gb) h[m.a].p += 3; else if (m.ga < m.gb) h[m.b].p += 3; else { h[m.a].p++; h[m.b].p++; }
+            }
+          }
+          tied.sort((x, y) =>
+            h[y].p - h[x].p || h[y].gd - h[x].gd || h[y].gf - h[x].gf ||
+            gd[y] - gd[x] || gf[y] - gf[x] || Math.random() - 0.5);
+        }
+        out.push(...tied);
+        i = j + 1;
+      }
+      return out;
+    }
+
     /** Corre N simulaciones y agrega % de ganar grupo / clasificar por equipo. */
     function runSimulation(plan, N) {
       const agg = {};
@@ -1653,17 +1685,17 @@
         const thirds = [];
         for (const g in plan) {
           const { teams, matches } = plan[g];
-          const pts = {}, gd = {}, gf = {};
+          const pts = {}, gd = {}, gf = {}, res = [];
           teams.forEach(t => { pts[t] = gd[t] = gf[t] = 0; });
           for (const m of matches) {
             const ga = m.fixed ? m.fixed[0] : poissonSample(m.la);
             const gb = m.fixed ? m.fixed[1] : poissonSample(m.lb);
+            res.push({ a: m.a, b: m.b, ga, gb });
             gf[m.a] += ga; gd[m.a] += ga - gb;
             gf[m.b] += gb; gd[m.b] += gb - ga;
             if (ga > gb) pts[m.a] += 3; else if (ga < gb) pts[m.b] += 3; else { pts[m.a]++; pts[m.b]++; }
           }
-          const ranked = teams.slice().sort((x, y) =>
-            pts[y] - pts[x] || gd[y] - gd[x] || gf[y] - gf[x] || Math.random() - 0.5);
+          const ranked = rankGroup(teams, pts, gd, gf, res);
           agg[ranked[0]].win++; agg[ranked[0]].adv++;   // 1º: gana grupo + clasifica
           agg[ranked[1]].adv++;                          // 2º: clasifica
           thirds.push({ team: ranked[2], pts: pts[ranked[2]], gd: gd[ranked[2]], gf: gf[ranked[2]] });
@@ -1818,8 +1850,9 @@
       if (!standingsData || !standingsData.groups) return null;
       const stand = {}, thirds = [];
       for (const g in GROUPS) {
-        const rows = (standingsData.groups[g] || []).slice()
-          .sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf || a.team.localeCompare(b.team));
+        // standings.json ya viene en el orden oficial (football-data aplica las
+        // reglas FIFA 2026: head-to-head antes que la diferencia de gol).
+        const rows = (standingsData.groups[g] || []);
         if (rows.length < 4) return null;   // tabla incompleta: esperar
         stand[g] = rows.map(r => ({ team: r.team, group: g, pts: r.points, gd: r.gd, gf: r.gf }));
         thirds.push(stand[g][2]);
