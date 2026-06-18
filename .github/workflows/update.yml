@@ -30,6 +30,9 @@ jobs:
           curl -sSL https://raw.githubusercontent.com/martj42/international_results/master/results.csv \
             -o data/international_results.csv
 
+      - name: Inject live World Cup results (martj42 lags behind)
+        run: python apply_results.py
+
       - name: Retrain and regenerate outputs
         run: python train_advanced.py
 

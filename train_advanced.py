@@ -149,9 +149,9 @@ WC2026_FIXTURE = [
     ("2026-06-27", "J", "Jordan", "Argentina", "Dallas"),
 ]
 
-# Only this matchday (round) is published in fixture.json. Bump to 2/3 and add
-# its kickoff times after retraining with the previous round's results.
-ACTIVE_MATCHDAY = 1
+# fixture.json now publishes ALL group matchdays (1, 2, 3); the front-end
+# filters by round. CURRENT_MATCHDAY is the round the UI highlights by default.
+CURRENT_MATCHDAY = 2
 
 # Kickoff time in Argentina time (UTC-3) for matchday 1. Converted from each
 # host city's local time; "(+1)" means it falls past midnight, next day in ARG.
@@ -1019,9 +1019,6 @@ def write_fixture(mp, elo):
         team_games[home] += 1
         team_games[away] += 1
 
-        if md != ACTIVE_MATCHDAY:      # publish one round at a time
-            continue
-
         pick = conf = None
         if p1 is not None:
             probs = {"1": p1, "X": pX, "2": p2}
@@ -1041,15 +1038,15 @@ def write_fixture(mp, elo):
     data = {
         "tournament": "FIFA World Cup 2026",
         "stage": "Group stage",
-        "matchday": ACTIVE_MATCHDAY,
-        "venuesNeutral": True,        # neutral for everyone except the three hosts
+        "matchday": CURRENT_MATCHDAY,   # round the UI highlights by default
+        "venuesNeutral": True,          # neutral for everyone except the three hosts
         "hostAdvantage": sorted(HOST_NATIONS),
         "timezone": "America/Argentina (UTC-3)",
         "matches": fixtures,
     }
     with open(FIXTURE_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-    print(f"Wrote {FIXTURE_PATH}  (matchday {ACTIVE_MATCHDAY}: {len(fixtures)} matches)")
+    print(f"Wrote {FIXTURE_PATH}  (all matchdays: {len(fixtures)} matches)")
 
 
 def write_standings(matches):

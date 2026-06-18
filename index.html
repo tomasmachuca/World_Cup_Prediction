@@ -782,6 +782,7 @@
         <input type="checkbox" id="fixtureProbsToggle" checked style="width:auto; cursor:pointer;">
         <label for="fixtureProbsToggle" style="margin:0; cursor:pointer;">Mostrar probabilidades 1 / X / 2</label>
       </div>
+      <div class="group-filter" id="fixtureMatchdayFilter"></div>
       <div class="group-filter" id="fixtureGroupFilter"></div>
       <div id="fixtureContainer"></div>
     </div>
@@ -1357,6 +1358,7 @@
     let resultsData = null;   // resultados reales en vivo (results.json)
     let standingsData = null;  // tabla real en vivo (standings.json)
     let fixtureGroup = 'all';  // filtro de grupo del Fixture
+    let fixtureMatchday = null;  // filtro de fecha (null = la fecha actual)
     let standingsGroup = 'all';  // filtro de grupo de Posiciones
 
     const GROUP_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
@@ -1438,13 +1440,29 @@
       return n ? { n, hits, acc: hits / n * 100, brier: brier / n } : null;
     }
 
+    /** Chips de filtro por fecha (Todas / 1 / 2 / 3). */
+    function renderMatchdayChips() {
+      const cont = document.getElementById('fixtureMatchdayFilter');
+      const mds = [...new Set(fixtureData.matches.map(m => m.matchday))].sort();
+      const chip = (val, label) =>
+        `<button class="gchip${fixtureMatchday === val ? ' active' : ''}" data-md="${val}">${label}</button>`;
+      cont.innerHTML = chip('all', 'Todas') + mds.map(md => chip(md, 'Fecha ' + md)).join('');
+      cont.querySelectorAll('.gchip').forEach(b => b.addEventListener('click', () => {
+        fixtureMatchday = b.dataset.md === 'all' ? 'all' : +b.dataset.md;
+        renderFixture();
+      }));
+    }
+
     function renderFixture() {
       if (!fixtureData) return;
+      if (fixtureMatchday === null) fixtureMatchday = fixtureData.matchday || 1;  // arranca en la fecha actual
       const showProbs = document.getElementById('fixtureProbsToggle').checked;
       const container = document.getElementById('fixtureContainer');
+      renderMatchdayChips();
       renderGroupChips('fixtureGroupFilter', fixtureGroup, g => { fixtureGroup = g; renderFixture(); });
       const byDate = {};
       fixtureData.matches
+        .filter(m => fixtureMatchday === 'all' || m.matchday === fixtureMatchday)
         .filter(m => fixtureGroup === 'all' || m.group === fixtureGroup)
         .forEach(m => { (byDate[m.date] = byDate[m.date] || []).push(m); });
 
@@ -1458,8 +1476,9 @@
            </div>`
         : '';
 
+      const mdLabel = fixtureMatchday === 'all' ? 'Todas las fechas' : 'Fecha ' + fixtureMatchday;
       let html = tracker + `<p class="source-note" style="margin-top:0; margin-bottom:14px;">
-        Fecha ${fixtureData.matchday} · horarios en <b>hora de Argentina</b> (UTC-3).
+        ${mdLabel} · fase de grupos · horarios (cuando hay) en <b>hora de Argentina</b> (UTC-3).
         <span style="color:#34d399">✓</span> = el modelo acertó · <span style="color:#f87171">✗</span> = falló.</p>`;
       Object.keys(byDate).sort().forEach(date => {
         html += `<div class="fixture-day"><div class="fixture-day-header">${formatDate(date)}</div>`;

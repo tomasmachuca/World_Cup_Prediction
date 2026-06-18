@@ -12,32 +12,32 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
 2. MODEL
 ------------------------------------------------------------------------------
    Primary  : Dixon-Coles bivariate Poisson, penalised MLE (L-BFGS-B)
-   Secondary: Multinomial logistic (NumPy)
-   Deployed : ensemble  (Dixon-Coles blend weight = 0.65)
+   Secondary: HistGradientBoosting (sklearn)
+   Deployed : ensemble  (Dixon-Coles blend weight = 0.70)
    Temporal decay xi   : 0.0015  (half-life ~462 days)
-   Home advantage      : +0.2215 log-goals (x1.25 scoring rate)
-   Dixon-Coles rho     : -0.0657
+   Home advantage      : +0.2218 log-goals (x1.25 scoring rate)
+   Dixon-Coles rho     : -0.0655
    Calibration temp. T : 0.822
 
 3. HONEST TEMPORAL-HOLDOUT METRICS
 ------------------------------------------------------------------------------
    Evaluated on the most recent 1983 matches (never seen in training).
-   1X2 accuracy        : 59.76%
-   Multiclass Brier    : 0.5066   (lower is better; 0.66 = random)
-   Log-loss            : 0.8637   (lower is better; 1.099 = random)
+   1X2 accuracy        : 59.61%
+   Multiclass Brier    : 0.5083   (lower is better; 0.66 = random)
+   Log-loss            : 0.8662   (lower is better; 1.099 = random)
 
 4. CALIBRATION (reliability of the top pick)
 ------------------------------------------------------------------------------
    confidence bin           n    avg conf    actual acc
-   33%-46%                599       40.6%         38.7%
-   46%-60%                553       52.7%         54.1%
-   60%-73%                441       66.1%         69.6%
-   73%-87%                281       79.2%         86.8%
-   87%-100%               109       91.6%         94.5%
+   33%-46%                620       40.5%         39.0%
+   46%-60%                560       52.6%         54.3%
+   60%-73%                435       66.3%         70.8%
+   73%-87%                256       79.4%         86.7%
+   87%-100%               112       91.8%         94.6%
 
 5. TOP 15 TEAMS BY ELO
 ------------------------------------------------------------------------------
-    1. Argentina              Elo  2025.5  | attack +1.27  defence +1.70
+    1. Argentina              Elo  2025.5  | attack +1.28  defence +1.70
     2. Spain                  Elo  2006.1  | attack +1.39  defence +1.29
     3. France                 Elo  1997.5  | attack +1.30  defence +1.12
     4. England                Elo  1969.7  | attack +1.25  defence +1.31
@@ -61,5 +61,5 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    * Home advantage applies to host venues; WC2026 group games at
      neutral sites should set homeAdvantage to 0 in the frontend.
 
-Generated: 2026-06-18 15:26:59
+Generated: 2026-06-18 15:06:35
 ==============================================================================
