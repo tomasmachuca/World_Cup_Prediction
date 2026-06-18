@@ -284,6 +284,18 @@
     }
     .dc-tip b { color: #34d399; font-weight: 800; }
 
+    .stakes {
+      margin-top: 6px;
+      font-size: 0.82em;
+      font-weight: 600;
+      color: #f0b429;
+      background: rgba(240, 180, 41, 0.1);
+      border-radius: 6px;
+      padding: 4px 9px;
+      display: inline-block;
+    }
+    body.light .stakes { color: #b87a00; background: rgba(240, 180, 41, 0.16); }
+
     .fixture-teams { font-weight: 600; font-size: 1.02em; }
     .fixture-meta { color: #8b92a8; font-size: 0.8em; margin-top: 3px; }
     .fixture-probs { color: #8b92a8; font-size: 0.82em; margin-top: 5px; }
@@ -1402,6 +1414,48 @@
     }
 
     /**
+     * "Qué se juega" un partido por jugar, según la tabla real. Calcula si un
+     * triunfo asegura el 1er puesto o la clasificación (top-2), de forma
+     * rigurosa: cuenta cuántos rivales pueden alcanzar/superar el piso de puntos
+     * del ganador (con las reglas FIFA 2026 ya en la tabla). '' si no aplica.
+     */
+    function matchStakes(m) {
+      if (!standingsData || !standingsData.groups || !standingsData.groups[m.group]) return '';
+      const rows = standingsData.groups[m.group];
+      const by = {}; rows.forEach(r => (by[r.team] = r));
+      const H = by[m.home], A = by[m.away];
+      if (!H || !A) return '';
+      if (Math.max(...rows.map(r => r.played)) === 0) return '';   // grupo sin jugar
+
+      const evalWin = (winner, loser) => {
+        const floor = winner.points + 3;                 // garantizado si gana
+        let reach = 0;
+        for (const r of rows) {
+          if (r.team === winner.team) continue;
+          const lostThis = (r.team === loser.team) ? 1 : 0;
+          const rMax = r.points + 3 * (3 - r.played - lostThis);   // techo del rival
+          if (rMax >= floor) reach++;                     // podría alcanzarlo o superarlo
+        }
+        if (reach === 0) return 'lider';
+        if (reach <= 1) return 'clasifica';
+        if (floor >= 6) return 'cerca';
+        return null;
+      };
+      const phrase = (team, code) =>
+        code === 'lider' ? `🔑 ${team} gana y se queda con el 1er puesto del grupo`
+          : code === 'clasifica' ? `🔑 ${team} gana y asegura el pase a octavos`
+            : `${team} gana y queda a un paso de octavos`;
+      const rank = { lider: 3, clasifica: 2, cerca: 1 };
+      let best = null;
+      for (const [t, o] of [[m.home, evalWin(H, A)], [m.away, evalWin(A, H)]]) {
+        if (o && (!best || rank[o] > rank[best.code])) best = { team: t, code: o };
+      }
+      if (best) return phrase(best.team, best.code);
+      if (m.matchday === 3) return '🏁 Última fecha — define su clasificación';
+      return '';
+    }
+
+    /**
      * Cruza un partido del fixture con su resultado real. Devuelve el marcador
      * orientado como el fixture (local/visitante), el resultado 1/X/2 efectivo
      * y si la predicción del modelo acertó. null si todavía no hay marcador.
@@ -1509,6 +1563,9 @@
                 : `<div class="verdict bad" title="El modelo falló">✗</div>`;
             }
           }
+          // "Qué se juega" — solo para partidos que todavía no terminaron.
+          const stakes = (rr && rr.finished) ? '' : matchStakes(m);
+          const stakesLine = stakes ? `<div class="stakes">${stakes}</div>` : '';
 
           html += `
             <div class="fixture-match pick-${code}${rr && rr.finished ? (rr.hit ? ' done-ok' : ' done-bad') : ''}">
@@ -1516,6 +1573,7 @@
                 <div class="fixture-teams">${flag(m.home)} ${m.home} <span style="color:#555d75">vs</span> ${flag(m.away)} ${m.away}</div>
                 <div class="fixture-meta">${kick}Grupo ${m.group} · ${m.city}${m.hostTeam ? ` · <span class="host-tag">🏠 ${m.hostTeam} de local</span>` : ''}</div>
                 ${scoreLine}
+                ${stakesLine}
                 ${probsLine}
                 ${dcLine}
               </div>
