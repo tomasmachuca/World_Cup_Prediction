@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-19T00:08:35+00:00",
-  "matchesPlayed": 27,
+  "updated": "2026-06-19T05:24:22+00:00",
+  "matchesPlayed": 28,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -8,25 +8,25 @@
       {
         "team": "Mexico",
         "position": 1,
-        "played": 1,
-        "won": 1,
+        "played": 2,
+        "won": 2,
         "drawn": 0,
         "lost": 0,
-        "gf": 2,
+        "gf": 3,
         "ga": 0,
-        "gd": 2,
-        "points": 3
+        "gd": 3,
+        "points": 6
       },
       {
         "team": "South Korea",
         "position": 2,
-        "played": 1,
+        "played": 2,
         "won": 1,
         "drawn": 0,
-        "lost": 0,
+        "lost": 1,
         "gf": 2,
-        "ga": 1,
-        "gd": 1,
+        "ga": 2,
+        "gd": 0,
         "points": 3
       },
       {
