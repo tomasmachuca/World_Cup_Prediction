@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19T18:17:42+00:00",
+  "updated": "2026-06-19T20:08:38+00:00",
   "matchesPlayed": 28,
   "live": true,
   "source": "football-data.org",
@@ -158,25 +158,25 @@
       {
         "team": "United States",
         "position": 1,
-        "played": 1,
-        "won": 1,
+        "played": 2,
+        "won": 2,
         "drawn": 0,
         "lost": 0,
-        "gf": 4,
+        "gf": 6,
         "ga": 1,
-        "gd": 3,
-        "points": 3
+        "gd": 5,
+        "points": 6
       },
       {
         "team": "Australia",
         "position": 2,
-        "played": 1,
+        "played": 2,
         "won": 1,
         "drawn": 0,
-        "lost": 0,
+        "lost": 1,
         "gf": 2,
-        "ga": 0,
-        "gd": 2,
+        "ga": 2,
+        "gd": 0,
         "points": 3
       },
       {
