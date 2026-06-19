@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-18T22:22:34+00:00",
+  "updated": "2026-06-19T00:08:36+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -239,11 +239,11 @@
     "Canada|Qatar": {
       "home": "Canada",
       "away": "Qatar",
-      "homeGoals": 1,
+      "homeGoals": 6,
       "awayGoals": 0,
       "outcome": "1",
-      "status": "IN_PLAY",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
