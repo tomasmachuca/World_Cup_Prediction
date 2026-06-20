@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19T23:46:09+00:00",
+  "updated": "2026-06-20T01:55:29+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -269,6 +269,15 @@
       "homeGoals": 0,
       "awayGoals": 1,
       "outcome": "2",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Brazil|Haiti": {
+      "home": "Brazil",
+      "away": "Haiti",
+      "homeGoals": 3,
+      "awayGoals": 0,
+      "outcome": "1",
       "status": "IN_PLAY",
       "live": true
     }

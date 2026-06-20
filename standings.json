@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-19T23:46:07+00:00",
-  "matchesPlayed": 29,
+  "updated": "2026-06-20T01:55:28+00:00",
+  "matchesPlayed": 30,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -118,8 +118,20 @@
         "points": 4
       },
       {
-        "team": "Scotland",
+        "team": "Brazil",
         "position": 2,
+        "played": 2,
+        "won": 1,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 4,
+        "ga": 1,
+        "gd": 3,
+        "points": 4
+      },
+      {
+        "team": "Scotland",
+        "position": 3,
         "played": 2,
         "won": 1,
         "drawn": 0,
@@ -130,27 +142,15 @@
         "points": 3
       },
       {
-        "team": "Brazil",
-        "position": 3,
-        "played": 1,
-        "won": 0,
-        "drawn": 1,
-        "lost": 0,
-        "gf": 1,
-        "ga": 1,
-        "gd": 0,
-        "points": 1
-      },
-      {
         "team": "Haiti",
         "position": 4,
-        "played": 1,
+        "played": 2,
         "won": 0,
         "drawn": 0,
-        "lost": 1,
+        "lost": 2,
         "gf": 0,
-        "ga": 1,
-        "gd": -1,
+        "ga": 4,
+        "gd": -4,
         "points": 0
       }
     ],
