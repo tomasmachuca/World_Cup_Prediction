@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-20T21:39:42+00:00",
-  "matchesPlayed": 33,
+  "updated": "2026-06-20T22:49:35+00:00",
+  "matchesPlayed": 34,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -206,27 +206,27 @@
     ],
     "E": [
       {
-        "team": "Ivory Coast",
+        "team": "Germany",
         "position": 1,
         "played": 2,
         "won": 2,
         "drawn": 0,
         "lost": 0,
-        "gf": 2,
-        "ga": 0,
-        "gd": 2,
+        "gf": 9,
+        "ga": 2,
+        "gd": 7,
         "points": 6
       },
       {
-        "team": "Germany",
+        "team": "Ivory Coast",
         "position": 2,
         "played": 2,
         "won": 1,
         "drawn": 0,
         "lost": 1,
-        "gf": 7,
+        "gf": 2,
         "ga": 2,
-        "gd": 5,
+        "gd": 0,
         "points": 3
       },
       {
