@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T17:04:19+00:00",
+  "updated": "2026-06-20T18:44:12+00:00",
   "matchesPlayed": 32,
   "live": true,
   "source": "football-data.org",
@@ -256,28 +256,28 @@
     ],
     "F": [
       {
-        "team": "Sweden",
+        "team": "Netherlands",
         "position": 1,
         "played": 2,
         "won": 1,
         "drawn": 1,
         "lost": 0,
-        "gf": 5,
-        "ga": 1,
-        "gd": 4,
+        "gf": 6,
+        "ga": 3,
+        "gd": 3,
         "points": 4
       },
       {
-        "team": "Netherlands",
+        "team": "Sweden",
         "position": 2,
         "played": 2,
-        "won": 0,
-        "drawn": 2,
-        "lost": 0,
-        "gf": 2,
-        "ga": 2,
-        "gd": 0,
-        "points": 2
+        "won": 1,
+        "drawn": 0,
+        "lost": 1,
+        "gf": 6,
+        "ga": 5,
+        "gd": 1,
+        "points": 3
       },
       {
         "team": "Japan",
