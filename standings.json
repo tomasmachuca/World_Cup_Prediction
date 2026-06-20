@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-20T01:55:28+00:00",
-  "matchesPlayed": 30,
+  "updated": "2026-06-20T06:26:08+00:00",
+  "matchesPlayed": 32,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -106,20 +106,8 @@
     ],
     "C": [
       {
-        "team": "Morocco",
-        "position": 1,
-        "played": 2,
-        "won": 1,
-        "drawn": 1,
-        "lost": 0,
-        "gf": 2,
-        "ga": 1,
-        "gd": 1,
-        "points": 4
-      },
-      {
         "team": "Brazil",
-        "position": 2,
+        "position": 1,
         "played": 2,
         "won": 1,
         "drawn": 1,
@@ -127,6 +115,18 @@
         "gf": 4,
         "ga": 1,
         "gd": 3,
+        "points": 4
+      },
+      {
+        "team": "Morocco",
+        "position": 2,
+        "played": 2,
+        "won": 1,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 2,
+        "ga": 1,
+        "gd": 1,
         "points": 4
       },
       {
@@ -180,26 +180,26 @@
         "points": 3
       },
       {
-        "team": "Turkey",
+        "team": "Paraguay",
         "position": 3,
-        "played": 1,
-        "won": 0,
+        "played": 2,
+        "won": 1,
         "drawn": 0,
         "lost": 1,
-        "gf": 0,
-        "ga": 2,
+        "gf": 2,
+        "ga": 4,
         "gd": -2,
-        "points": 0
+        "points": 3
       },
       {
-        "team": "Paraguay",
+        "team": "Turkey",
         "position": 4,
-        "played": 1,
+        "played": 2,
         "won": 0,
         "drawn": 0,
-        "lost": 1,
-        "gf": 1,
-        "ga": 4,
+        "lost": 2,
+        "gf": 0,
+        "ga": 3,
         "gd": -3,
         "points": 0
       }
