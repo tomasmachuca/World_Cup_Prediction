@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T15:49:52+00:00",
+  "updated": "2026-06-21T17:16:51+00:00",
   "matchesPlayed": 36,
   "live": true,
   "source": "football-data.org",
@@ -356,19 +356,19 @@
     ],
     "H": [
       {
-        "team": "Uruguay",
+        "team": "Spain",
         "position": 1,
-        "played": 1,
-        "won": 0,
+        "played": 2,
+        "won": 1,
         "drawn": 1,
         "lost": 0,
-        "gf": 1,
-        "ga": 1,
-        "gd": 0,
-        "points": 1
+        "gf": 3,
+        "ga": 0,
+        "gd": 3,
+        "points": 4
       },
       {
-        "team": "Saudi Arabia",
+        "team": "Uruguay",
         "position": 2,
         "played": 1,
         "won": 0,
@@ -380,15 +380,15 @@
         "points": 1
       },
       {
-        "team": "Spain",
+        "team": "Saudi Arabia",
         "position": 3,
-        "played": 1,
+        "played": 2,
         "won": 0,
         "drawn": 1,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "lost": 1,
+        "gf": 1,
+        "ga": 4,
+        "gd": -3,
         "points": 1
       },
       {
