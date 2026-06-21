@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T23:57:53+00:00",
+  "updated": "2026-06-21T05:09:52+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -307,6 +307,24 @@
       "outcome": "1",
       "status": "FINISHED",
       "live": false
+    },
+    "Curaçao|Ecuador": {
+      "home": "Ecuador",
+      "away": "Curaçao",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Japan|Tunisia": {
+      "home": "Tunisia",
+      "away": "Japan",
+      "homeGoals": 0,
+      "awayGoals": 2,
+      "outcome": "2",
+      "status": "PAUSED",
+      "live": true
     }
   }
 }
