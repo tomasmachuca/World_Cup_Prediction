@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T05:09:52+00:00",
+  "updated": "2026-06-21T09:02:45+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -321,10 +321,10 @@
       "home": "Tunisia",
       "away": "Japan",
       "homeGoals": 0,
-      "awayGoals": 2,
+      "awayGoals": 4,
       "outcome": "2",
-      "status": "PAUSED",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
