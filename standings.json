@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-21T20:42:20+00:00",
-  "matchesPlayed": 37,
+  "updated": "2026-06-21T22:03:33+00:00",
+  "matchesPlayed": 38,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -370,18 +370,30 @@
       {
         "team": "Uruguay",
         "position": 2,
-        "played": 1,
+        "played": 2,
         "won": 0,
-        "drawn": 1,
+        "drawn": 2,
         "lost": 0,
         "gf": 1,
         "ga": 1,
         "gd": 0,
-        "points": 1
+        "points": 2
+      },
+      {
+        "team": "Cabo Verde",
+        "position": 3,
+        "played": 2,
+        "won": 0,
+        "drawn": 2,
+        "lost": 0,
+        "gf": 0,
+        "ga": 0,
+        "gd": 0,
+        "points": 2
       },
       {
         "team": "Saudi Arabia",
-        "position": 3,
+        "position": 4,
         "played": 2,
         "won": 0,
         "drawn": 1,
@@ -389,18 +401,6 @@
         "gf": 1,
         "ga": 5,
         "gd": -4,
-        "points": 1
-      },
-      {
-        "team": "Cabo Verde",
-        "position": 4,
-        "played": 1,
-        "won": 0,
-        "drawn": 1,
-        "lost": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
         "points": 1
       }
     ],

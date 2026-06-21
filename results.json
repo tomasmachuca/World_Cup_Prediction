@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T20:42:21+00:00",
+  "updated": "2026-06-21T22:03:34+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -338,6 +338,15 @@
     "Belgium|Iran": {
       "home": "Belgium",
       "away": "Iran",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Cabo Verde|Uruguay": {
+      "home": "Uruguay",
+      "away": "Cabo Verde",
       "homeGoals": 0,
       "awayGoals": 0,
       "outcome": "X",
