@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T18:56:05+00:00",
+  "updated": "2026-06-21T20:42:21+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -329,11 +329,20 @@
     "Saudi Arabia|Spain": {
       "home": "Spain",
       "away": "Saudi Arabia",
-      "homeGoals": 5,
+      "homeGoals": 4,
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
       "live": false
+    },
+    "Belgium|Iran": {
+      "home": "Belgium",
+      "away": "Iran",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
