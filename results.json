@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T02:10:01+00:00",
+  "updated": "2026-06-22T07:42:20+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -357,10 +357,10 @@
       "home": "New Zealand",
       "away": "Egypt",
       "homeGoals": 1,
-      "awayGoals": 0,
-      "outcome": "1",
-      "status": "PAUSED",
-      "live": true
+      "awayGoals": 3,
+      "outcome": "2",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }

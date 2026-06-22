@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-22T02:09:59+00:00",
-  "matchesPlayed": 39,
+  "updated": "2026-06-22T07:42:19+00:00",
+  "matchesPlayed": 40,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -306,15 +306,15 @@
     ],
     "G": [
       {
-        "team": "New Zealand",
+        "team": "Egypt",
         "position": 1,
         "played": 2,
         "won": 1,
         "drawn": 1,
         "lost": 0,
-        "gf": 3,
+        "gf": 4,
         "ga": 2,
-        "gd": 1,
+        "gd": 2,
         "points": 4
       },
       {
@@ -342,15 +342,15 @@
         "points": 2
       },
       {
-        "team": "Egypt",
+        "team": "New Zealand",
         "position": 4,
         "played": 2,
         "won": 0,
         "drawn": 1,
         "lost": 1,
-        "gf": 1,
-        "ga": 2,
-        "gd": -1,
+        "gf": 3,
+        "ga": 5,
+        "gd": -2,
         "points": 1
       }
     ],
