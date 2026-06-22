@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T21:10:48+00:00",
+  "updated": "2026-06-22T22:55:49+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -374,10 +374,10 @@
     "France|Iraq": {
       "home": "France",
       "away": "Iraq",
-      "homeGoals": 0,
+      "homeGoals": 1,
       "awayGoals": 0,
-      "outcome": "X",
-      "status": "IN_PLAY",
+      "outcome": "1",
+      "status": "PAUSED",
       "live": true
     }
   }
