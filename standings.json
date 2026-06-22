@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-21T23:41:40+00:00",
-  "matchesPlayed": 38,
+  "updated": "2026-06-22T02:09:59+00:00",
+  "matchesPlayed": 39,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -306,8 +306,20 @@
     ],
     "G": [
       {
-        "team": "Iran",
+        "team": "New Zealand",
         "position": 1,
+        "played": 2,
+        "won": 1,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 3,
+        "ga": 2,
+        "gd": 1,
+        "points": 4
+      },
+      {
+        "team": "Iran",
+        "position": 2,
         "played": 2,
         "won": 0,
         "drawn": 2,
@@ -319,7 +331,7 @@
       },
       {
         "team": "Belgium",
-        "position": 2,
+        "position": 3,
         "played": 2,
         "won": 0,
         "drawn": 2,
@@ -330,27 +342,15 @@
         "points": 2
       },
       {
-        "team": "New Zealand",
-        "position": 3,
-        "played": 1,
-        "won": 0,
-        "drawn": 1,
-        "lost": 0,
-        "gf": 2,
-        "ga": 2,
-        "gd": 0,
-        "points": 1
-      },
-      {
         "team": "Egypt",
         "position": 4,
-        "played": 1,
+        "played": 2,
         "won": 0,
         "drawn": 1,
-        "lost": 0,
+        "lost": 1,
         "gf": 1,
-        "ga": 1,
-        "gd": 0,
+        "ga": 2,
+        "gd": -1,
         "points": 1
       }
     ],
