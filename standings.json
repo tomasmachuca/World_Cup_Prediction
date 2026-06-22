@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-22T17:59:23+00:00",
-  "matchesPlayed": 40,
+  "updated": "2026-06-22T21:10:47+00:00",
+  "matchesPlayed": 41,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -406,8 +406,20 @@
     ],
     "I": [
       {
-        "team": "Norway",
+        "team": "France",
         "position": 1,
+        "played": 2,
+        "won": 1,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 3,
+        "ga": 1,
+        "gd": 2,
+        "points": 4
+      },
+      {
+        "team": "Norway",
+        "position": 2,
         "played": 1,
         "won": 1,
         "drawn": 0,
@@ -418,20 +430,20 @@
         "points": 3
       },
       {
-        "team": "France",
-        "position": 2,
-        "played": 1,
-        "won": 1,
-        "drawn": 0,
-        "lost": 0,
-        "gf": 3,
-        "ga": 1,
-        "gd": 2,
-        "points": 3
+        "team": "Iraq",
+        "position": 3,
+        "played": 2,
+        "won": 0,
+        "drawn": 1,
+        "lost": 1,
+        "gf": 1,
+        "ga": 4,
+        "gd": -3,
+        "points": 1
       },
       {
         "team": "Senegal",
-        "position": 3,
+        "position": 4,
         "played": 1,
         "won": 0,
         "drawn": 0,
@@ -440,18 +452,6 @@
         "ga": 3,
         "gd": -2,
         "points": 0
-      },
-      {
-        "team": "Iraq",
-        "position": 4,
-        "played": 1,
-        "won": 0,
-        "drawn": 0,
-        "lost": 1,
-        "gf": 1,
-        "ga": 4,
-        "gd": -3,
-        "points": 0
       }
     ],
     "J": [
@@ -459,25 +459,25 @@
         "team": "Argentina",
         "position": 1,
         "played": 2,
-        "won": 1,
-        "drawn": 1,
+        "won": 2,
+        "drawn": 0,
         "lost": 0,
-        "gf": 3,
+        "gf": 5,
         "ga": 0,
-        "gd": 3,
-        "points": 4
+        "gd": 5,
+        "points": 6
       },
       {
         "team": "Austria",
         "position": 2,
         "played": 2,
         "won": 1,
-        "drawn": 1,
-        "lost": 0,
+        "drawn": 0,
+        "lost": 1,
         "gf": 3,
-        "ga": 1,
-        "gd": 2,
-        "points": 4
+        "ga": 3,
+        "gd": 0,
+        "points": 3
       },
       {
         "team": "Jordan",
