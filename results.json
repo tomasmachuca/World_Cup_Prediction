@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T13:19:51+00:00",
+  "updated": "2026-06-22T17:59:24+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -361,6 +361,15 @@
       "outcome": "2",
       "status": "FINISHED",
       "live": false
+    },
+    "Argentina|Austria": {
+      "home": "Argentina",
+      "away": "Austria",
+      "homeGoals": 1,
+      "awayGoals": 0,
+      "outcome": "1",
+      "status": "PAUSED",
+      "live": true
     }
   }
 }
