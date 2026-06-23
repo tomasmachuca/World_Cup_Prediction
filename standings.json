@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-23T18:30:42+00:00",
-  "matchesPlayed": 44,
+  "updated": "2026-06-23T20:36:52+00:00",
+  "matchesPlayed": 45,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -512,9 +512,9 @@
         "won": 1,
         "drawn": 1,
         "lost": 0,
-        "gf": 5,
+        "gf": 6,
         "ga": 1,
-        "gd": 4,
+        "gd": 5,
         "points": 4
       },
       {
@@ -549,8 +549,8 @@
         "drawn": 0,
         "lost": 2,
         "gf": 1,
-        "ga": 7,
-        "gd": -6,
+        "ga": 8,
+        "gd": -7,
         "points": 0
       }
     ],
@@ -558,26 +558,26 @@
       {
         "team": "England",
         "position": 1,
-        "played": 1,
+        "played": 2,
         "won": 1,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 4,
         "ga": 2,
         "gd": 2,
-        "points": 3
+        "points": 4
       },
       {
         "team": "Ghana",
         "position": 2,
-        "played": 1,
+        "played": 2,
         "won": 1,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 1,
         "ga": 0,
         "gd": 1,
-        "points": 3
+        "points": 4
       },
       {
         "team": "Panama",

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T18:30:42+00:00",
+  "updated": "2026-06-23T20:36:52+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -401,10 +401,19 @@
     "Portugal|Uzbekistan": {
       "home": "Portugal",
       "away": "Uzbekistan",
-      "homeGoals": 4,
+      "homeGoals": 5,
       "awayGoals": 0,
       "outcome": "1",
-      "status": "IN_PLAY",
+      "status": "FINISHED",
+      "live": false
+    },
+    "England|Ghana": {
+      "home": "England",
+      "away": "Ghana",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "LIVE",
       "live": true
     }
   }
