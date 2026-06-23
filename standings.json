@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T22:55:49+00:00",
+  "updated": "2026-06-23T00:12:38+00:00",
   "matchesPlayed": 41,
   "live": true,
   "source": "football-data.org",
@@ -420,26 +420,26 @@
       {
         "team": "Norway",
         "position": 2,
-        "played": 1,
+        "played": 2,
         "won": 1,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 4,
         "ga": 1,
         "gd": 3,
-        "points": 3
+        "points": 4
       },
       {
         "team": "Senegal",
         "position": 3,
-        "played": 1,
+        "played": 2,
         "won": 0,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 1,
         "gf": 1,
         "ga": 3,
         "gd": -2,
-        "points": 0
+        "points": 1
       },
       {
         "team": "Iraq",
