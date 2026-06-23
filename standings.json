@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T16:37:05+00:00",
+  "updated": "2026-06-23T18:30:42+00:00",
   "matchesPlayed": 44,
   "live": true,
   "source": "football-data.org",
@@ -506,8 +506,20 @@
     ],
     "K": [
       {
-        "team": "Colombia",
+        "team": "Portugal",
         "position": 1,
+        "played": 2,
+        "won": 1,
+        "drawn": 1,
+        "lost": 0,
+        "gf": 5,
+        "ga": 1,
+        "gd": 4,
+        "points": 4
+      },
+      {
+        "team": "Colombia",
+        "position": 2,
         "played": 1,
         "won": 1,
         "drawn": 0,
@@ -519,19 +531,7 @@
       },
       {
         "team": "DR Congo",
-        "position": 2,
-        "played": 1,
-        "won": 0,
-        "drawn": 1,
-        "lost": 0,
-        "gf": 1,
-        "ga": 1,
-        "gd": 0,
-        "points": 1
-      },
-      {
-        "team": "Portugal",
-        "position": 2,
+        "position": 3,
         "played": 1,
         "won": 0,
         "drawn": 1,
@@ -544,13 +544,13 @@
       {
         "team": "Uzbekistan",
         "position": 4,
-        "played": 1,
+        "played": 2,
         "won": 0,
         "drawn": 0,
-        "lost": 1,
+        "lost": 2,
         "gf": 1,
-        "ga": 3,
-        "gd": -2,
+        "ga": 7,
+        "gd": -6,
         "points": 0
       }
     ],
