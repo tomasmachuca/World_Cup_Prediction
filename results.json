@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T22:03:53+00:00",
+  "updated": "2026-06-23T23:19:52+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -410,6 +410,15 @@
     "England|Ghana": {
       "home": "England",
       "away": "Ghana",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Croatia|Panama": {
+      "home": "Panama",
+      "away": "Croatia",
       "homeGoals": 0,
       "awayGoals": 0,
       "outcome": "X",
