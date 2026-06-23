@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-23T04:31:58+00:00",
-  "matchesPlayed": 43,
+  "updated": "2026-06-23T08:07:01+00:00",
+  "matchesPlayed": 44,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -480,27 +480,27 @@
         "points": 3
       },
       {
-        "team": "Jordan",
+        "team": "Algeria",
         "position": 3,
         "played": 2,
         "won": 1,
         "drawn": 0,
         "lost": 1,
         "gf": 2,
-        "ga": 3,
-        "gd": -1,
+        "ga": 4,
+        "gd": -2,
         "points": 3
       },
       {
-        "team": "Algeria",
+        "team": "Jordan",
         "position": 4,
         "played": 2,
         "won": 0,
         "drawn": 0,
         "lost": 2,
-        "gf": 0,
-        "ga": 4,
-        "gd": -4,
+        "gf": 2,
+        "ga": 5,
+        "gd": -3,
         "points": 0
       }
     ],

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T04:31:59+00:00",
+  "updated": "2026-06-23T08:07:02+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -393,10 +393,10 @@
       "home": "Jordan",
       "away": "Algeria",
       "homeGoals": 1,
-      "awayGoals": 0,
-      "outcome": "1",
-      "status": "IN_PLAY",
-      "live": true
+      "awayGoals": 2,
+      "outcome": "2",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
