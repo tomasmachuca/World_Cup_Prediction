@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-24T20:09:03+00:00",
-  "matchesPlayed": 48,
+  "updated": "2026-06-24T21:45:59+00:00",
+  "matchesPlayed": 50,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -56,28 +56,28 @@
     ],
     "B": [
       {
-        "team": "Canada",
+        "team": "Switzerland",
         "position": 1,
         "played": 3,
-        "won": 1,
-        "drawn": 2,
+        "won": 2,
+        "drawn": 1,
         "lost": 0,
         "gf": 7,
-        "ga": 1,
-        "gd": 6,
-        "points": 5
+        "ga": 3,
+        "gd": 4,
+        "points": 7
       },
       {
-        "team": "Switzerland",
+        "team": "Canada",
         "position": 2,
         "played": 3,
         "won": 1,
-        "drawn": 2,
-        "lost": 0,
-        "gf": 5,
-        "ga": 2,
-        "gd": 3,
-        "points": 5
+        "drawn": 1,
+        "lost": 1,
+        "gf": 8,
+        "ga": 3,
+        "gd": 5,
+        "points": 4
       },
       {
         "team": "Bosnia and Herzegovina",
@@ -86,9 +86,9 @@
         "won": 1,
         "drawn": 1,
         "lost": 1,
-        "gf": 4,
+        "gf": 5,
         "ga": 6,
-        "gd": -2,
+        "gd": -1,
         "points": 4
       },
       {
@@ -99,8 +99,8 @@
         "drawn": 1,
         "lost": 2,
         "gf": 2,
-        "ga": 9,
-        "gd": -7,
+        "ga": 10,
+        "gd": -8,
         "points": 1
       }
     ],
