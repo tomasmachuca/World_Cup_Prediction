@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-23T23:19:51+00:00",
-  "matchesPlayed": 46,
+  "updated": "2026-06-24T01:21:55+00:00",
+  "matchesPlayed": 47,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -580,28 +580,28 @@
         "points": 4
       },
       {
-        "team": "Panama",
+        "team": "Croatia",
         "position": 3,
         "played": 2,
-        "won": 0,
-        "drawn": 1,
+        "won": 1,
+        "drawn": 0,
         "lost": 1,
-        "gf": 0,
-        "ga": 1,
+        "gf": 3,
+        "ga": 4,
         "gd": -1,
-        "points": 1
+        "points": 3
       },
       {
-        "team": "Croatia",
+        "team": "Panama",
         "position": 4,
         "played": 2,
         "won": 0,
-        "drawn": 1,
-        "lost": 1,
-        "gf": 2,
-        "ga": 4,
+        "drawn": 0,
+        "lost": 2,
+        "gf": 0,
+        "ga": 2,
         "gd": -2,
-        "points": 1
+        "points": 0
       }
     ]
   }

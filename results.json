@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T23:19:52+00:00",
+  "updated": "2026-06-24T01:21:56+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -420,10 +420,10 @@
       "home": "Panama",
       "away": "Croatia",
       "homeGoals": 0,
-      "awayGoals": 0,
-      "outcome": "X",
-      "status": "LIVE",
-      "live": true
+      "awayGoals": 1,
+      "outcome": "2",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
