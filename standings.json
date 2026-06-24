@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T21:45:59+00:00",
+  "updated": "2026-06-24T22:56:10+00:00",
   "matchesPlayed": 50,
   "live": true,
   "source": "football-data.org",
@@ -108,50 +108,50 @@
       {
         "team": "Brazil",
         "position": 1,
-        "played": 2,
-        "won": 1,
+        "played": 3,
+        "won": 2,
         "drawn": 1,
         "lost": 0,
-        "gf": 4,
+        "gf": 5,
         "ga": 1,
-        "gd": 3,
-        "points": 4
+        "gd": 4,
+        "points": 7
       },
       {
         "team": "Morocco",
         "position": 2,
-        "played": 2,
+        "played": 3,
         "won": 1,
         "drawn": 1,
-        "lost": 0,
+        "lost": 1,
         "gf": 2,
-        "ga": 1,
-        "gd": 1,
+        "ga": 2,
+        "gd": 0,
         "points": 4
       },
       {
         "team": "Scotland",
         "position": 3,
-        "played": 2,
+        "played": 3,
         "won": 1,
         "drawn": 0,
-        "lost": 1,
+        "lost": 2,
         "gf": 1,
-        "ga": 1,
-        "gd": 0,
+        "ga": 2,
+        "gd": -1,
         "points": 3
       },
       {
         "team": "Haiti",
         "position": 4,
-        "played": 2,
-        "won": 0,
+        "played": 3,
+        "won": 1,
         "drawn": 0,
         "lost": 2,
-        "gf": 0,
+        "gf": 1,
         "ga": 4,
-        "gd": -4,
-        "points": 0
+        "gd": -3,
+        "points": 3
       }
     ],
     "D": [
