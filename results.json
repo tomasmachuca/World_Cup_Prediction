@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T18:09:14+00:00",
+  "updated": "2026-06-24T20:09:04+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -433,6 +433,24 @@
       "outcome": "1",
       "status": "FINISHED",
       "live": false
+    },
+    "Canada|Switzerland": {
+      "home": "Switzerland",
+      "away": "Canada",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "PAUSED",
+      "live": true
+    },
+    "Bosnia and Herzegovina|Qatar": {
+      "home": "Bosnia and Herzegovina",
+      "away": "Qatar",
+      "homeGoals": 2,
+      "awayGoals": 1,
+      "outcome": "1",
+      "status": "PAUSED",
+      "live": true
     }
   }
 }
