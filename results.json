@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T01:21:56+00:00",
+  "updated": "2026-06-24T05:32:46+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -422,6 +422,15 @@
       "homeGoals": 0,
       "awayGoals": 1,
       "outcome": "2",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Colombia|DR Congo": {
+      "home": "Colombia",
+      "away": "DR Congo",
+      "homeGoals": 1,
+      "awayGoals": 0,
+      "outcome": "1",
       "status": "FINISHED",
       "live": false
     }
