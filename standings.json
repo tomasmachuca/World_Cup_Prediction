@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T20:17:40+00:00",
+  "updated": "2026-06-25T21:56:02+00:00",
   "matchesPlayed": 54,
   "live": true,
   "source": "football-data.org",
@@ -212,8 +212,8 @@
         "won": 2,
         "drawn": 1,
         "lost": 0,
-        "gf": 9,
-        "ga": 2,
+        "gf": 10,
+        "ga": 3,
         "gd": 7,
         "points": 7
       },
@@ -221,13 +221,13 @@
         "team": "Ivory Coast",
         "position": 2,
         "played": 3,
-        "won": 1,
-        "drawn": 1,
+        "won": 2,
+        "drawn": 0,
         "lost": 1,
-        "gf": 2,
+        "gf": 4,
         "ga": 2,
-        "gd": 0,
-        "points": 4
+        "gd": 2,
+        "points": 6
       },
       {
         "team": "Ecuador",
@@ -236,8 +236,8 @@
         "won": 0,
         "drawn": 2,
         "lost": 1,
-        "gf": 0,
-        "ga": 1,
+        "gf": 1,
+        "ga": 2,
         "gd": -1,
         "points": 2
       },
@@ -246,12 +246,12 @@
         "position": 4,
         "played": 3,
         "won": 0,
-        "drawn": 2,
-        "lost": 1,
+        "drawn": 1,
+        "lost": 2,
         "gf": 1,
-        "ga": 7,
-        "gd": -6,
-        "points": 2
+        "ga": 9,
+        "gd": -8,
+        "points": 1
       }
     ],
     "F": [

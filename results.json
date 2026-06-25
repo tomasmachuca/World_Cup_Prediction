@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T20:17:41+00:00",
+  "updated": "2026-06-25T21:56:03+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -491,19 +491,19 @@
     "Ecuador|Germany": {
       "home": "Ecuador",
       "away": "Germany",
-      "homeGoals": 1,
+      "homeGoals": 2,
       "awayGoals": 1,
-      "outcome": "X",
-      "status": "LIVE",
+      "outcome": "1",
+      "status": "IN_PLAY",
       "live": true
     },
     "Curaçao|Ivory Coast": {
       "home": "Curaçao",
       "away": "Ivory Coast",
       "homeGoals": 0,
-      "awayGoals": 1,
+      "awayGoals": 2,
       "outcome": "2",
-      "status": "LIVE",
+      "status": "IN_PLAY",
       "live": true
     }
   }
