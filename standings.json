@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T17:58:04+00:00",
+  "updated": "2026-06-25T20:17:40+00:00",
   "matchesPlayed": 54,
   "live": true,
   "source": "football-data.org",
@@ -208,50 +208,50 @@
       {
         "team": "Germany",
         "position": 1,
-        "played": 2,
+        "played": 3,
         "won": 2,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 0,
         "gf": 9,
         "ga": 2,
         "gd": 7,
-        "points": 6
+        "points": 7
       },
       {
         "team": "Ivory Coast",
         "position": 2,
-        "played": 2,
+        "played": 3,
         "won": 1,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 1,
         "gf": 2,
         "ga": 2,
         "gd": 0,
-        "points": 3
+        "points": 4
       },
       {
         "team": "Ecuador",
         "position": 3,
-        "played": 2,
+        "played": 3,
         "won": 0,
-        "drawn": 1,
+        "drawn": 2,
         "lost": 1,
         "gf": 0,
         "ga": 1,
         "gd": -1,
-        "points": 1
+        "points": 2
       },
       {
         "team": "Curaçao",
         "position": 4,
-        "played": 2,
+        "played": 3,
         "won": 0,
-        "drawn": 1,
+        "drawn": 2,
         "lost": 1,
         "gf": 1,
         "ga": 7,
         "gd": -6,
-        "points": 1
+        "points": 2
       }
     ],
     "F": [
