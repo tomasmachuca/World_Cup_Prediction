@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-25T00:18:15+00:00",
-  "matchesPlayed": 52,
+  "updated": "2026-06-25T04:38:32+00:00",
+  "matchesPlayed": 54,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -8,49 +8,49 @@
       {
         "team": "Mexico",
         "position": 1,
-        "played": 2,
-        "won": 2,
+        "played": 3,
+        "won": 3,
         "drawn": 0,
         "lost": 0,
-        "gf": 3,
+        "gf": 6,
         "ga": 0,
-        "gd": 3,
-        "points": 6
+        "gd": 6,
+        "points": 9
       },
       {
-        "team": "South Korea",
+        "team": "South Africa",
         "position": 2,
-        "played": 2,
+        "played": 3,
         "won": 1,
-        "drawn": 0,
-        "lost": 1,
-        "gf": 2,
-        "ga": 2,
-        "gd": 0,
-        "points": 3
-      },
-      {
-        "team": "Czech Republic",
-        "position": 3,
-        "played": 2,
-        "won": 0,
         "drawn": 1,
         "lost": 1,
         "gf": 2,
         "ga": 3,
         "gd": -1,
-        "points": 1
+        "points": 4
       },
       {
-        "team": "South Africa",
+        "team": "South Korea",
+        "position": 3,
+        "played": 3,
+        "won": 1,
+        "drawn": 0,
+        "lost": 2,
+        "gf": 2,
+        "ga": 3,
+        "gd": -1,
+        "points": 3
+      },
+      {
+        "team": "Czech Republic",
         "position": 4,
-        "played": 2,
+        "played": 3,
         "won": 0,
         "drawn": 1,
-        "lost": 1,
-        "gf": 1,
-        "ga": 3,
-        "gd": -2,
+        "lost": 2,
+        "gf": 2,
+        "ga": 6,
+        "gd": -4,
         "points": 1
       }
     ],

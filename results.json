@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T00:18:15+00:00",
+  "updated": "2026-06-25T04:38:33+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -467,6 +467,24 @@
       "homeGoals": 0,
       "awayGoals": 3,
       "outcome": "2",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Czech Republic|Mexico": {
+      "home": "Czech Republic",
+      "away": "Mexico",
+      "homeGoals": 0,
+      "awayGoals": 3,
+      "outcome": "2",
+      "status": "FINISHED",
+      "live": false
+    },
+    "South Africa|South Korea": {
+      "home": "South Africa",
+      "away": "South Korea",
+      "homeGoals": 1,
+      "awayGoals": 0,
+      "outcome": "1",
       "status": "FINISHED",
       "live": false
     }
