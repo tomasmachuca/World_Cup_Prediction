@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T21:56:03+00:00",
+  "updated": "2026-06-25T23:23:13+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -494,8 +494,8 @@
       "homeGoals": 2,
       "awayGoals": 1,
       "outcome": "1",
-      "status": "IN_PLAY",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     },
     "Curaçao|Ivory Coast": {
       "home": "Curaçao",
@@ -503,6 +503,24 @@
       "homeGoals": 0,
       "awayGoals": 2,
       "outcome": "2",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Netherlands|Tunisia": {
+      "home": "Tunisia",
+      "away": "Netherlands",
+      "homeGoals": 0,
+      "awayGoals": 2,
+      "outcome": "2",
+      "status": "IN_PLAY",
+      "live": true
+    },
+    "Japan|Sweden": {
+      "home": "Japan",
+      "away": "Sweden",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
       "status": "IN_PLAY",
       "live": true
     }
