@@ -1638,7 +1638,33 @@
         });
         html += `</table></div>`;
       });
+      if (standingsGroup === 'all') html += renderBestThirds(data);
       container.innerHTML = html;
+    }
+
+    /** Tabla de los 12 terceros ordenados; los 8 mejores (verde) clasifican. */
+    function renderBestThirds(data) {
+      const thirds = [];
+      Object.keys(data.groups).forEach(g => {
+        const rows = data.groups[g].slice().sort((a, b) => (a.position || 99) - (b.position || 99));
+        if (rows[2]) thirds.push({ ...rows[2], group: g });
+      });
+      // Entre grupos distintos el head-to-head no aplica: puntos, DG, GF.
+      thirds.sort((a, b) => b.points - a.points || b.gd - a.gd || b.gf - a.gf || a.team.localeCompare(b.team));
+      let html = `<div class="standings-group"><h3>🥉 Mejores terceros — 8 clasifican</h3>
+        <table class="standings">
+          <tr><th>#</th><th class="team" style="text-align:left">Equipo</th><th>Gr</th><th>PJ</th><th>DG</th><th>GF</th><th>Pts</th></tr>`;
+      thirds.forEach((r, i) => {
+        const gd = (r.gd > 0 ? '+' : '') + r.gd;
+        html += `<tr class="${i < 8 ? 'qualify' : ''}">
+          <td>${i + 1}</td><td class="team">${flag(r.team)} ${r.team}</td><td>${r.group}</td>
+          <td>${r.played}</td><td>${gd}</td><td>${r.gf}</td><td class="pts">${r.points}</td></tr>`;
+      });
+      html += `</table>
+        <p class="source-note" style="margin-top:8px;">De los 12 terceros de grupo, los <b>8 mejores</b> (verde) avanzan a 16avos.
+        Orden: puntos → diferencia de gol → goles a favor (el head-to-head no aplica entre grupos distintos). Se actualiza en vivo.</p>
+      </div>`;
+      return html;
     }
 
     // ---- Simulador de clasificación (Monte Carlo dinámico) --------------
