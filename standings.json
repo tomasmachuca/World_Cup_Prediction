@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-26T01:36:29+00:00",
-  "matchesPlayed": 58,
+  "updated": "2026-06-26T05:54:45+00:00",
+  "matchesPlayed": 60,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -158,50 +158,50 @@
       {
         "team": "United States",
         "position": 1,
-        "played": 2,
+        "played": 3,
         "won": 2,
         "drawn": 0,
-        "lost": 0,
-        "gf": 6,
-        "ga": 1,
-        "gd": 5,
+        "lost": 1,
+        "gf": 8,
+        "ga": 4,
+        "gd": 4,
         "points": 6
       },
       {
         "team": "Australia",
         "position": 2,
-        "played": 2,
+        "played": 3,
         "won": 1,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 1,
         "gf": 2,
         "ga": 2,
         "gd": 0,
-        "points": 3
+        "points": 4
       },
       {
         "team": "Paraguay",
         "position": 3,
-        "played": 2,
+        "played": 3,
         "won": 1,
-        "drawn": 0,
+        "drawn": 1,
         "lost": 1,
         "gf": 2,
         "ga": 4,
         "gd": -2,
-        "points": 3
+        "points": 4
       },
       {
         "team": "Turkey",
         "position": 4,
-        "played": 2,
-        "won": 0,
+        "played": 3,
+        "won": 1,
         "drawn": 0,
         "lost": 2,
-        "gf": 0,
-        "ga": 3,
-        "gd": -3,
-        "points": 0
+        "gf": 3,
+        "ga": 5,
+        "gd": -2,
+        "points": 3
       }
     ],
     "E": [
