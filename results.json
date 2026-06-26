@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-26T20:20:30+00:00",
+  "updated": "2026-06-26T21:45:46+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -546,19 +546,19 @@
       "home": "Norway",
       "away": "France",
       "homeGoals": 1,
-      "awayGoals": 3,
+      "awayGoals": 4,
       "outcome": "2",
-      "status": "IN_PLAY",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     },
     "Iraq|Senegal": {
       "home": "Senegal",
       "away": "Iraq",
-      "homeGoals": 1,
+      "homeGoals": 5,
       "awayGoals": 0,
       "outcome": "1",
-      "status": "LIVE",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
