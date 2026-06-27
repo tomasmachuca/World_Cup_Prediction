@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-27T22:45:41+00:00",
+  "updated": "2026-06-27T23:46:00+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -602,16 +602,34 @@
       "homeGoals": 0,
       "awayGoals": 2,
       "outcome": "2",
-      "status": "IN_PLAY",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     },
     "Croatia|Ghana": {
       "home": "Croatia",
       "away": "Ghana",
-      "homeGoals": 1,
+      "homeGoals": 2,
       "awayGoals": 1,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Colombia|Portugal": {
+      "home": "Colombia",
+      "away": "Portugal",
+      "homeGoals": 0,
+      "awayGoals": 0,
       "outcome": "X",
-      "status": "IN_PLAY",
+      "status": "LIVE",
+      "live": true
+    },
+    "DR Congo|Uzbekistan": {
+      "home": "DR Congo",
+      "away": "Uzbekistan",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "outcome": "2",
+      "status": "LIVE",
       "live": true
     }
   }
