@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-26T22:55:33+00:00",
-  "matchesPlayed": 56,
+  "updated": "2026-06-27T00:12:57+00:00",
+  "matchesPlayed": 62,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -358,50 +358,50 @@
       {
         "team": "Spain",
         "position": 1,
-        "played": 2,
+        "played": 3,
         "won": 1,
-        "drawn": 1,
+        "drawn": 2,
         "lost": 0,
         "gf": 4,
         "ga": 0,
         "gd": 4,
-        "points": 4
+        "points": 5
       },
       {
         "team": "Uruguay",
         "position": 2,
-        "played": 2,
+        "played": 3,
         "won": 0,
-        "drawn": 2,
+        "drawn": 3,
         "lost": 0,
         "gf": 3,
         "ga": 3,
         "gd": 0,
-        "points": 2
+        "points": 3
       },
       {
         "team": "Cabo Verde",
         "position": 3,
-        "played": 2,
+        "played": 3,
         "won": 0,
-        "drawn": 2,
+        "drawn": 3,
         "lost": 0,
         "gf": 2,
         "ga": 2,
         "gd": 0,
-        "points": 2
+        "points": 3
       },
       {
         "team": "Saudi Arabia",
         "position": 4,
-        "played": 2,
+        "played": 3,
         "won": 0,
-        "drawn": 1,
+        "drawn": 2,
         "lost": 1,
         "gf": 1,
         "ga": 5,
         "gd": -4,
-        "points": 1
+        "points": 2
       }
     ],
     "I": [

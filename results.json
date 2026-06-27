@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-26T22:55:34+00:00",
+  "updated": "2026-06-27T00:12:58+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -559,6 +559,24 @@
       "outcome": "1",
       "status": "FINISHED",
       "live": false
+    },
+    "Spain|Uruguay": {
+      "home": "Uruguay",
+      "away": "Spain",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "LIVE",
+      "live": true
+    },
+    "Cabo Verde|Saudi Arabia": {
+      "home": "Cabo Verde",
+      "away": "Saudi Arabia",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "LIVE",
+      "live": true
     }
   }
 }
