@@ -4,8 +4,8 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
 
 1. DATA
 ------------------------------------------------------------------------------
-   Unique matches      : 11056
-   Span                : 2015-01-04 -> 2026-06-26
+   Unique matches      : 11062
+   Span                : 2015-01-04 -> 2026-06-27
    Teams (all)         : 295
    Core WC2026 squads  : 48
 
@@ -15,43 +15,43 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    Secondary: Multinomial logistic (NumPy)
    Deployed : ensemble  (Dixon-Coles blend weight = 0.70)
    Temporal decay xi   : 0.0008  (half-life ~866 days)
-   Home advantage      : +0.2362 log-goals (x1.27 scoring rate)
-   Dixon-Coles rho     : -0.0515
-   Calibration temp. T : 0.791
+   Home advantage      : +0.2357 log-goals (x1.27 scoring rate)
+   Dixon-Coles rho     : -0.0525
+   Calibration temp. T : 0.788
 
 3. HONEST TEMPORAL-HOLDOUT METRICS
 ------------------------------------------------------------------------------
-   Evaluated on the most recent 1991 matches (never seen in training).
-   1X2 accuracy        : 60.37%
-   Multiclass Brier    : 0.5029   (lower is better; 0.66 = random)
-   Log-loss            : 0.8582   (lower is better; 1.099 = random)
+   Evaluated on the most recent 1992 matches (never seen in training).
+   1X2 accuracy        : 60.49%
+   Multiclass Brier    : 0.5024   (lower is better; 0.66 = random)
+   Log-loss            : 0.8575   (lower is better; 1.099 = random)
 
 4. CALIBRATION (reliability of the top pick)
 ------------------------------------------------------------------------------
    confidence bin           n    avg conf    actual acc
-   33%-46%                601       40.4%         39.9%
-   46%-60%                564       52.7%         54.1%
+   33%-46%                594       40.4%         40.4%
+   46%-60%                569       52.7%         53.6%
    60%-73%                437       66.0%         71.4%
-   73%-87%                274       79.1%         86.1%
+   73%-87%                277       79.1%         86.3%
    87%-100%               115       91.5%         94.8%
 
 5. TOP 15 TEAMS BY ELO
 ------------------------------------------------------------------------------
-    1. France                 Elo  2048.6  | attack +1.36  defence +1.24
-    2. Argentina              Elo  2043.5  | attack +1.32  defence +1.67
+    1. Argentina              Elo  2053.5  | attack +1.32  defence +1.63
+    2. France                 Elo  2048.6  | attack +1.36  defence +1.24
     3. Spain                  Elo  2034.0  | attack +1.44  defence +1.42
     4. Morocco                Elo  1977.5  | attack +0.93  defence +1.41
-    5. Brazil                 Elo  1953.9  | attack +1.37  defence +1.33
-    6. England                Elo  1947.3  | attack +1.24  defence +1.42
-    7. Colombia               Elo  1936.6  | attack +1.23  defence +1.18
-    8. Mexico                 Elo  1935.6  | attack +0.84  defence +1.07
-    9. Portugal               Elo  1929.5  | attack +1.37  defence +1.19
+    5. England                Elo  1966.5  | attack +1.24  defence +1.44
+    6. Brazil                 Elo  1953.9  | attack +1.37  defence +1.33
+    7. Colombia               Elo  1936.0  | attack +1.20  defence +1.23
+    8. Mexico                 Elo  1935.6  | attack +0.84  defence +1.06
+    9. Portugal               Elo  1930.1  | attack +1.35  defence +1.24
    10. Japan                  Elo  1921.3  | attack +1.05  defence +1.13
    11. Netherlands            Elo  1912.6  | attack +1.35  defence +1.03
    12. Germany                Elo  1866.5  | attack +1.41  defence +0.94
    13. Norway                 Elo  1863.8  | attack +1.24  defence +0.82
-   14. Nigeria                Elo  1856.5  | attack +0.81  defence +0.78
-   15. Algeria                Elo  1848.3  | attack +0.96  defence +0.83
+   14. Nigeria                Elo  1856.5  | attack +0.82  defence +0.78
+   15. Ecuador                Elo  1846.7  | attack +0.71  defence +1.40
 
 6. NOTES
 ------------------------------------------------------------------------------
@@ -61,5 +61,5 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    * Home advantage applies to host venues; WC2026 group games at
      neutral sites should set homeAdvantage to 0 in the frontend.
 
-Generated: 2026-06-27 13:44:32
+Generated: 2026-06-28 13:47:30
 ==============================================================================
