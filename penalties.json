@@ -1,0 +1,1156 @@
+{
+  "source": "martj42/international_results · shootouts",
+  "shrinkK": 4.0,
+  "teams": {
+    "India": {
+      "played": 11,
+      "won": 5,
+      "rate": 0.467
+    },
+    "Taiwan": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "South Korea": {
+      "played": 25,
+      "won": 15,
+      "rate": 0.586
+    },
+    "Vietnam Republic": {
+      "played": 3,
+      "won": 2,
+      "rate": 0.571
+    },
+    "Iraq": {
+      "played": 15,
+      "won": 11,
+      "rate": 0.684
+    },
+    "Thailand": {
+      "played": 22,
+      "won": 13,
+      "rate": 0.577
+    },
+    "Cambodia": {
+      "played": 3,
+      "won": 0,
+      "rate": 0.286
+    },
+    "Senegal": {
+      "played": 21,
+      "won": 11,
+      "rate": 0.52
+    },
+    "Ghana": {
+      "played": 13,
+      "won": 5,
+      "rate": 0.412
+    },
+    "Guinea": {
+      "played": 10,
+      "won": 8,
+      "rate": 0.714
+    },
+    "Mali": {
+      "played": 18,
+      "won": 8,
+      "rate": 0.455
+    },
+    "Mauritius": {
+      "played": 10,
+      "won": 4,
+      "rate": 0.429
+    },
+    "Tanzania": {
+      "played": 9,
+      "won": 4,
+      "rate": 0.462
+    },
+    "Malaysia": {
+      "played": 10,
+      "won": 4,
+      "rate": 0.429
+    },
+    "Kuwait": {
+      "played": 10,
+      "won": 4,
+      "rate": 0.429
+    },
+    "Singapore": {
+      "played": 10,
+      "won": 3,
+      "rate": 0.357
+    },
+    "Bangladesh": {
+      "played": 5,
+      "won": 2,
+      "rate": 0.444
+    },
+    "Myanmar": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Algeria": {
+      "played": 15,
+      "won": 7,
+      "rate": 0.474
+    },
+    "Syria": {
+      "played": 11,
+      "won": 4,
+      "rate": 0.4
+    },
+    "Qatar": {
+      "played": 9,
+      "won": 5,
+      "rate": 0.538
+    },
+    "United Arab Emirates": {
+      "played": 11,
+      "won": 5,
+      "rate": 0.467
+    },
+    "Hong Kong": {
+      "played": 5,
+      "won": 1,
+      "rate": 0.333
+    },
+    "Indonesia": {
+      "played": 11,
+      "won": 10,
+      "rate": 0.8
+    },
+    "Morocco": {
+      "played": 14,
+      "won": 6,
+      "rate": 0.444
+    },
+    "Libya": {
+      "played": 6,
+      "won": 1,
+      "rate": 0.3
+    },
+    "Tunisia": {
+      "played": 13,
+      "won": 7,
+      "rate": 0.529
+    },
+    "Kenya": {
+      "played": 16,
+      "won": 10,
+      "rate": 0.6
+    },
+    "Malawi": {
+      "played": 18,
+      "won": 4,
+      "rate": 0.273
+    },
+    "Czechoslovakia": {
+      "played": 3,
+      "won": 3,
+      "rate": 0.714
+    },
+    "Germany": {
+      "played": 8,
+      "won": 6,
+      "rate": 0.667
+    },
+    "Argentina": {
+      "played": 23,
+      "won": 15,
+      "rate": 0.63
+    },
+    "Iran": {
+      "played": 23,
+      "won": 10,
+      "rate": 0.444
+    },
+    "Zambia": {
+      "played": 25,
+      "won": 14,
+      "rate": 0.552
+    },
+    "Paraguay": {
+      "played": 13,
+      "won": 6,
+      "rate": 0.471
+    },
+    "Guinea-Bissau": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Cameroon": {
+      "played": 18,
+      "won": 9,
+      "rate": 0.5
+    },
+    "Netherlands": {
+      "played": 10,
+      "won": 2,
+      "rate": 0.286
+    },
+    "Seychelles": {
+      "played": 4,
+      "won": 4,
+      "rate": 0.75
+    },
+    "Gambia": {
+      "played": 4,
+      "won": 3,
+      "rate": 0.625
+    },
+    "Mauritania": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Egypt": {
+      "played": 26,
+      "won": 15,
+      "rate": 0.567
+    },
+    "Italy": {
+      "played": 15,
+      "won": 7,
+      "rate": 0.474
+    },
+    "Nigeria": {
+      "played": 17,
+      "won": 10,
+      "rate": 0.571
+    },
+    "China": {
+      "played": 10,
+      "won": 4,
+      "rate": 0.429
+    },
+    "Rwanda": {
+      "played": 5,
+      "won": 2,
+      "rate": 0.444
+    },
+    "Ethiopia": {
+      "played": 8,
+      "won": 7,
+      "rate": 0.75
+    },
+    "Ivory Coast": {
+      "played": 18,
+      "won": 10,
+      "rate": 0.545
+    },
+    "Togo": {
+      "played": 4,
+      "won": 3,
+      "rate": 0.625
+    },
+    "Burkina Faso": {
+      "played": 11,
+      "won": 6,
+      "rate": 0.533
+    },
+    "France": {
+      "played": 11,
+      "won": 5,
+      "rate": 0.467
+    },
+    "Uganda": {
+      "played": 18,
+      "won": 7,
+      "rate": 0.409
+    },
+    "Niger": {
+      "played": 4,
+      "won": 1,
+      "rate": 0.375
+    },
+    "Sierra Leone": {
+      "played": 8,
+      "won": 2,
+      "rate": 0.333
+    },
+    "Congo": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Denmark": {
+      "played": 7,
+      "won": 2,
+      "rate": 0.364
+    },
+    "Spain": {
+      "played": 14,
+      "won": 7,
+      "rate": 0.5
+    },
+    "Angola": {
+      "played": 10,
+      "won": 7,
+      "rate": 0.643
+    },
+    "Somalia": {
+      "played": 3,
+      "won": 0,
+      "rate": 0.286
+    },
+    "Saudi Arabia": {
+      "played": 9,
+      "won": 7,
+      "rate": 0.692
+    },
+    "Chad": {
+      "played": 5,
+      "won": 3,
+      "rate": 0.556
+    },
+    "Equatorial Guinea": {
+      "played": 5,
+      "won": 1,
+      "rate": 0.333
+    },
+    "Central African Republic": {
+      "played": 3,
+      "won": 1,
+      "rate": 0.429
+    },
+    "Gabon": {
+      "played": 15,
+      "won": 5,
+      "rate": 0.368
+    },
+    "Mozambique": {
+      "played": 13,
+      "won": 8,
+      "rate": 0.588
+    },
+    "Madagascar": {
+      "played": 8,
+      "won": 2,
+      "rate": 0.333
+    },
+    "Bahrain": {
+      "played": 3,
+      "won": 3,
+      "rate": 0.714
+    },
+    "Réunion": {
+      "played": 6,
+      "won": 4,
+      "rate": 0.6
+    },
+    "Pakistan": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Nepal": {
+      "played": 4,
+      "won": 3,
+      "rate": 0.625
+    },
+    "Brazil": {
+      "played": 16,
+      "won": 9,
+      "rate": 0.55
+    },
+    "Mexico": {
+      "played": 14,
+      "won": 7,
+      "rate": 0.5
+    },
+    "Belgium": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Australia": {
+      "played": 8,
+      "won": 5,
+      "rate": 0.583
+    },
+    "DR Congo": {
+      "played": 8,
+      "won": 5,
+      "rate": 0.583
+    },
+    "Zimbabwe": {
+      "played": 15,
+      "won": 7,
+      "rate": 0.474
+    },
+    "Sweden": {
+      "played": 6,
+      "won": 4,
+      "rate": 0.6
+    },
+    "Canada": {
+      "played": 8,
+      "won": 3,
+      "rate": 0.417
+    },
+    "Greece": {
+      "played": 3,
+      "won": 0,
+      "rate": 0.286
+    },
+    "Chile": {
+      "played": 10,
+      "won": 5,
+      "rate": 0.5
+    },
+    "Ecuador": {
+      "played": 4,
+      "won": 2,
+      "rate": 0.5
+    },
+    "Eswatini": {
+      "played": 10,
+      "won": 5,
+      "rate": 0.5
+    },
+    "Sudan": {
+      "played": 3,
+      "won": 1,
+      "rate": 0.429
+    },
+    "United States": {
+      "played": 10,
+      "won": 6,
+      "rate": 0.571
+    },
+    "Colombia": {
+      "played": 12,
+      "won": 7,
+      "rate": 0.562
+    },
+    "Russia": {
+      "played": 7,
+      "won": 2,
+      "rate": 0.364
+    },
+    "Republic of Ireland": {
+      "played": 4,
+      "won": 1,
+      "rate": 0.375
+    },
+    "Romania": {
+      "played": 4,
+      "won": 1,
+      "rate": 0.375
+    },
+    "Yugoslavia": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "England": {
+      "played": 12,
+      "won": 4,
+      "rate": 0.375
+    },
+    "North Korea": {
+      "played": 7,
+      "won": 4,
+      "rate": 0.545
+    },
+    "Honduras": {
+      "played": 9,
+      "won": 5,
+      "rate": 0.538
+    },
+    "Fiji": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Solomon Islands": {
+      "played": 3,
+      "won": 1,
+      "rate": 0.429
+    },
+    "Cuba": {
+      "played": 4,
+      "won": 1,
+      "rate": 0.375
+    },
+    "Martinique": {
+      "played": 9,
+      "won": 7,
+      "rate": 0.692
+    },
+    "Japan": {
+      "played": 12,
+      "won": 5,
+      "rate": 0.438
+    },
+    "Switzerland": {
+      "played": 8,
+      "won": 2,
+      "rate": 0.333
+    },
+    "Finland": {
+      "played": 6,
+      "won": 2,
+      "rate": 0.4
+    },
+    "Estonia": {
+      "played": 6,
+      "won": 2,
+      "rate": 0.4
+    },
+    "Bolivia": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Saint Kitts and Nevis": {
+      "played": 4,
+      "won": 2,
+      "rate": 0.5
+    },
+    "Jamaica": {
+      "played": 3,
+      "won": 1,
+      "rate": 0.429
+    },
+    "Uruguay": {
+      "played": 17,
+      "won": 9,
+      "rate": 0.524
+    },
+    "Burundi": {
+      "played": 4,
+      "won": 0,
+      "rate": 0.25
+    },
+    "Bulgaria": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Antigua and Barbuda": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Zanzibar": {
+      "played": 3,
+      "won": 2,
+      "rate": 0.571
+    },
+    "Costa Rica": {
+      "played": 10,
+      "won": 2,
+      "rate": 0.286
+    },
+    "Sri Lanka": {
+      "played": 5,
+      "won": 3,
+      "rate": 0.556
+    },
+    "Barbados": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Guyana": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Suriname": {
+      "played": 4,
+      "won": 2,
+      "rate": 0.5
+    },
+    "Czech Republic": {
+      "played": 4,
+      "won": 3,
+      "rate": 0.625
+    },
+    "Croatia": {
+      "played": 11,
+      "won": 7,
+      "rate": 0.6
+    },
+    "Benin": {
+      "played": 3,
+      "won": 3,
+      "rate": 0.714
+    },
+    "Serbia": {
+      "played": 3,
+      "won": 1,
+      "rate": 0.429
+    },
+    "Trinidad and Tobago": {
+      "played": 5,
+      "won": 2,
+      "rate": 0.444
+    },
+    "Haiti": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Hungary": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "North Macedonia": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Guatemala": {
+      "played": 5,
+      "won": 4,
+      "rate": 0.667
+    },
+    "Namibia": {
+      "played": 10,
+      "won": 5,
+      "rate": 0.5
+    },
+    "New Zealand": {
+      "played": 4,
+      "won": 1,
+      "rate": 0.375
+    },
+    "Poland": {
+      "played": 4,
+      "won": 3,
+      "rate": 0.625
+    },
+    "Peru": {
+      "played": 5,
+      "won": 2,
+      "rate": 0.444
+    },
+    "South Africa": {
+      "played": 28,
+      "won": 13,
+      "rate": 0.469
+    },
+    "Georgia": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Saint Lucia": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "British Virgin Islands": {
+      "played": 3,
+      "won": 2,
+      "rate": 0.571
+    },
+    "Sint Maarten": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Maldives": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Lesotho": {
+      "played": 13,
+      "won": 7,
+      "rate": 0.529
+    },
+    "Ynys Môn": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Jersey": {
+      "played": 6,
+      "won": 4,
+      "rate": 0.6
+    },
+    "Guernsey": {
+      "played": 6,
+      "won": 2,
+      "rate": 0.4
+    },
+    "Cyprus": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Slovenia": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Botswana": {
+      "played": 13,
+      "won": 8,
+      "rate": 0.588
+    },
+    "Belarus": {
+      "played": 3,
+      "won": 1,
+      "rate": 0.429
+    },
+    "Guadeloupe": {
+      "played": 4,
+      "won": 2,
+      "rate": 0.5
+    },
+    "French Guiana": {
+      "played": 4,
+      "won": 0,
+      "rate": 0.25
+    },
+    "New Caledonia": {
+      "played": 5,
+      "won": 3,
+      "rate": 0.556
+    },
+    "Vanuatu": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Kazakhstan": {
+      "played": 3,
+      "won": 3,
+      "rate": 0.714
+    },
+    "Armenia": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Jordan": {
+      "played": 3,
+      "won": 0,
+      "rate": 0.286
+    },
+    "Portugal": {
+      "played": 8,
+      "won": 5,
+      "rate": 0.583
+    },
+    "Uzbekistan": {
+      "played": 5,
+      "won": 2,
+      "rate": 0.444
+    },
+    "Slovakia": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Latvia": {
+      "played": 7,
+      "won": 4,
+      "rate": 0.545
+    },
+    "Oman": {
+      "played": 5,
+      "won": 4,
+      "rate": 0.667
+    },
+    "Austria": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Panama": {
+      "played": 7,
+      "won": 5,
+      "rate": 0.636
+    },
+    "Ukraine": {
+      "played": 4,
+      "won": 3,
+      "rate": 0.625
+    },
+    "Israel": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Northern Cyprus": {
+      "played": 4,
+      "won": 2,
+      "rate": 0.5
+    },
+    "Mayotte": {
+      "played": 3,
+      "won": 2,
+      "rate": 0.571
+    },
+    "Turkey": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Provence": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Sápmi": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Corsica": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Tahiti": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "El Salvador": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Saare County": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Åland Islands": {
+      "played": 3,
+      "won": 3,
+      "rate": 0.714
+    },
+    "Isle of Man": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Menorca": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Aruba": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Venezuela": {
+      "played": 3,
+      "won": 0,
+      "rate": 0.286
+    },
+    "Alderney": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Sealand": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Chagos Islands": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Abkhazia": {
+      "played": 6,
+      "won": 2,
+      "rate": 0.4
+    },
+    "South Ossetia": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Ellan Vannin": {
+      "played": 4,
+      "won": 2,
+      "rate": 0.5
+    },
+    "Iraqi Kurdistan": {
+      "played": 6,
+      "won": 1,
+      "rate": 0.3
+    },
+    "Padania": {
+      "played": 6,
+      "won": 6,
+      "rate": 0.8
+    },
+    "Occitania": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "County of Nice": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Curaçao": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Felvidék": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Gibraltar": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Basque Country": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "United Koreans in Japan": {
+      "played": 3,
+      "won": 2,
+      "rate": 0.571
+    },
+    "Bosnia and Herzegovina": {
+      "played": 4,
+      "won": 3,
+      "rate": 0.625
+    },
+    "Vietnam": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Western Armenia": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Raetia": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Panjab": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Papua New Guinea": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Kárpátalja": {
+      "played": 3,
+      "won": 2,
+      "rate": 0.571
+    },
+    "Laos": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Macau": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Brunei": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Hitra": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Western Isles": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Greenland": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Andorra": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Cabo Verde": {
+      "played": 5,
+      "won": 2,
+      "rate": 0.444
+    },
+    "Matabeleland": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Kabylia": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Tibet": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Cascadia": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Székely Land": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Chameria": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Liberia": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Djibouti": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Northern Ireland": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Scotland": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Tajikistan": {
+      "played": 4,
+      "won": 3,
+      "rate": 0.625
+    },
+    "Moldova": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Lithuania": {
+      "played": 3,
+      "won": 1,
+      "rate": 0.429
+    },
+    "Iceland": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Grenada": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Puerto Rico": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Lebanon": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Orkney": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Falkland Islands": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Wales": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Turks and Caicos Islands": {
+      "played": 2,
+      "won": 0,
+      "rate": 0.333
+    },
+    "Anguilla": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "United States Virgin Islands": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Philippines": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Gozo": {
+      "played": 2,
+      "won": 2,
+      "rate": 0.667
+    },
+    "Shetland": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Palestine": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    },
+    "Comoros": {
+      "played": 2,
+      "won": 1,
+      "rate": 0.5
+    },
+    "Yemen": {
+      "played": 1,
+      "won": 0,
+      "rate": 0.4
+    },
+    "Azerbaijan": {
+      "played": 1,
+      "won": 1,
+      "rate": 0.6
+    }
+  }
+}

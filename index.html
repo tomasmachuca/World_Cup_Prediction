@@ -489,8 +489,24 @@
     .bk-team.empty .bk-name { color: #4a5169; font-weight: 500; }
     .bk-team.win { background: rgba(52, 211, 153, 0.14); }
     .bk-team.win .bk-name { color: #34d399; font-weight: 800; }
+    /* Ganador PREDICHO (aún no jugado): ámbar en vez de verde. */
+    .bk-team.win.pred { background: rgba(240, 180, 41, 0.13); }
+    .bk-team.win.pred .bk-name { color: #f0b429; }
+    .bk-adv { color: #8b92a8; font-size: 0.82em; font-weight: 700; flex-shrink: 0; margin-left: auto; }
+    .side-r .bk-adv { margin-left: 0; margin-right: auto; }
+    .bk-pen { cursor: help; }
     .side-r .bk-team { flex-direction: row-reverse; }
     .bk-lines { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 0; }
+
+    .champion-banner {
+      text-align: center;
+      background: linear-gradient(135deg, rgba(240,180,41,0.18), rgba(245,158,11,0.10));
+      border: 1px solid rgba(240, 180, 41, 0.5);
+      border-radius: 12px; padding: 14px; margin-bottom: 16px;
+    }
+    .champion-banner .lbl { color: #8b92a8; font-size: 0.85em; letter-spacing: 0.04em; }
+    .champion-banner .champ { font-size: 1.5em; font-weight: 900; color: #f0b429; margin-top: 4px; }
+    .champion-banner .champ .flag { width: 30px; height: 21px; }
 
     /* ===================== MOBILE (mobile-first pass) ===================== */
     @media (max-width: 600px) {
@@ -943,6 +959,7 @@
         loadFixture();      // pre-carga en segundo plano
         loadStandings();
         loadStatsModel();
+        loadPenalties();
       } catch (error) {
         console.error('Error:', error);
         document.getElementById('loadingPanel').classList.add('hidden');
@@ -1137,6 +1154,34 @@
         const res = await fetch('stats_model.json');
         if (res.ok) statsModel = await res.json();
       } catch (e) { /* sin stats: el botón de detalle no aparece */ }
+    }
+
+    let penaltyData = null;   // récord de tandas de penales por selección
+    async function loadPenalties() {
+      try {
+        const res = await fetch('penalties.json');
+        if (res.ok) penaltyData = await res.json();
+      } catch (e) { /* sin penales: se usa 50/50 */ }
+    }
+    /** P(A gana la tanda) según el récord histórico de penales (50/50 si falta). */
+    function shootoutWinProb(a, b) {
+      const t = penaltyData && penaltyData.teams;
+      const ra = (t && t[a]) ? t[a].rate : 0.5;
+      const rb = (t && t[b]) ? t[b].rate : 0.5;
+      return ra / (ra + rb);
+    }
+    /**
+     * Predicción de una llave de eliminación (sede neutral). El empate en los
+     * 90'+prórroga se define por penales con el récord de cada equipo:
+     *   P(A avanza) = P(A gana) + P(empate) · P(A gana la tanda)
+     */
+    function koPredict(aTeam, bTeam) {
+      const SH = model.teamStrengthHome, SA = model.teamStrengthAway;
+      const la = Math.exp((SH[aTeam] || 0) + (SA[bTeam] || 0));
+      const lb = Math.exp((SH[bTeam] || 0) + (SA[aTeam] || 0));
+      const [p1, pX, p2] = wdl(la, lb);
+      const shA = shootoutWinProb(aTeam, bTeam);
+      return { aAdv: p1 + pX * shA, pX, shA };
     }
 
     /** Córners y tarjetas esperadas de un cruce (estimación, sede neutral). */
@@ -1946,9 +1991,10 @@
     }
 
     /**
-     * Arma el cuadro: los 16avos salen de la TABLA REAL (standings.json) y se
-     * recalculan a medida que se juegan los partidos; las rondas siguientes
-     * sólo se llenan cuando hay un resultado REAL de eliminación.
+     * Arma el cuadro: los 16avos salen de la TABLA REAL (standings.json). Cada
+     * llave se PREDICE (con penales) si todavía no se jugó; el ganador predicho
+     * se propaga a la ronda siguiente. Cuando hay un resultado REAL, reemplaza
+     * a la predicción. meta[m] guarda si es real + la prob de avance.
      */
     function buildBracketTeams() {
       const tables = realGroupTables();
@@ -1958,20 +2004,27 @@
       const teamOf = ([type, ref]) =>
         type === '1' ? stand[ref][0] : type === '2' ? stand[ref][1] : thirdOf[ref];
 
-      const slot = {}, winner = {};
-      for (const m in R32) slot[m] = [teamOf(R32[m][0]), teamOf(R32[m][1])];
-      for (const m in R32) { const w = realKOWinner(slot[m][0], slot[m][1]); if (w) winner[m] = w; }
-      const advance = def => {
-        for (const m in def) {
-          const [fa, fb] = def[m];
-          slot[m] = [winner[fa] || null, winner[fb] || null];
-          const w = realKOWinner(slot[m][0], slot[m][1]); if (w) winner[m] = w;
-        }
+      const slot = {}, winner = {}, meta = {};
+      const decide = (m, a, b) => {
+        slot[m] = [a || null, b || null];
+        if (!a || !b) return;
+        const real = realKOWinner(a, b);
+        if (real) { winner[m] = real; meta[m] = { real: true }; return; }
+        const pr = koPredict(a.team, b.team);
+        const aWins = pr.aAdv >= 0.5;
+        winner[m] = aWins ? a : b;
+        meta[m] = {
+          real: false,
+          advPct: Math.round((aWins ? pr.aAdv : 1 - pr.aAdv) * 100),
+          drawPct: pr.pX,
+          shootWin: Math.round((aWins ? pr.shA : 1 - pr.shA) * 100),
+        };
       };
-      advance(R16); advance(QF); advance(SF);
-      slot[FINAL_M] = [winner[FINAL_SRC[0]] || null, winner[FINAL_SRC[1]] || null];
-      const fw = realKOWinner(slot[FINAL_M][0], slot[FINAL_M][1]); if (fw) winner[FINAL_M] = fw;
-      return { slot, winner };
+      for (const m in R32) decide(m, teamOf(R32[m][0]), teamOf(R32[m][1]));
+      const round = def => { for (const m in def) decide(m, winner[def[m][0]], winner[def[m][1]]); };
+      round(R16); round(QF); round(SF);
+      decide(FINAL_M, winner[FINAL_SRC[0]], winner[FINAL_SRC[1]]);
+      return { slot, winner, meta, champion: winner[FINAL_M] };
     }
 
     // Orden visual de las columnas: lado izquierdo -> Final -> lado derecho.
@@ -2005,25 +2058,40 @@
         container.innerHTML = '<p class="source-note" style="text-align:center;">Esperando la tabla de posiciones en vivo…</p>';
         return;
       }
-      const { slot, winner } = built;
-      const played = standingsData ? standingsData.matchesPlayed : 0;
+      const { slot, winner, meta, champion } = built;
       document.getElementById('bracketMeta').innerHTML =
-        `🏆 Cuadro oficial. Los <b>16avos</b> salen de la <b>tabla real</b> (1°/2° de cada grupo + 8 mejores terceros) ` +
-        `con los <b>${played}</b> partidos jugados hasta ahora y se reacomodan a medida que se juega. Las rondas ` +
-        `siguientes se llenan con los resultados de eliminación. <span class="bk-hint">↔ deslizá para ver todo.</span>`;
+        `🏆 Cuadro oficial. Los <b>16avos</b> salen de la <b>tabla real</b>; cada llave está <b>predicha</b> ` +
+        `(✦ ganador proyectado, % = prob. de avanzar). Los <b>empates se definen por penales</b> usando el récord ` +
+        `histórico de tandas de cada selección (🥅). Los resultados reales reemplazan la predicción. ` +
+        `<span class="bk-hint">↔ deslizá para ver todo.</span>`;
 
-      const teamRow = (t, seed, side) => {
+      const teamRow = (t, seed, side, m) => {
         const name = t ? t.team : '—';
-        const cls = `bk-team${t ? '' : ' empty'}`;
+        const mt = meta[m] || {};
+        const isWin = t && winner[m] && winner[m].team === t.team;
+        const cls = `bk-team${t ? '' : ' empty'}${isWin ? (mt.real ? ' win' : ' win pred') : ''}`;
         const seedHtml = seed ? `<span class="bk-seed">${seed}</span>` : '';
-        const nameHtml = `<span class="bk-name">${t ? flag(t.team) + ' ' : ''}${name}</span>`;
-        return `<div class="${cls}">${side === 'r' ? nameHtml + seedHtml : seedHtml + nameHtml}</div>`;
+        const mark = (isWin && !mt.real) ? '✦ ' : '';
+        const nameHtml = `<span class="bk-name">${mark}${t ? flag(t.team) + ' ' : ''}${name}</span>`;
+        // % de avance + 🥅 si la llave tiene chances reales de ir a penales
+        let adv = '';
+        if (isWin && !mt.real) {
+          const pen = mt.drawPct > 0.26 ? ` <span class="bk-pen" title="Si va a penales, ${mt.shootWin}% de ganar la tanda">🥅</span>` : '';
+          adv = `<span class="bk-adv">${mt.advPct}%${pen}</span>`;
+        }
+        return `<div class="${cls}">${side === 'r' ? nameHtml + adv + seedHtml : seedHtml + nameHtml + adv}</div>`;
       };
       const matchBox = (m, side) => {
         const [a, b] = slot[m] || [null, null];
         const seeds = R32[m] ? [seedLabel(R32[m][0]), seedLabel(R32[m][1])] : ['', ''];
-        return `<div class="bk-match" data-m="${m}">${teamRow(a, seeds[0], side)}${teamRow(b, seeds[1], side)}</div>`;
+        return `<div class="bk-match" data-m="${m}">${teamRow(a, seeds[0], side, m)}${teamRow(b, seeds[1], side, m)}</div>`;
       };
+
+      document.getElementById('bracketChampion').innerHTML = champion ? `
+        <div class="champion-banner">
+          <div class="lbl">🏆 Campeón proyectado</div>
+          <div class="champ">${flag(champion.team)} ${champion.team}</div>
+        </div>` : '';
 
       let cols = '';
       for (const c of BK_COLS) {
