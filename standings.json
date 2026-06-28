@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-27T23:45:59+00:00",
-  "matchesPlayed": 68,
+  "updated": "2026-06-28T01:57:03+00:00",
+  "matchesPlayed": 70,
   "live": true,
   "source": "football-data.org",
   "groups": {
@@ -533,25 +533,25 @@
         "team": "DR Congo",
         "position": 3,
         "played": 3,
-        "won": 0,
-        "drawn": 2,
+        "won": 1,
+        "drawn": 1,
         "lost": 1,
-        "gf": 1,
-        "ga": 2,
-        "gd": -1,
-        "points": 2
+        "gf": 4,
+        "ga": 3,
+        "gd": 1,
+        "points": 4
       },
       {
         "team": "Uzbekistan",
         "position": 4,
         "played": 3,
         "won": 0,
-        "drawn": 1,
-        "lost": 2,
-        "gf": 1,
-        "ga": 8,
-        "gd": -7,
-        "points": 1
+        "drawn": 0,
+        "lost": 3,
+        "gf": 2,
+        "ga": 11,
+        "gd": -9,
+        "points": 0
       }
     ],
     "L": [
