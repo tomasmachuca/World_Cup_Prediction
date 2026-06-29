@@ -4,8 +4,8 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
 
 1. DATA
 ------------------------------------------------------------------------------
-   Unique matches      : 11062
-   Span                : 2015-01-04 -> 2026-06-27
+   Unique matches      : 11063
+   Span                : 2015-01-04 -> 2026-06-28
    Teams (all)         : 295
    Core WC2026 squads  : 48
 
@@ -15,22 +15,22 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    Secondary: Multinomial logistic (NumPy)
    Deployed : ensemble  (Dixon-Coles blend weight = 0.70)
    Temporal decay xi   : 0.0008  (half-life ~866 days)
-   Home advantage      : +0.2357 log-goals (x1.27 scoring rate)
-   Dixon-Coles rho     : -0.0525
+   Home advantage      : +0.2360 log-goals (x1.27 scoring rate)
+   Dixon-Coles rho     : -0.0514
    Calibration temp. T : 0.788
 
 3. HONEST TEMPORAL-HOLDOUT METRICS
 ------------------------------------------------------------------------------
    Evaluated on the most recent 1992 matches (never seen in training).
    1X2 accuracy        : 60.49%
-   Multiclass Brier    : 0.5024   (lower is better; 0.66 = random)
+   Multiclass Brier    : 0.5023   (lower is better; 0.66 = random)
    Log-loss            : 0.8575   (lower is better; 1.099 = random)
 
 4. CALIBRATION (reliability of the top pick)
 ------------------------------------------------------------------------------
    confidence bin           n    avg conf    actual acc
-   33%-46%                594       40.4%         40.4%
-   46%-60%                569       52.7%         53.6%
+   33%-46%                593       40.4%         40.1%
+   46%-60%                570       52.7%         53.9%
    60%-73%                437       66.0%         71.4%
    73%-87%                277       79.1%         86.3%
    87%-100%               115       91.5%         94.8%
@@ -50,7 +50,7 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    11. Netherlands            Elo  1912.6  | attack +1.35  defence +1.03
    12. Germany                Elo  1866.5  | attack +1.41  defence +0.94
    13. Norway                 Elo  1863.8  | attack +1.24  defence +0.82
-   14. Nigeria                Elo  1856.5  | attack +0.82  defence +0.78
+   14. Nigeria                Elo  1856.5  | attack +0.81  defence +0.78
    15. Ecuador                Elo  1846.7  | attack +0.71  defence +1.40
 
 6. NOTES
@@ -61,5 +61,5 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    * Home advantage applies to host venues; WC2026 group games at
      neutral sites should set homeAdvantage to 0 in the frontend.
 
-Generated: 2026-06-28 13:47:30
+Generated: 2026-06-29 15:48:46
 ==============================================================================
