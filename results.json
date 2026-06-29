@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-29T18:22:30+00:00",
+  "updated": "2026-06-29T20:22:28+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -662,11 +662,11 @@
     "Brazil|Japan": {
       "home": "Brazil",
       "away": "Japan",
-      "homeGoals": 1,
+      "homeGoals": 2,
       "awayGoals": 1,
-      "outcome": "X",
-      "status": "IN_PLAY",
-      "live": true
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
