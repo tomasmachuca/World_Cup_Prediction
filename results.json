@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-29T20:22:28+00:00",
+  "updated": "2026-06-29T21:50:48+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -667,6 +667,15 @@
       "outcome": "1",
       "status": "FINISHED",
       "live": false
+    },
+    "Germany|Paraguay": {
+      "home": "Germany",
+      "away": "Paraguay",
+      "homeGoals": 0,
+      "awayGoals": 1,
+      "outcome": "2",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
