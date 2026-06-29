@@ -282,6 +282,12 @@
       padding: 4px 8px;
       display: inline-block;
     }
+    .ko-pred {
+      margin-top: 6px; font-size: 0.85em; color: #f0b429; font-weight: 600;
+      background: rgba(240, 180, 41, 0.1); border-radius: 6px; padding: 4px 8px; display: inline-block;
+    }
+    .ko-pred.done { color: #34d399; background: rgba(52, 211, 153, 0.1); }
+    .ko-pred b { color: inherit; }
     .dc-tip b { color: #34d399; font-weight: 800; }
 
     .stakes {
@@ -354,6 +360,7 @@
       cursor: pointer;
     }
     .analytics-toggle:hover { transform: none; box-shadow: none; background: rgba(34, 211, 238, 0.18); }
+    .analytics-toggle.on { background: rgba(240, 180, 41, 0.18); border-color: rgba(240, 180, 41, 0.5); color: #f0b429; }
     #analyticsPanel { margin-top: 12px; }
     .an-block { margin-bottom: 14px; }
     .an-title { color: #8b92a8; font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
@@ -827,6 +834,7 @@
     </div>
 
     <div class="card hidden" id="bracketPanel">
+      <button id="bracketSimBtn" class="analytics-toggle" style="margin-top:0;margin-bottom:14px;" onclick="toggleBracketSim()">🔮 Simular el cuadro</button>
       <p class="source-note" id="bracketMeta" style="margin-top:0; margin-bottom:16px;"></p>
       <div id="bracketChampion"></div>
       <div id="bracketContainer"></div>
@@ -1545,11 +1553,49 @@
       const mds = [...new Set(fixtureData.matches.map(m => m.matchday))].sort();
       const chip = (val, label) =>
         `<button class="gchip${fixtureMatchday === val ? ' active' : ''}" data-md="${val}">${label}</button>`;
-      cont.innerHTML = chip('all', 'Todas') + mds.map(md => chip(md, 'Fecha ' + md)).join('');
+      cont.innerHTML = chip('all', 'Todas') + mds.map(md => chip(md, 'Fecha ' + md)).join('') + chip('ko', '16avos 🔮');
       cont.querySelectorAll('.gchip').forEach(b => b.addEventListener('click', () => {
-        fixtureMatchday = b.dataset.md === 'all' ? 'all' : +b.dataset.md;
+        const v = b.dataset.md;
+        fixtureMatchday = (v === 'all' || v === 'ko') ? v : +v;
         renderFixture();
       }));
+    }
+
+    /** Tarjetas de los 16avos con la predicción del modelo (penal-aware). */
+    function renderKnockoutFixture() {
+      const built = buildBracketTeams(true);
+      if (!built) return '<p class="source-note" style="text-align:center;">Esperando que terminen los grupos para armar los 16avos…</p>';
+      const { slot, winner, meta } = built;
+      let html = `<p class="source-note" style="margin-top:0; margin-bottom:14px;">
+        🔮 <b>16avos de final</b> — predicción del modelo (sede neutral). Los empates se definen por <b>penales</b>
+        según el récord de tandas de cada selección (🥅). El marcador real aparece cuando se juegue.</p>`;
+      Object.keys(R32).map(Number).sort((a, b) => a - b).forEach(m => {
+        const pair = slot[m] || [];
+        const a = pair[0], b = pair[1];
+        if (!a || !b) return;
+        const mt = meta[m] || {}, w = winner[m];
+        const seeds = `${seedLabel(R32[m][0])} vs ${seedLabel(R32[m][1])}`;
+        const rs = realScore(a.team, b.team);
+        const scoreLine = rs ? `<div class="fixture-score">Resultado: <b>${rs[0]} - ${rs[1]}</b></div>` : '';
+        let predLine, pickBox;
+        if (mt.real) {
+          predLine = `<div class="ko-pred done">✅ Avanzó: ${flag(w.team)} <b>${w.team}</b></div>`;
+          pickBox = '<div class="verdict ok">✓</div>';
+        } else {
+          const pen = mt.drawPct > 0.26 ? ` · <span class="bk-pen" title="Si va a penales">🥅 pen ${mt.shootWin}%</span>` : '';
+          predLine = `<div class="ko-pred">🔮 Avanza: ${flag(w.team)} <b>${w.team}</b> — ${mt.advPct}%${pen}</div>`;
+          pickBox = '<div class="pick-code" style="color:#f0b429">✦</div>';
+        }
+        html += `<div class="fixture-match">
+          <div>
+            <div class="fixture-teams">${flag(a.team)} ${a.team} <span style="color:#555d75">vs</span> ${flag(b.team)} ${b.team}</div>
+            <div class="fixture-meta">16avos de final · ${seeds}</div>
+            ${scoreLine}${predLine}
+          </div>
+          <div class="fixture-pick">${pickBox}</div>
+        </div>`;
+      });
+      return html;
     }
 
     function renderFixture() {
@@ -1558,6 +1604,11 @@
       const showProbs = document.getElementById('fixtureProbsToggle').checked;
       const container = document.getElementById('fixtureContainer');
       renderMatchdayChips();
+      if (fixtureMatchday === 'ko') {       // 16avos: predicción de eliminación
+        document.getElementById('fixtureGroupFilter').innerHTML = '';
+        container.innerHTML = renderKnockoutFixture();
+        return;
+      }
       renderGroupChips('fixtureGroupFilter', fixtureGroup, g => { fixtureGroup = g; renderFixture(); });
       const mdLabel = fixtureMatchday === 'all' ? 'Todas las fechas' : 'Fecha ' + fixtureMatchday;
       const filtered = fixtureData.matches
@@ -1996,7 +2047,7 @@
      * se propaga a la ronda siguiente. Cuando hay un resultado REAL, reemplaza
      * a la predicción. meta[m] guarda si es real + la prob de avance.
      */
-    function buildBracketTeams() {
+    function buildBracketTeams(simulate) {
       const tables = realGroupTables();
       if (!tables) return null;
       const { stand, qualThirds } = tables;
@@ -2010,6 +2061,7 @@
         if (!a || !b) return;
         const real = realKOWinner(a, b);
         if (real) { winner[m] = real; meta[m] = { real: true }; return; }
+        if (!simulate) return;   // modo real: las llaves sin jugar quedan vacías
         const pr = koPredict(a.team, b.team);
         const aWins = pr.aAdv >= 0.5;
         winner[m] = aWins ? a : b;
@@ -2041,29 +2093,39 @@
       { round: 'r32', side: 'r', m: [76, 78, 79, 80, 86, 88, 85, 87] },
     ];
 
-    let bracketKey = '';
+    let bracketKey = '', bracketSimulate = false;
+    function toggleBracketSim() {
+      bracketSimulate = !bracketSimulate;
+      bracketKey = '';   // forzar re-render
+      renderBracket();
+    }
     function renderBracket() {
       if (!modelReady) return;
       const container = document.getElementById('bracketContainer');
       const su = standingsData ? (standingsData.updated || '') : '';
       const ru = resultsData ? (resultsData.updated || '') + ':' + Object.keys(resultsData.matches || {}).length : '';
-      const key = su + '|' + ru;
+      const key = su + '|' + ru + '|' + bracketSimulate;
       if (key === bracketKey && container.innerHTML) { setTimeout(drawConnectors, 40); return; }
       bracketKey = key;
       document.getElementById('bracketChampion').innerHTML = '';
 
-      const built = buildBracketTeams();
+      const btn = document.getElementById('bracketSimBtn');
+      btn.textContent = bracketSimulate ? '📋 Volver al cuadro real' : '🔮 Simular el cuadro';
+      btn.classList.toggle('on', bracketSimulate);
+
+      const built = buildBracketTeams(bracketSimulate);
       if (!built) {
         document.getElementById('bracketMeta').innerHTML = '🏆 Cuadro oficial del Mundial 2026.';
         container.innerHTML = '<p class="source-note" style="text-align:center;">Esperando la tabla de posiciones en vivo…</p>';
         return;
       }
       const { slot, winner, meta, champion } = built;
-      document.getElementById('bracketMeta').innerHTML =
-        `🏆 Cuadro oficial. Los <b>16avos</b> salen de la <b>tabla real</b>; cada llave está <b>predicha</b> ` +
-        `(✦ ganador proyectado, % = prob. de avanzar). Los <b>empates se definen por penales</b> usando el récord ` +
-        `histórico de tandas de cada selección (🥅). Los resultados reales reemplazan la predicción. ` +
-        `<span class="bk-hint">↔ deslizá para ver todo.</span>`;
+      document.getElementById('bracketMeta').innerHTML = bracketSimulate
+        ? `🔮 <b>Cuadro simulado</b>. Cada llave está predicha (✦ ganador, % = prob. de avanzar); los <b>empates van a ` +
+          `penales</b> según el récord histórico de tandas de cada selección (🥅). Tocá "Volver al cuadro real" para ver ` +
+          `solo lo jugado. <span class="bk-hint">↔ deslizá para ver todo.</span>`
+        : `🏆 <b>Cuadro real</b>. Los <b>16avos</b> salen de la tabla real; las rondas se llenan a medida que se juegan. ` +
+          `Tocá "Simular el cuadro" para ver la proyección del modelo (con penales). <span class="bk-hint">↔ deslizá.</span>`;
 
       const teamRow = (t, seed, side, m) => {
         const name = t ? t.team : '—';
