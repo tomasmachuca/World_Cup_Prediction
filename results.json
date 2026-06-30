@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T19:11:44+00:00",
+  "updated": "2026-06-30T21:07:11+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -694,6 +694,15 @@
       "outcome": "2",
       "status": "FINISHED",
       "live": false
+    },
+    "France|Sweden": {
+      "home": "France",
+      "away": "Sweden",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
