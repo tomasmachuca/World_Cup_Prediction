@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-29T23:46:02+00:00",
+  "updated": "2026-06-30T01:53:27+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -671,11 +671,20 @@
     "Germany|Paraguay": {
       "home": "Germany",
       "away": "Paraguay",
-      "homeGoals": 5,
-      "awayGoals": 6,
+      "homeGoals": 4,
+      "awayGoals": 5,
       "outcome": "2",
       "status": "FINISHED",
       "live": false
+    },
+    "Morocco|Netherlands": {
+      "home": "Netherlands",
+      "away": "Morocco",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
