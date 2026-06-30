@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T15:07:56+00:00",
+  "updated": "2026-06-30T17:15:25+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -685,6 +685,15 @@
       "outcome": "2",
       "status": "FINISHED",
       "live": false
+    },
+    "Ivory Coast|Norway": {
+      "home": "Ivory Coast",
+      "away": "Norway",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
