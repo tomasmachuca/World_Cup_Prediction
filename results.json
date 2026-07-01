@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T16:07:55+00:00",
+  "updated": "2026-07-01T18:16:01+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -716,11 +716,11 @@
     "DR Congo|England": {
       "home": "England",
       "away": "DR Congo",
-      "homeGoals": 0,
-      "awayGoals": 0,
-      "outcome": "X",
-      "status": "LIVE",
-      "live": true
+      "homeGoals": 2,
+      "awayGoals": 1,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
