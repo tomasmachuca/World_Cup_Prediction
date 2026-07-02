@@ -4,8 +4,8 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
 
 1. DATA
 ------------------------------------------------------------------------------
-   Unique matches      : 11069
-   Span                : 2015-01-04 -> 2026-06-30
+   Unique matches      : 11072
+   Span                : 2015-01-04 -> 2026-07-01
    Teams (all)         : 295
    Core WC2026 squads  : 48
 
@@ -15,43 +15,43 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    Secondary: Multinomial logistic (NumPy)
    Deployed : ensemble  (Dixon-Coles blend weight = 0.70)
    Temporal decay xi   : 0.0008  (half-life ~866 days)
-   Home advantage      : +0.2331 log-goals (x1.26 scoring rate)
-   Dixon-Coles rho     : -0.0514
-   Calibration temp. T : 0.786
+   Home advantage      : +0.2326 log-goals (x1.26 scoring rate)
+   Dixon-Coles rho     : -0.0513
+   Calibration temp. T : 0.784
 
 3. HONEST TEMPORAL-HOLDOUT METRICS
 ------------------------------------------------------------------------------
    Evaluated on the most recent 1993 matches (never seen in training).
    1X2 accuracy        : 60.56%
-   Multiclass Brier    : 0.5021   (lower is better; 0.66 = random)
-   Log-loss            : 0.8573   (lower is better; 1.099 = random)
+   Multiclass Brier    : 0.5017   (lower is better; 0.66 = random)
+   Log-loss            : 0.8566   (lower is better; 1.099 = random)
 
 4. CALIBRATION (reliability of the top pick)
 ------------------------------------------------------------------------------
    confidence bin           n    avg conf    actual acc
-   33%-46%                598       40.4%         40.5%
-   46%-60%                570       52.8%         53.7%
-   60%-73%                438       66.0%         71.7%
-   73%-87%                273       79.1%         86.8%
-   87%-100%               114       91.5%         94.7%
+   33%-46%                594       40.3%         40.1%
+   46%-60%                567       52.7%         54.0%
+   60%-73%                441       66.0%         71.4%
+   73%-87%                276       79.1%         86.6%
+   87%-100%               115       91.5%         94.8%
 
 5. TOP 15 TEAMS BY ELO
 ------------------------------------------------------------------------------
-    1. France                 Elo  2060.4  | attack +1.36  defence +1.28
-    2. Argentina              Elo  2053.5  | attack +1.32  defence +1.64
-    3. Spain                  Elo  2034.0  | attack +1.44  defence +1.42
+    1. France                 Elo  2060.4  | attack +1.35  defence +1.27
+    2. Argentina              Elo  2053.5  | attack +1.31  defence +1.63
+    3. Spain                  Elo  2034.0  | attack +1.43  defence +1.42
     4. Morocco                Elo  2002.0  | attack +0.97  defence +1.32
-    5. Brazil                 Elo  1981.1  | attack +1.37  defence +1.33
-    6. England                Elo  1966.5  | attack +1.23  defence +1.44
-    7. Mexico                 Elo  1961.9  | attack +0.87  defence +1.09
+    5. England                Elo  1982.0  | attack +1.23  defence +1.41
+    6. Brazil                 Elo  1981.1  | attack +1.37  defence +1.33
+    7. Mexico                 Elo  1961.9  | attack +0.86  defence +1.09
     8. Colombia               Elo  1936.0  | attack +1.20  defence +1.24
-    9. Portugal               Elo  1930.1  | attack +1.35  defence +1.24
-   10. Japan                  Elo  1894.1  | attack +1.05  defence +1.11
+    9. Portugal               Elo  1930.1  | attack +1.34  defence +1.24
+   10. Japan                  Elo  1894.1  | attack +1.05  defence +1.10
    11. Norway                 Elo  1890.7  | attack +1.24  defence +0.82
-   12. Netherlands            Elo  1888.1  | attack +1.37  defence +0.94
-   13. Nigeria                Elo  1856.5  | attack +0.82  defence +0.79
-   14. Iran                   Elo  1845.6  | attack +0.80  defence +0.88
-   15. Senegal                Elo  1845.6  | attack +0.96  defence +0.97
+   12. Netherlands            Elo  1888.1  | attack +1.36  defence +0.94
+   13. Belgium                Elo  1871.7  | attack +1.26  defence +1.04
+   14. Nigeria                Elo  1856.5  | attack +0.81  defence +0.78
+   15. Iran                   Elo  1845.6  | attack +0.79  defence +0.87
 
 6. NOTES
 ------------------------------------------------------------------------------
@@ -61,5 +61,5 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    * Home advantage applies to host venues; WC2026 group games at
      neutral sites should set homeAdvantage to 0 in the frontend.
 
-Generated: 2026-07-01 14:37:21
+Generated: 2026-07-02 14:02:05
 ==============================================================================
