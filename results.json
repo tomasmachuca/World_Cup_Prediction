@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T01:27:46+00:00",
+  "updated": "2026-07-02T05:36:45+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -734,11 +734,11 @@
     "Bosnia and Herzegovina|United States": {
       "home": "United States",
       "away": "Bosnia and Herzegovina",
-      "homeGoals": 1,
+      "homeGoals": 2,
       "awayGoals": 0,
       "outcome": "1",
-      "status": "IN_PLAY",
-      "live": true
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
