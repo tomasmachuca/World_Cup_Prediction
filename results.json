@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T23:48:50+00:00",
+  "updated": "2026-07-03T01:22:44+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -752,11 +752,11 @@
     "Croatia|Portugal": {
       "home": "Portugal",
       "away": "Croatia",
-      "homeGoals": 0,
-      "awayGoals": 0,
-      "outcome": "X",
-      "status": "IN_PLAY",
-      "live": true
+      "homeGoals": 2,
+      "awayGoals": 1,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
