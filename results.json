@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T01:22:44+00:00",
+  "updated": "2026-07-03T05:12:04+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -754,6 +754,15 @@
       "away": "Croatia",
       "homeGoals": 2,
       "awayGoals": 1,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Algeria|Switzerland": {
+      "home": "Switzerland",
+      "away": "Algeria",
+      "homeGoals": 2,
+      "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
       "live": false
