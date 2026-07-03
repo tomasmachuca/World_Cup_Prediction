@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T21:13:19+00:00",
+  "updated": "2026-07-03T22:17:41+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -775,6 +775,15 @@
       "outcome": "2",
       "status": "FINISHED",
       "live": false
+    },
+    "Argentina|Cabo Verde": {
+      "home": "Argentina",
+      "away": "Cabo Verde",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true
     }
   }
 }
