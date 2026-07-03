@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T19:55:49+00:00",
+  "updated": "2026-07-03T21:13:19+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -770,11 +770,11 @@
     "Australia|Egypt": {
       "home": "Australia",
       "away": "Egypt",
-      "homeGoals": 1,
-      "awayGoals": 1,
-      "outcome": "X",
-      "status": "IN_PLAY",
-      "live": true
+      "homeGoals": 3,
+      "awayGoals": 5,
+      "outcome": "2",
+      "status": "FINISHED",
+      "live": false
     }
   }
 }
