@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T20:00:08+00:00",
+  "updated": "2026-07-04T21:11:06+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -802,6 +802,15 @@
       "outcome": "2",
       "status": "FINISHED",
       "live": false
+    },
+    "France|Paraguay": {
+      "home": "Paraguay",
+      "away": "France",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "LIVE",
+      "live": true
     }
   }
 }
