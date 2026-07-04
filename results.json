@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T01:12:08+00:00",
+  "updated": "2026-07-04T04:53:58+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -781,6 +781,15 @@
       "away": "Cabo Verde",
       "homeGoals": 3,
       "awayGoals": 2,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false
+    },
+    "Colombia|Ghana": {
+      "home": "Colombia",
+      "away": "Ghana",
+      "homeGoals": 1,
+      "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
       "live": false
