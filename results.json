@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T18:35:03+00:00",
+  "updated": "2026-07-05T20:31:13+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -900,6 +900,16 @@
       "outcome": "2",
       "status": "FINISHED",
       "live": false,
+      "stage": "LAST_16"
+    },
+    "Brazil|Norway": {
+      "home": "Brazil",
+      "away": "Norway",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true,
       "stage": "LAST_16"
     }
   }
