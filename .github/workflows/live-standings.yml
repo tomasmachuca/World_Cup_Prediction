@@ -6,7 +6,7 @@ name: Live standings
 
 on:
   schedule:
-    - cron: "*/5 * * * *"   # every 5 minutes (GitHub may delay during high load)
+    - cron: "*/15 * * * *"   # every 15 min — fewer Pages deploys (avoids rate-limit failures)
   workflow_dispatch: {}
 
 permissions:
