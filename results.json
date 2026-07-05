@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T15:56:52+00:00",
+  "updated": "2026-07-05T16:57:50+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -9,7 +9,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Czech Republic|South Korea": {
       "home": "South Korea",
@@ -18,7 +19,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Bosnia and Herzegovina|Canada": {
       "home": "Canada",
@@ -27,7 +29,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Paraguay|United States": {
       "home": "United States",
@@ -36,7 +39,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Qatar|Switzerland": {
       "home": "Qatar",
@@ -45,7 +49,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Brazil|Morocco": {
       "home": "Brazil",
@@ -54,7 +59,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Haiti|Scotland": {
       "home": "Haiti",
@@ -63,7 +69,8 @@
       "awayGoals": 1,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Australia|Turkey": {
       "home": "Australia",
@@ -72,7 +79,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Curaçao|Germany": {
       "home": "Germany",
@@ -81,7 +89,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Japan|Netherlands": {
       "home": "Netherlands",
@@ -90,7 +99,8 @@
       "awayGoals": 2,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Ecuador|Ivory Coast": {
       "home": "Ivory Coast",
@@ -99,7 +109,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Sweden|Tunisia": {
       "home": "Sweden",
@@ -108,7 +119,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Cabo Verde|Spain": {
       "home": "Spain",
@@ -117,7 +129,8 @@
       "awayGoals": 0,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Belgium|Egypt": {
       "home": "Belgium",
@@ -126,7 +139,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Saudi Arabia|Uruguay": {
       "home": "Saudi Arabia",
@@ -135,7 +149,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Iran|New Zealand": {
       "home": "Iran",
@@ -144,7 +159,8 @@
       "awayGoals": 2,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "France|Senegal": {
       "home": "France",
@@ -153,7 +169,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Iraq|Norway": {
       "home": "Iraq",
@@ -162,7 +179,8 @@
       "awayGoals": 4,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Algeria|Argentina": {
       "home": "Argentina",
@@ -171,7 +189,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Austria|Jordan": {
       "home": "Austria",
@@ -180,7 +199,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "DR Congo|Portugal": {
       "home": "Portugal",
@@ -189,7 +209,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Croatia|England": {
       "home": "England",
@@ -198,7 +219,8 @@
       "awayGoals": 2,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Ghana|Panama": {
       "home": "Ghana",
@@ -207,7 +229,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Colombia|Uzbekistan": {
       "home": "Uzbekistan",
@@ -216,7 +239,8 @@
       "awayGoals": 3,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Czech Republic|South Africa": {
       "home": "Czech Republic",
@@ -225,7 +249,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Bosnia and Herzegovina|Switzerland": {
       "home": "Switzerland",
@@ -234,7 +259,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Canada|Qatar": {
       "home": "Canada",
@@ -243,7 +269,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Mexico|South Korea": {
       "home": "Mexico",
@@ -252,7 +279,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Australia|United States": {
       "home": "United States",
@@ -261,7 +289,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Morocco|Scotland": {
       "home": "Scotland",
@@ -270,7 +299,8 @@
       "awayGoals": 1,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Brazil|Haiti": {
       "home": "Brazil",
@@ -279,7 +309,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Paraguay|Turkey": {
       "home": "Turkey",
@@ -288,7 +319,8 @@
       "awayGoals": 1,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Netherlands|Sweden": {
       "home": "Netherlands",
@@ -297,7 +329,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Germany|Ivory Coast": {
       "home": "Germany",
@@ -306,7 +339,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Curaçao|Ecuador": {
       "home": "Ecuador",
@@ -315,7 +349,8 @@
       "awayGoals": 0,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Japan|Tunisia": {
       "home": "Tunisia",
@@ -324,7 +359,8 @@
       "awayGoals": 4,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Saudi Arabia|Spain": {
       "home": "Spain",
@@ -333,7 +369,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Belgium|Iran": {
       "home": "Belgium",
@@ -342,7 +379,8 @@
       "awayGoals": 0,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Cabo Verde|Uruguay": {
       "home": "Uruguay",
@@ -351,7 +389,8 @@
       "awayGoals": 2,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Egypt|New Zealand": {
       "home": "New Zealand",
@@ -360,7 +399,8 @@
       "awayGoals": 3,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Argentina|Austria": {
       "home": "Argentina",
@@ -369,7 +409,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "France|Iraq": {
       "home": "France",
@@ -378,7 +419,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Norway|Senegal": {
       "home": "Norway",
@@ -387,7 +429,8 @@
       "awayGoals": 2,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Algeria|Jordan": {
       "home": "Jordan",
@@ -396,7 +439,8 @@
       "awayGoals": 2,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Portugal|Uzbekistan": {
       "home": "Portugal",
@@ -405,7 +449,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "England|Ghana": {
       "home": "England",
@@ -414,7 +459,8 @@
       "awayGoals": 0,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Croatia|Panama": {
       "home": "Panama",
@@ -423,7 +469,8 @@
       "awayGoals": 1,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Colombia|DR Congo": {
       "home": "Colombia",
@@ -432,7 +479,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Canada|Switzerland": {
       "home": "Switzerland",
@@ -441,7 +489,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Bosnia and Herzegovina|Qatar": {
       "home": "Bosnia and Herzegovina",
@@ -450,7 +499,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Haiti|Morocco": {
       "home": "Morocco",
@@ -459,7 +509,8 @@
       "awayGoals": 2,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Brazil|Scotland": {
       "home": "Scotland",
@@ -468,7 +519,8 @@
       "awayGoals": 3,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Czech Republic|Mexico": {
       "home": "Czech Republic",
@@ -477,7 +529,8 @@
       "awayGoals": 3,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "South Africa|South Korea": {
       "home": "South Africa",
@@ -486,7 +539,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Ecuador|Germany": {
       "home": "Ecuador",
@@ -495,7 +549,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Curaçao|Ivory Coast": {
       "home": "Curaçao",
@@ -504,7 +559,8 @@
       "awayGoals": 2,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Netherlands|Tunisia": {
       "home": "Tunisia",
@@ -513,7 +569,8 @@
       "awayGoals": 3,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Japan|Sweden": {
       "home": "Japan",
@@ -522,7 +579,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Turkey|United States": {
       "home": "Turkey",
@@ -531,7 +589,8 @@
       "awayGoals": 2,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Australia|Paraguay": {
       "home": "Paraguay",
@@ -540,7 +599,8 @@
       "awayGoals": 0,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "France|Norway": {
       "home": "Norway",
@@ -549,7 +609,8 @@
       "awayGoals": 4,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Iraq|Senegal": {
       "home": "Senegal",
@@ -558,7 +619,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Spain|Uruguay": {
       "home": "Uruguay",
@@ -567,7 +629,8 @@
       "awayGoals": 1,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Cabo Verde|Saudi Arabia": {
       "home": "Cabo Verde",
@@ -576,7 +639,8 @@
       "awayGoals": 0,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Belgium|New Zealand": {
       "home": "New Zealand",
@@ -585,7 +649,8 @@
       "awayGoals": 5,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Egypt|Iran": {
       "home": "Egypt",
@@ -594,7 +659,8 @@
       "awayGoals": 1,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "England|Panama": {
       "home": "Panama",
@@ -603,7 +669,8 @@
       "awayGoals": 2,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Croatia|Ghana": {
       "home": "Croatia",
@@ -612,7 +679,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Colombia|Portugal": {
       "home": "Colombia",
@@ -621,7 +689,8 @@
       "awayGoals": 0,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "DR Congo|Uzbekistan": {
       "home": "DR Congo",
@@ -630,7 +699,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Argentina|Jordan": {
       "home": "Jordan",
@@ -639,7 +709,8 @@
       "awayGoals": 3,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Algeria|Austria": {
       "home": "Algeria",
@@ -648,7 +719,8 @@
       "awayGoals": 3,
       "outcome": "X",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "GROUP_STAGE"
     },
     "Canada|South Africa": {
       "home": "South Africa",
@@ -657,7 +729,8 @@
       "awayGoals": 1,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Brazil|Japan": {
       "home": "Brazil",
@@ -666,7 +739,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Germany|Paraguay": {
       "home": "Germany",
@@ -675,7 +749,8 @@
       "awayGoals": 5,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Morocco|Netherlands": {
       "home": "Netherlands",
@@ -684,7 +759,8 @@
       "awayGoals": 4,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Ivory Coast|Norway": {
       "home": "Ivory Coast",
@@ -693,7 +769,8 @@
       "awayGoals": 2,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "France|Sweden": {
       "home": "France",
@@ -702,7 +779,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Ecuador|Mexico": {
       "home": "Mexico",
@@ -711,7 +789,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "DR Congo|England": {
       "home": "England",
@@ -720,7 +799,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Belgium|Senegal": {
       "home": "Belgium",
@@ -729,7 +809,8 @@
       "awayGoals": 2,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Bosnia and Herzegovina|United States": {
       "home": "United States",
@@ -738,7 +819,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Austria|Spain": {
       "home": "Spain",
@@ -747,7 +829,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Croatia|Portugal": {
       "home": "Portugal",
@@ -756,7 +839,8 @@
       "awayGoals": 1,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Algeria|Switzerland": {
       "home": "Switzerland",
@@ -765,7 +849,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Australia|Egypt": {
       "home": "Australia",
@@ -774,7 +859,8 @@
       "awayGoals": 5,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Argentina|Cabo Verde": {
       "home": "Argentina",
@@ -783,7 +869,8 @@
       "awayGoals": 2,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Colombia|Ghana": {
       "home": "Colombia",
@@ -792,7 +879,8 @@
       "awayGoals": 0,
       "outcome": "1",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_32"
     },
     "Canada|Morocco": {
       "home": "Canada",
@@ -801,7 +889,8 @@
       "awayGoals": 3,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_16"
     },
     "France|Paraguay": {
       "home": "Paraguay",
@@ -810,7 +899,8 @@
       "awayGoals": 1,
       "outcome": "2",
       "status": "FINISHED",
-      "live": false
+      "live": false,
+      "stage": "LAST_16"
     }
   }
 }
