@@ -24,7 +24,7 @@ permissions:
 # Allow only one concurrent deployment.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false   # Pages: encolar deploys, no cancelarlos (evita fallos)
 
 jobs:
   deploy:

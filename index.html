@@ -1780,6 +1780,22 @@
       L: ['Croatia', 'England', 'Ghana', 'Panama'],
     };
     const HOST_SET = new Set(['Mexico', 'United States', 'Canada']);
+    const TEAM_GROUP = {};   // equipo -> letra de grupo
+    for (const g in GROUPS) GROUPS[g].forEach(t => (TEAM_GROUP[t] = g));
+
+    /** Rival oficial en 16avos de un equipo (de results.json). null si no jugó. */
+    function officialR32Opponent(team) {
+      if (!resultsData || !resultsData.matches) return null;
+      const grp = TEAM_GROUP[team];
+      for (const k in resultsData.matches) {
+        const v = resultsData.matches[k];
+        if (v.stage && v.stage !== 'LAST_32') continue;    // usa la ronda si está
+        if (v.home !== team && v.away !== team) continue;
+        const other = v.home === team ? v.away : v.home;
+        if (TEAM_GROUP[other] !== grp) return other;        // rival de otro grupo = mata-mata
+      }
+      return null;
+    }
     const SIM_RUNS = 8000;
 
     /** Muestra Poisson (Knuth) — goles de un equipo dado su λ. */
@@ -2052,6 +2068,17 @@
       if (!tables) return null;
       const { stand, qualThirds } = tables;
       const thirdOf = assignThirds(qualThirds);
+      // Corregir la asignación de terceros con los cruces OFICIALES: en cada
+      // llave con tercero, el 1° de grupo es fijo, así que su rival real en los
+      // 16avos es el tercero verdadero (la tabla FIFA de terceros la resuelve el
+      // sorteo; acá la tomamos de los partidos que ya se jugaron).
+      [74, 77, 79, 80, 81, 82, 85, 87].forEach(m => {
+        const fx = R32[m][0];   // lado fijo (1°X)
+        const fixedTeam = fx[0] === '1' ? stand[fx[1]][0] : stand[fx[1]][1];
+        if (!fixedTeam) return;
+        const opp = officialR32Opponent(fixedTeam.team);
+        if (opp && TEAM_GROUP[opp]) thirdOf[m] = { team: opp, group: TEAM_GROUP[opp], pts: 0, gd: 0, gf: 0 };
+      });
       const teamOf = ([type, ref]) =>
         type === '1' ? stand[ref][0] : type === '2' ? stand[ref][1] : thirdOf[ref];
 

@@ -165,6 +165,7 @@ def build_results(token):
             "outcome": _outcome(gh, ga),
             "status": status,
             "live": status in ("IN_PLAY", "PAUSED", "LIVE"),
+            "stage": (m.get("stage") or "").upper(),   # GROUP_STAGE / LAST_32 / LAST_16 / ...
         }
     return out
 
