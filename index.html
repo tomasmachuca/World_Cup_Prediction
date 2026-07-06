@@ -515,6 +515,33 @@
     .champion-banner .champ { font-size: 1.5em; font-weight: 900; color: #f0b429; margin-top: 4px; }
     .champion-banner .champ .flag { width: 30px; height: 21px; }
 
+    .bk-match { cursor: pointer; }
+    .bk-match:hover { outline: 1px solid rgba(34, 211, 238, 0.55); }
+    .ko-modal {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .ko-modal-card {
+      background: #141a30; border: 1px solid rgba(34, 211, 238, 0.35);
+      border-radius: 14px; padding: 20px; max-width: 380px; width: 100%;
+    }
+    body.light .ko-modal-card { background: #ffffff; border-color: rgba(0,0,0,0.15); }
+    .kom-teams { font-size: 1.15em; font-weight: 800; text-align: center; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+    .kom-sub { text-align: center; color: #8b92a8; font-size: 0.85em; margin-bottom: 14px; }
+    .kom-adv { text-align: center; font-size: 1.1em; font-weight: 800; color: #f0b429; margin-bottom: 14px; }
+    .kom-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.92em; }
+    .kom-lbl { flex: 1; color: #cdd2e0; }
+    body.light .kom-lbl { color: #41485c; }
+    .kom-bar { width: 42%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+    body.light .kom-bar { background: rgba(0,0,0,0.08); }
+    .kom-bar > span { display: block; height: 100%; background: linear-gradient(90deg, #22d3ee, #0ea5b7); }
+    .kom-val { width: 42px; text-align: right; font-weight: 800; color: #22d3ee; }
+    .kom-pen { margin-top: 12px; padding: 10px 12px; background: rgba(240,180,41,0.1); border-radius: 8px; font-size: 0.88em; color: #cdd2e0; }
+    body.light .kom-pen { color: #41485c; }
+    .kom-close { width: 100%; margin-top: 16px; padding: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: inherit; cursor: pointer; font-weight: 700; }
+    .kom-real { margin-top: 12px; text-align: center; font-weight: 700; }
+
     /* ===================== MOBILE (mobile-first pass) ===================== */
     @media (max-width: 600px) {
       body { padding: 12px; }
@@ -838,6 +865,10 @@
       <p class="source-note" id="bracketMeta" style="margin-top:0; margin-bottom:16px;"></p>
       <div id="bracketChampion"></div>
       <div id="bracketContainer"></div>
+    </div>
+
+    <div id="koModal" class="ko-modal hidden" onclick="closeKoModal(event)">
+      <div class="ko-modal-card" id="koModalCard"></div>
     </div>
 
     <div class="card hidden" id="backtestPanel">
@@ -2120,11 +2151,59 @@
       { round: 'r32', side: 'r', m: [76, 78, 79, 80, 86, 88, 85, 87] },
     ];
 
-    let bracketKey = '', bracketSimulate = false;
+    let bracketKey = '', bracketSimulate = false, lastBracket = null;
     function toggleBracketSim() {
       bracketSimulate = !bracketSimulate;
       bracketKey = '';   // forzar re-render
       renderBracket();
+    }
+
+    /** Detalle de una llave de eliminación (1X2 + avance + penales). */
+    function koMatchDetail(aTeam, bTeam) {
+      const SH = model.teamStrengthHome, SA = model.teamStrengthAway;
+      const la = Math.exp((SH[aTeam] || 0) + (SA[bTeam] || 0));
+      const lb = Math.exp((SH[bTeam] || 0) + (SA[aTeam] || 0));
+      const [p1, pX, p2] = wdl(la, lb);
+      const shA = shootoutWinProb(aTeam, bTeam);
+      return { la, lb, p1, pX, p2, shA, aAdv: p1 + pX * shA, bAdv: p2 + pX * (1 - shA) };
+    }
+
+    /** Abre el modal con la simulación del partido de la llave m. */
+    function showKoModal(m) {
+      if (!lastBracket) return;
+      const pair = lastBracket.slot[m] || [];
+      const a = pair[0], b = pair[1];
+      if (!a || !b) return;
+      const d = koMatchDetail(a.team, b.team);
+      const advTeam = d.aAdv >= 0.5 ? a : b, advPct = Math.round(Math.max(d.aAdv, d.bAdv) * 100);
+      const pct = x => (x * 100).toFixed(0) + '%';
+      const bar = (p, mx) => `<span class="kom-bar"><span style="width:${Math.min(p / mx * 100, 100).toFixed(0)}%"></span></span>`;
+      const rec = (t) => penaltyData && penaltyData.teams[t] ? penaltyData.teams[t] : null;
+      const ra = rec(a.team), rb = rec(b.team);
+      const penNote = d.pX > 0.12
+        ? `<div class="kom-pen">🥅 <b>Si van a penales</b> (${pct(d.pX)} de chance de empate):<br>
+             ${flag(a.team)} ${a.team} <b>${pct(d.shA)}</b> — ${flag(b.team)} ${b.team} <b>${pct(1 - d.shA)}</b>
+             <div style="color:#8b92a8;font-size:0.9em;margin-top:4px;">Récord de tandas: ${a.team} ${ra ? ra.won + '/' + ra.played : 's/d'} · ${b.team} ${rb ? rb.won + '/' + rb.played : 's/d'}</div>
+           </div>` : '';
+      const rs = realScore(a.team, b.team);
+      const realNote = rs
+        ? `<div class="kom-real" style="color:#34d399">✅ Jugado: ${rs[0]} - ${rs[1]} — avanzó ${flag((rs[0] > rs[1] ? a : b).team)} <b>${(rs[0] > rs[1] ? a : b).team}</b></div>` : '';
+
+      document.getElementById('koModalCard').innerHTML = `
+        <div class="kom-teams">${flag(a.team)} ${a.team} <span style="color:#555d75">vs</span> ${flag(b.team)} ${b.team}</div>
+        <div class="kom-sub">🔮 Simulación del modelo · sede neutral</div>
+        <div class="kom-adv">Avanza: ${flag(advTeam.team)} ${advTeam.team} — ${advPct}%</div>
+        <div class="kom-row"><span class="kom-lbl">Gana ${a.team}</span>${bar(d.p1, 1)}<span class="kom-val">${pct(d.p1)}</span></div>
+        <div class="kom-row"><span class="kom-lbl">Empate → penales</span>${bar(d.pX, 1)}<span class="kom-val">${pct(d.pX)}</span></div>
+        <div class="kom-row"><span class="kom-lbl">Gana ${b.team}</span>${bar(d.p2, 1)}<span class="kom-val">${pct(d.p2)}</span></div>
+        <div class="kom-sub" style="margin:10px 0 0;">Goles esperados (λ): ${d.la.toFixed(2)} - ${d.lb.toFixed(2)}</div>
+        ${penNote}${realNote}
+        <button class="kom-close" onclick="closeKoModal()">Cerrar</button>`;
+      document.getElementById('koModal').classList.remove('hidden');
+    }
+    function closeKoModal(e) {
+      if (e && e.target.closest('.ko-modal-card')) return;   // click adentro: no cerrar
+      document.getElementById('koModal').classList.add('hidden');
     }
     function renderBracket() {
       if (!modelReady) return;
@@ -2141,18 +2220,19 @@
       btn.classList.toggle('on', bracketSimulate);
 
       const built = buildBracketTeams(bracketSimulate);
+      lastBracket = built;
       if (!built) {
         document.getElementById('bracketMeta').innerHTML = '🏆 Cuadro oficial del Mundial 2026.';
         container.innerHTML = '<p class="source-note" style="text-align:center;">Esperando la tabla de posiciones en vivo…</p>';
         return;
       }
       const { slot, winner, meta, champion } = built;
-      document.getElementById('bracketMeta').innerHTML = bracketSimulate
+      document.getElementById('bracketMeta').innerHTML = (bracketSimulate
         ? `🔮 <b>Cuadro simulado</b>. Cada llave está predicha (✦ ganador, % = prob. de avanzar); los <b>empates van a ` +
-          `penales</b> según el récord histórico de tandas de cada selección (🥅). Tocá "Volver al cuadro real" para ver ` +
-          `solo lo jugado. <span class="bk-hint">↔ deslizá para ver todo.</span>`
+          `penales</b> según el récord histórico de tandas de cada selección (🥅). Tocá "Volver al cuadro real" para ver solo lo jugado.`
         : `🏆 <b>Cuadro real</b>. Los <b>16avos</b> salen de la tabla real; las rondas se llenan a medida que se juegan. ` +
-          `Tocá "Simular el cuadro" para ver la proyección del modelo (con penales). <span class="bk-hint">↔ deslizá.</span>`;
+          `Tocá "Simular el cuadro" para la proyección completa.`) +
+        ` <b>👆 Tocá cualquier cruce para simular ese partido.</b> <span class="bk-hint">↔ deslizá.</span>`;
 
       const teamRow = (t, seed, side, m) => {
         const name = t ? t.team : '—';
@@ -2189,6 +2269,10 @@
         cols += `</div>`;
       }
       container.innerHTML = `<div class="bk-scroll"><div class="bk" id="bkInner"><svg class="bk-lines" id="bkLines"></svg>${cols}</div></div>`;
+      document.getElementById('bkInner').addEventListener('click', e => {
+        const box = e.target.closest('.bk-match');
+        if (box) showKoModal(+box.dataset.m);
+      });
       setTimeout(drawConnectors, 40);
     }
 
