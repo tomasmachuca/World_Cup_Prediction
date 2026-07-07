@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T22:52:42+00:00",
+  "updated": "2026-07-07T23:50:40+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -955,9 +955,9 @@
     "Colombia|Switzerland": {
       "home": "Switzerland",
       "away": "Colombia",
-      "homeGoals": 2,
-      "awayGoals": 2,
-      "outcome": "X",
+      "homeGoals": 4,
+      "awayGoals": 3,
+      "outcome": "1",
       "status": "FINISHED",
       "live": false,
       "stage": "LAST_16"
