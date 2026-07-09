@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-09T20:49:24+00:00",
+  "updated": "2026-07-09T22:15:05+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -965,11 +965,11 @@
     "France|Morocco": {
       "home": "France",
       "away": "Morocco",
-      "homeGoals": 0,
+      "homeGoals": 2,
       "awayGoals": 0,
-      "outcome": "X",
-      "status": "IN_PLAY",
-      "live": true,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false,
       "stage": "QUARTER_FINALS"
     }
   }
