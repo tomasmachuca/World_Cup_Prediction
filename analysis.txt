@@ -4,8 +4,8 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
 
 1. DATA
 ------------------------------------------------------------------------------
-   Unique matches      : 11086
-   Span                : 2015-01-04 -> 2026-07-07
+   Unique matches      : 11087
+   Span                : 2015-01-04 -> 2026-07-09
    Teams (all)         : 295
    Core WC2026 squads  : 48
 
@@ -15,8 +15,8 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    Secondary: Multinomial logistic (NumPy)
    Deployed : ensemble  (Dixon-Coles blend weight = 0.70)
    Temporal decay xi   : 0.0008  (half-life ~866 days)
-   Home advantage      : +0.2301 log-goals (x1.26 scoring rate)
-   Dixon-Coles rho     : -0.0485
+   Home advantage      : +0.2302 log-goals (x1.26 scoring rate)
+   Dixon-Coles rho     : -0.0483
    Calibration temp. T : 0.780
 
 3. HONEST TEMPORAL-HOLDOUT METRICS
@@ -29,28 +29,28 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
 4. CALIBRATION (reliability of the top pick)
 ------------------------------------------------------------------------------
    confidence bin           n    avg conf    actual acc
-   33%-46%                596       40.4%         39.8%
-   46%-60%                565       52.8%         54.5%
-   60%-73%                443       66.1%         71.3%
-   73%-87%                276       79.2%         86.2%
-   87%-100%               116       91.5%         94.8%
+   33%-46%                593       40.4%         39.5%
+   46%-60%                566       52.7%         54.6%
+   60%-73%                443       66.1%         71.1%
+   73%-87%                276       79.2%         86.6%
+   87%-100%               118       91.5%         94.9%
 
 5. TOP 15 TEAMS BY ELO
 ------------------------------------------------------------------------------
-    1. Spain                  Elo  2074.7  | attack +1.44  defence +1.50
-    2. Argentina              Elo  2074.2  | attack +1.33  defence +1.44
-    3. France                 Elo  2070.7  | attack +1.34  defence +1.30
-    4. Morocco                Elo  2027.3  | attack +0.99  defence +1.35
-    5. England                Elo  2015.8  | attack +1.26  defence +1.36
-    6. Brazil                 Elo  1943.4  | attack +1.33  defence +1.28
+    1. France                 Elo  2110.1  | attack +1.36  defence +1.34
+    2. Spain                  Elo  2074.7  | attack +1.45  defence +1.51
+    3. Argentina              Elo  2074.2  | attack +1.33  defence +1.45
+    4. England                Elo  2015.8  | attack +1.27  defence +1.36
+    5. Morocco                Elo  1987.9  | attack +0.99  defence +1.32
+    6. Brazil                 Elo  1943.4  | attack +1.34  defence +1.29
     7. Portugal               Elo  1931.0  | attack +1.34  defence +1.26
-    8. Norway                 Elo  1928.3  | attack +1.26  defence +0.85
-    9. Mexico                 Elo  1928.0  | attack +0.87  defence +1.03
-   10. Belgium                Elo  1926.8  | attack +1.29  defence +1.05
-   11. Switzerland            Elo  1921.4  | attack +1.19  defence +0.96
-   12. Colombia               Elo  1910.2  | attack +1.19  defence +1.13
-   13. Japan                  Elo  1894.1  | attack +1.04  defence +1.10
-   14. Netherlands            Elo  1888.1  | attack +1.37  defence +0.94
+    8. Norway                 Elo  1928.3  | attack +1.26  defence +0.86
+    9. Mexico                 Elo  1928.0  | attack +0.87  defence +1.04
+   10. Belgium                Elo  1926.8  | attack +1.29  defence +1.06
+   11. Switzerland            Elo  1921.4  | attack +1.20  defence +0.97
+   12. Colombia               Elo  1910.2  | attack +1.20  defence +1.14
+   13. Japan                  Elo  1894.1  | attack +1.05  defence +1.11
+   14. Netherlands            Elo  1888.1  | attack +1.37  defence +0.95
    15. Nigeria                Elo  1856.5  | attack +0.82  defence +0.79
 
 6. NOTES
@@ -61,5 +61,5 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    * Home advantage applies to host venues; WC2026 group games at
      neutral sites should set homeAdvantage to 0 in the frontend.
 
-Generated: 2026-07-09 15:11:09
+Generated: 2026-07-10 14:27:34
 ==============================================================================
