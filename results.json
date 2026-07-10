@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-10T20:52:17+00:00",
+  "updated": "2026-07-10T21:53:20+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -975,11 +975,11 @@
     "Belgium|Spain": {
       "home": "Spain",
       "away": "Belgium",
-      "homeGoals": 1,
+      "homeGoals": 2,
       "awayGoals": 1,
-      "outcome": "X",
-      "status": "IN_PLAY",
-      "live": true,
+      "outcome": "1",
+      "status": "FINISHED",
+      "live": false,
       "stage": "QUARTER_FINALS"
     }
   }
