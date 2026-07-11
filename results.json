@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-11T21:31:49+00:00",
+  "updated": "2026-07-11T22:29:33+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -985,9 +985,9 @@
     "England|Norway": {
       "home": "Norway",
       "away": "England",
-      "homeGoals": 0,
-      "awayGoals": 0,
-      "outcome": "X",
+      "homeGoals": 2,
+      "awayGoals": 1,
+      "outcome": "1",
       "status": "IN_PLAY",
       "live": true,
       "stage": "QUARTER_FINALS"
