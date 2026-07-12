@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-12T01:04:55+00:00",
+  "updated": "2026-07-12T04:36:22+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -988,6 +988,16 @@
       "homeGoals": 1,
       "awayGoals": 2,
       "outcome": "2",
+      "status": "FINISHED",
+      "live": false,
+      "stage": "QUARTER_FINALS"
+    },
+    "Argentina|Switzerland": {
+      "home": "Argentina",
+      "away": "Switzerland",
+      "homeGoals": 3,
+      "awayGoals": 1,
+      "outcome": "1",
       "status": "FINISHED",
       "live": false,
       "stage": "QUARTER_FINALS"
