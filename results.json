@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-14T17:57:05+00:00",
+  "updated": "2026-07-14T19:14:59+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -1001,6 +1001,16 @@
       "status": "FINISHED",
       "live": false,
       "stage": "QUARTER_FINALS"
+    },
+    "France|Spain": {
+      "home": "France",
+      "away": "Spain",
+      "homeGoals": 0,
+      "awayGoals": 0,
+      "outcome": "X",
+      "status": "IN_PLAY",
+      "live": true,
+      "stage": "SEMI_FINALS"
     }
   }
 }
