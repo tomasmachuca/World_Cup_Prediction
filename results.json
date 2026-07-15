@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-15T20:07:59+00:00",
+  "updated": "2026-07-15T21:13:39+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -1015,11 +1015,11 @@
     "Argentina|England": {
       "home": "England",
       "away": "Argentina",
-      "homeGoals": 0,
-      "awayGoals": 0,
-      "outcome": "X",
-      "status": "PAUSED",
-      "live": true,
+      "homeGoals": 1,
+      "awayGoals": 2,
+      "outcome": "2",
+      "status": "FINISHED",
+      "live": false,
       "stage": "SEMI_FINALS"
     }
   }
