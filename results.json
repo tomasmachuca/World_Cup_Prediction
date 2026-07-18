@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T22:05:28+00:00",
+  "updated": "2026-07-18T23:07:44+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -1025,10 +1025,10 @@
     "England|France": {
       "home": "France",
       "away": "England",
-      "homeGoals": 0,
-      "awayGoals": 4,
+      "homeGoals": 4,
+      "awayGoals": 6,
       "outcome": "2",
-      "status": "PAUSED",
+      "status": "IN_PLAY",
       "live": true,
       "stage": "THIRD_PLACE"
     }
