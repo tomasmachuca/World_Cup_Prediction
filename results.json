@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T21:05:12+00:00",
+  "updated": "2026-07-18T22:05:28+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -1021,6 +1021,16 @@
       "status": "FINISHED",
       "live": false,
       "stage": "SEMI_FINALS"
+    },
+    "England|France": {
+      "home": "France",
+      "away": "England",
+      "homeGoals": 0,
+      "awayGoals": 4,
+      "outcome": "2",
+      "status": "PAUSED",
+      "live": true,
+      "stage": "THIRD_PLACE"
     }
   }
 }
