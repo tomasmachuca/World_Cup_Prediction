@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T23:07:44+00:00",
+  "updated": "2026-07-19T00:07:25+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -1028,8 +1028,8 @@
       "homeGoals": 4,
       "awayGoals": 6,
       "outcome": "2",
-      "status": "IN_PLAY",
-      "live": true,
+      "status": "FINISHED",
+      "live": false,
       "stage": "THIRD_PLACE"
     }
   }
