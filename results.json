@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-19T19:29:12+00:00",
+  "updated": "2026-07-19T20:23:33+00:00",
   "source": "football-data.org",
   "matches": {
     "Mexico|South Africa": {
@@ -1038,7 +1038,7 @@
       "homeGoals": 0,
       "awayGoals": 0,
       "outcome": "X",
-      "status": "LIVE",
+      "status": "PAUSED",
       "live": true,
       "stage": "FINAL"
     }
