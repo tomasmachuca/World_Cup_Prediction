@@ -61,5 +61,5 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    * Home advantage applies to host venues; WC2026 group games at
      neutral sites should set homeAdvantage to 0 in the frontend.
 
-Generated: 2026-08-01 13:21:26
+Generated: 2026-08-02 13:21:39
 ==============================================================================
