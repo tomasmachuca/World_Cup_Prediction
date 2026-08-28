@@ -16,7 +16,7 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    Deployed : ensemble  (Dixon-Coles blend weight = 0.75)
    Temporal decay xi   : 0.0008  (half-life ~866 days)
    Home advantage      : +0.2243 log-goals (x1.25 scoring rate)
-   Dixon-Coles rho     : -0.0470
+   Dixon-Coles rho     : -0.0468
    Calibration temp. T : 0.776
 
 3. HONEST TEMPORAL-HOLDOUT METRICS
@@ -61,5 +61,5 @@ WORLD CUP 2026 PREDICTION ENGINE - Statistical Analysis Report
    * Home advantage applies to host venues; WC2026 group games at
      neutral sites should set homeAdvantage to 0 in the frontend.
 
-Generated: 2026-08-27 21:52:23
+Generated: 2026-08-28 21:46:21
 ==============================================================================
